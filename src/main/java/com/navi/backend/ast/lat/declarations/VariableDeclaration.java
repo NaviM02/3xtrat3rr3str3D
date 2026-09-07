@@ -1,8 +1,8 @@
 package com.navi.backend.ast.lat.declarations;
 
-import com.navi.backend.ast.lat.AstNode;
+import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.declarations.initializers.Initializer;
-import com.navi.backend.ast.lat.visitors.AstVisitor;
+import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import lombok.Getter;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class VariableDeclaration extends Declaration {
     }
 
     @Override
-    public List<? extends AstNode> getChildren() {
+    public List<? extends AstLatNode> getChildren() {
         if (initializer == null) {
             return List.of();
         }
@@ -35,7 +35,7 @@ public class VariableDeclaration extends Declaration {
     }
 
     @Override
-    public <R> R accept(AstVisitor<R> visitor) {
+    public <R> R accept(AstLatVisitor<R> visitor) {
         return visitor.visit(this);
     }
 }

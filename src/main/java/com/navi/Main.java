@@ -1,17 +1,104 @@
 package com.navi;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import com.navi.backend.lexer_parser.y.IndentationTokenSource;
+import com.navi.backend.lexer_parser.y.YLexer;
+import com.navi.backend.lexer_parser.y.YParser;
+import com.navi.backend.lexer_parser.y.errors.YErrorListener;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        String codigo = """
+                // definición de estructuras globales, la sección es opcional
+                %estructuras
+                estructura MiEstructura:
+                    cadena nombre
+                
+                estructura Persona:
+                     entero edad
+                     cadena nombre
+                     flotante promedio // numero con decimales
+                     caracter letra
+                     /*
+                       la expresión para definir  arreglos
+                       obligatoriamente debe ser constante
+                       unicamente dentro de la definición de una estructura
+                     */
+                
+                     entero miArray[10]
+                
+                	 // es posible anidar estructuras
+                     MiEstructura miEstructura
+                
+                %funciones
+                definir funcionSinRetorno(entero miEntero):
+                 miEntero = 90 * 10
+                 si (miEntero < 0) entonces
+                   miEntero = 10
+                
+                
+                """;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+        CharStream input = CharStreams.fromString(codigo);
+
+        YLexer lexer = new YLexer(input);
+
+        IndentationTokenSource indentationSource =
+                new IndentationTokenSource(lexer);
+
+        indentationSource.setIndentationErrorListener(
+                (line, message) -> {
+
+                    System.err.println(
+                            "ERROR LÉXICO ["
+                                    + line
+                                    + "] "
+                                    + message
+                    );
+                }
+        );
+
+        CommonTokenStream tokens =
+                new CommonTokenStream(indentationSource);
+
+        YParser parser =
+                new YParser(tokens);
+
+        parser.removeErrorListeners();
+
+        parser.addErrorListener(new YErrorListener());
+
+        tokens.fill();
+
+        System.out.println(
+                "========== TOKENS =========="
+        );
+
+        for (var token : tokens.getTokens()) {
+
+            String symbolicName =
+                    YLexer.VOCABULARY
+                            .getSymbolicName(
+                                    token.getType()
+                            );
+
+            System.out.printf(
+                    "[%d:%d] %-15s -> '%s'%n",
+                    token.getLine(),
+                    token.getCharPositionInLine(),
+                    symbolicName,
+                    token.getText()
+            );
         }
+
+        System.out.println(
+                "\n========== FIN TOKENS =========="
+        );
+
+        parser.program();
+
+        System.out.println("\n========== FIN DEL PARSER ==========");
     }
 }

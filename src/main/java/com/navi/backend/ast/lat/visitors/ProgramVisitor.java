@@ -1,6 +1,6 @@
 package com.navi.backend.ast.lat.visitors;
 
-import com.navi.backend.ast.lat.AstNode;
+import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.global.FunctionDeclaration;
 import com.navi.backend.ast.lat.global.GlobalVariableSection;
 import com.navi.backend.ast.lat.global.Program;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class ProgramVisitor extends DeclarationVisitor {
     @Override
-    public AstNode visitProgram(PigLatinParser.ProgramContext ctx) {
+    public AstLatNode visitProgram(PigLatinParser.ProgramContext ctx) {
         GlobalVariableSection globalVariables = null;
         List<FunctionDeclaration> functions = new ArrayList<>();
         List<Statement> mainStatements = new ArrayList<>();
@@ -36,7 +36,7 @@ public class ProgramVisitor extends DeclarationVisitor {
     }
 
     @Override
-    public AstNode visitGlobalVariablesSection(PigLatinParser.GlobalVariablesSectionContext ctx) {
+    public AstLatNode visitGlobalVariablesSection(PigLatinParser.GlobalVariablesSectionContext ctx) {
         List<Declaration> declarations = new ArrayList<>();
 
         for (PigLatinParser.DeclarationContext declaration : ctx.declaration()) {

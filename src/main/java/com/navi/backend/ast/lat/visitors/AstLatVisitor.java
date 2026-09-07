@@ -9,7 +9,7 @@ import com.navi.backend.ast.lat.expressions.literals.*;
 import com.navi.backend.ast.lat.global.*;
 import com.navi.backend.ast.lat.statements.*;
 
-public interface AstVisitor<R> {
+public interface AstLatVisitor<R> {
 
     R visit(Program node);
 

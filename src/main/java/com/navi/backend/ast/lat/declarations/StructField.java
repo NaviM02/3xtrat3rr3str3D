@@ -1,13 +1,13 @@
 package com.navi.backend.ast.lat.declarations;
 
-import com.navi.backend.ast.lat.AstNode;
-import com.navi.backend.ast.lat.visitors.AstVisitor;
+import com.navi.backend.ast.lat.AstLatNode;
+import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
-public class StructField extends AstNode {
+public class StructField extends AstLatNode {
     private final String name;
     private final String type;
     private final boolean isArray;
@@ -20,7 +20,7 @@ public class StructField extends AstNode {
     }
 
     @Override
-    public List<? extends AstNode> getChildren() {
+    public List<? extends AstLatNode> getChildren() {
         return List.of();
     }
 
@@ -30,7 +30,7 @@ public class StructField extends AstNode {
     }
 
     @Override
-    public <R> R accept(AstVisitor<R> visitor) {
+    public <R> R accept(AstLatVisitor<R> visitor) {
         return visitor.visit(this);
     }
 }

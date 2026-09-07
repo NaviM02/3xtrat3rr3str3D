@@ -1,6 +1,6 @@
 package com.navi.backend.ast.lat.visitors;
 
-import com.navi.backend.ast.lat.AstNode;
+import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.declarations.*;
 import com.navi.backend.ast.lat.declarations.initializers.ExpressionInitializer;
 import com.navi.backend.ast.lat.declarations.initializers.Initializer;
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class DeclarationVisitor extends StatementVisitor {
     @Override
-    public AstNode visitDeclaration(PigLatinParser.DeclarationContext ctx) {
+    public AstLatNode visitDeclaration(PigLatinParser.DeclarationContext ctx) {
         if (ctx.variableDeclaration() != null) {
             return visit(ctx.variableDeclaration());
         }
@@ -37,7 +37,7 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitNormalVarDeclaration(PigLatinParser.NormalVarDeclarationContext ctx) {
+    public AstLatNode visitNormalVarDeclaration(PigLatinParser.NormalVarDeclarationContext ctx) {
         Initializer initializer = null;
 
         if (ctx.expression() != null) {
@@ -51,7 +51,7 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitArrayDeclaration(PigLatinParser.ArrayDeclarationContext ctx) {
+    public AstLatNode visitArrayDeclaration(PigLatinParser.ArrayDeclarationContext ctx) {
         String type = "boolean";
 
         if (ctx.type() != null) {
@@ -74,7 +74,7 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitArrayInitializer(PigLatinParser.ArrayInitializerContext ctx) {
+    public AstLatNode visitArrayInitializer(PigLatinParser.ArrayInitializerContext ctx) {
         List<Expression> values = new ArrayList<>();
 
         for (PigLatinParser.ExpressionContext expression : ctx.values) {
@@ -85,17 +85,17 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitExprInit(PigLatinParser.ExprInitContext ctx) {
+    public AstLatNode visitExprInit(PigLatinParser.ExprInitContext ctx) {
         return new ExpressionInitializer(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), (Expression) visit(ctx.expression()));
     }
 
     @Override
-    public AstNode visitStructInit(PigLatinParser.StructInitContext ctx) {
+    public AstLatNode visitStructInit(PigLatinParser.StructInitContext ctx) {
         return visit(ctx.structInitializer());
     }
 
     @Override
-    public AstNode visitStructInitializer(PigLatinParser.StructInitializerContext ctx) {
+    public AstLatNode visitStructInitializer(PigLatinParser.StructInitializerContext ctx) {
         List<StructFieldInitializer> fields = new ArrayList<>();
 
         for (PigLatinParser.StructFieldInitializerContext field : ctx.fields) {
@@ -106,7 +106,7 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitStructFieldInitializer(PigLatinParser.StructFieldInitializerContext ctx) {
+    public AstLatNode visitStructFieldInitializer(PigLatinParser.StructFieldInitializerContext ctx) {
         return new StructFieldInitializer(
             ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
             ctx.ID().getText(),
@@ -115,7 +115,7 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitStructWithSemicolon(PigLatinParser.StructWithSemicolonContext ctx) {
+    public AstLatNode visitStructWithSemicolon(PigLatinParser.StructWithSemicolonContext ctx) {
         List<StructField> fields = new ArrayList<>();
 
         for (PigLatinParser.StructFieldContext field : ctx.structField()) {
@@ -126,7 +126,7 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitStructWithComma(PigLatinParser.StructWithCommaContext ctx) {
+    public AstLatNode visitStructWithComma(PigLatinParser.StructWithCommaContext ctx) {
         List<StructField> fields = new ArrayList<>();
 
         for (PigLatinParser.StructFieldContext field : ctx.structField()) {
@@ -137,17 +137,17 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitStructVariableField(PigLatinParser.StructVariableFieldContext ctx) {
+    public AstLatNode visitStructVariableField(PigLatinParser.StructVariableFieldContext ctx) {
         return new StructField(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.ID().getText(), ctx.type().getText(), false);
     }
 
     @Override
-    public AstNode visitStructArrayField(PigLatinParser.StructArrayFieldContext ctx) {
+    public AstLatNode visitStructArrayField(PigLatinParser.StructArrayFieldContext ctx) {
         return new StructField(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.ID().getText(), ctx.type().getText(), true);
     }
 
     @Override
-    public AstNode visitFunctionDeclaration(PigLatinParser.FunctionDeclarationContext ctx) {
+    public AstLatNode visitFunctionDeclaration(PigLatinParser.FunctionDeclarationContext ctx) {
         if (ctx.procedureDeclaration() != null) {
             return visit(ctx.procedureDeclaration());
         }
@@ -156,7 +156,7 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitProcedureDeclaration(PigLatinParser.ProcedureDeclarationContext ctx) {
+    public AstLatNode visitProcedureDeclaration(PigLatinParser.ProcedureDeclarationContext ctx) {
         List<Parameter> parameters = new ArrayList<>();
 
         if (ctx.parameterList() != null) {
@@ -175,7 +175,7 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitFunctionWithReturn(PigLatinParser.FunctionWithReturnContext ctx) {
+    public AstLatNode visitFunctionWithReturn(PigLatinParser.FunctionWithReturnContext ctx) {
         List<Parameter> parameters = new ArrayList<>();
 
         if (ctx.parameterList() != null) {
@@ -194,12 +194,12 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitParameter(PigLatinParser.ParameterContext ctx) {
+    public AstLatNode visitParameter(PigLatinParser.ParameterContext ctx) {
         return new Parameter(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.ID().getText(), ctx.type().getText());
     }
 
     @Override
-    public AstNode visitFunctionBody(PigLatinParser.FunctionBodyContext ctx) {
+    public AstLatNode visitFunctionBody(PigLatinParser.FunctionBodyContext ctx) {
         LocalVariableSection localVariables = null;
 
         if (ctx.localVariableSection() != null) {
@@ -220,7 +220,7 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstNode visitLocalVariableSection(PigLatinParser.LocalVariableSectionContext ctx) {
+    public AstLatNode visitLocalVariableSection(PigLatinParser.LocalVariableSectionContext ctx) {
         List<Declaration> declarations = new ArrayList<>();
 
         for (PigLatinParser.DeclarationContext declaration : ctx.declaration()) {

@@ -1,15 +1,15 @@
 package com.navi.backend.ast.lat.global;
 
-import com.navi.backend.ast.lat.AstNode;
+import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.statements.BlockStatement;
-import com.navi.backend.ast.lat.visitors.AstVisitor;
+import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class FunctionBody extends AstNode {
+public class FunctionBody extends AstLatNode {
     private final LocalVariableSection localVariables;
     private final BlockStatement body;
 
@@ -20,8 +20,8 @@ public class FunctionBody extends AstNode {
     }
 
     @Override
-    public List<? extends AstNode> getChildren() {
-        List<AstNode> children = new ArrayList<>();
+    public List<? extends AstLatNode> getChildren() {
+        List<AstLatNode> children = new ArrayList<>();
 
         if (localVariables != null) {
             children.add(localVariables);
@@ -35,7 +35,7 @@ public class FunctionBody extends AstNode {
     }
 
     @Override
-    public <R> R accept(AstVisitor<R> visitor) {
+    public <R> R accept(AstLatVisitor<R> visitor) {
         return visitor.visit(this);
     }
 }
