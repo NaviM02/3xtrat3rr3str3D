@@ -26,9 +26,10 @@ returnType : ARROW type;
 
 parameterList : parameter (COMMA parameter)*;
 
-parameter : arrayParameter
-    | structureParameter
-    | type ID
+parameter
+    : arrayParameter                         #ArrayParameterParam
+    | structureParameter                     #StructureParameterParam
+    | type ID                                #NormalParameter
     ;
 
 arrayParameter : LBRACK RBRACK type ID;
@@ -37,36 +38,39 @@ structureParameter : LBRACE RBRACE ID ID;
 
 // SENTENCIAS
 statement
-    : variableDeclaration
-    | structureDeclaration
-    | assignmentStatement
-    | incrementStatement
-    | ifStatement
-    | switchStatement
-    | forStatement
-    | whileStatement
-    | doWhileStatement
-    | breakStatement
-    | continueStatement
-    | returnStatement
-    | printStatement
-    | readStatement
-    | expressionStatement
+    : variableDeclaration                    #VariableDeclarationStmt
+    | structureDeclaration                   #StructureDeclarationStmt
+    | assignmentStatement                    #AssignmentStmt
+    | incrementStatement                     #IncrementStmt
+    | ifStatement                            #IfStmt
+    | switchStatement                       #SwitchStmt
+    | forStatement                           #ForStmt
+    | whileStatement                         #WhileStmt
+    | doWhileStatement                       #DoWhileStmt
+    | breakStatement                         #BreakStmt
+    | continueStatement                     #ContinueStmt
+    | returnStatement                        #ReturnStmt
+    | printStatement                         #PrintStmt
+    | readStatement                          #ReadStmt
+    | expressionStatement                    #ExpressionStmt
     ;
 
 // DECLARACIONES
 variableDeclaration
-    : type ID initializer? NEWLINE
-    | type ID arrayDeclaration initializer? NEWLINE
-    | ID ID initializer? NEWLINE
+    : variableDeclarationCore NEWLINE
+    ;
+
+variableDeclarationCore
+    : type ID initializer?
+    | type ID arrayDeclaration initializer?
     ;
 
 arrayDeclaration : (LBRACK expression RBRACK)+;
 
 initializer
-    : ASSIGN expression
-    | ASSIGN arrayInitializer
-    | ASSIGN structureInitializer
+    : ASSIGN expression                      #ExpressionInitializer
+    | ASSIGN arrayInitializer                #ArrayInitializerValue
+    | ASSIGN structureInitializer            #StructureInitializerValue
     ;
 
 arrayInitializer : LBRACE expressionList? RBRACE;
@@ -79,10 +83,10 @@ expressionList : expression (COMMA expression)*;
 assignmentStatement : assignableExpression assignmentOperator expression NEWLINE;
 
 assignmentOperator
-    : ASSIGN
-    | PLUS_ASSIGN
-    | MINUS_ASSIGN
-    | MULT_ASSIGN
+    : ASSIGN                                  #AssignOperator
+    | PLUS_ASSIGN                             #PlusAssignOperator
+    | MINUS_ASSIGN                            #MinusAssignOperator
+    | MULT_ASSIGN                             #MultiplyAssignOperator
     ;
 
 // INCREMENTO / DECREMENTO
@@ -93,9 +97,9 @@ assignableExpression : postfixExpression;
 // IF
 ifStatement : IF LPAREN expression RPAREN THEN NEWLINE INDENT statement* DEDENT elseIfClause* elseClause?;
 
-elseIfClause: ELSE IF LPAREN expression RPAREN THEN NEWLINE INDENT statement* DEDENT;
+elseIfClause : ELSE LPAREN expression RPAREN THEN NEWLINE INDENT statement* DEDENT;
 
-elseClause: ELSE NEWLINE INDENT statement* DEDENT;
+elseClause : OTHERWISE NEWLINE INDENT statement* DEDENT;
 
 // SWITCH
 switchStatement : SWITCH LPAREN expression RPAREN COLON NEWLINE INDENT switchCase* defaultCase? DEDENT;
@@ -108,7 +112,7 @@ defaultCase : ALWAYS COLON NEWLINE INDENT statement* breakStatement DEDENT;
 forStatement : FOR LPAREN forInitializer? SEMI expression? SEMI forUpdate? RPAREN COLON NEWLINE INDENT statement* DEDENT;
 
 forInitializer
-    : variableDeclarationWithoutNewline
+    : variableDeclarationCore
     | expression
     ;
 
@@ -146,46 +150,46 @@ expression
     ;
 
 logicalOrExpression
-    : logicalOrExpression OR logicalAndExpression
-    | logicalAndExpression
+    : logicalOrExpression OR logicalAndExpression  #OrExpr
+    | logicalAndExpression                         #ToLogicalAndExpr
     ;
 
 logicalAndExpression
-    : logicalAndExpression AND equalityExpression
-    | equalityExpression
+    : logicalAndExpression AND equalityExpression  #AndExpr
+    | equalityExpression                           #ToEqualityExpr
     ;
 
 equalityExpression
-    : equalityExpression EQUAL comparisonExpression
-    | equalityExpression NOT_EQUAL comparisonExpression
-    | comparisonExpression
+    : equalityExpression EQUAL comparisonExpression      #EqualExpr
+    | equalityExpression NOT_EQUAL comparisonExpression  #NotEqualExpr
+    | comparisonExpression                                #ToComparisonExpr
     ;
 
 comparisonExpression
-    : comparisonExpression LESS additiveExpression
-    | comparisonExpression GREATER additiveExpression
-    | comparisonExpression LESS_EQUAL additiveExpression
-    | comparisonExpression GREATER_EQUAL additiveExpression
-    | additiveExpression
+    : comparisonExpression LESS additiveExpression             #LessExpr
+    | comparisonExpression GREATER additiveExpression          #GreaterExpr
+    | comparisonExpression LESS_EQUAL additiveExpression       #LessEqualExpr
+    | comparisonExpression GREATER_EQUAL additiveExpression    #GreaterEqualExpr
+    | additiveExpression                                       #ToAdditiveExpr
     ;
 
 additiveExpression
-    : additiveExpression PLUS multiplicativeExpression
-    | additiveExpression MINUS multiplicativeExpression
-    | multiplicativeExpression
+    : additiveExpression PLUS multiplicativeExpression     #AdditionExpr
+    | additiveExpression MINUS multiplicativeExpression    #SubtractionExpr
+    | multiplicativeExpression                             #ToMultiplicativeExpr
     ;
 
 multiplicativeExpression
-    : multiplicativeExpression MULT unaryExpression
-    | multiplicativeExpression DIV unaryExpression
-    | multiplicativeExpression MOD unaryExpression
-    | unaryExpression
+    : multiplicativeExpression MULT unaryExpression        #MultiplicationExpr
+    | multiplicativeExpression DIV unaryExpression         #DivisionExpr
+    | multiplicativeExpression MOD unaryExpression         #ModuloExpr
+    | unaryExpression                                      #ToUnaryExpr
     ;
 
 unaryExpression
-    : NOT unaryExpression
-    | MINUS unaryExpression
-    | postfixExpression
+    : NOT unaryExpression          #NotExpr
+    | MINUS unaryExpression        #NegateExpr
+    | postfixExpression            #ToPostfixExpr
     ;
 
 postfixExpression
@@ -193,22 +197,23 @@ postfixExpression
     ;
 
 postfixOperation
-    : LBRACK expression RBRACK
-    | DOT ID
-    | LPAREN argumentList? RPAREN
-    | INCREMENT
-    | DECREMENT
+    : LBRACK expression RBRACK                    #ArrayAccessOp
+    | DOT ID                                      #MemberAccessOp
+    | LPAREN argumentList? RPAREN                 #FunctionCallOp
+    | INCREMENT                                   #PostIncrementOp
+    | DECREMENT                                   #PostDecrementOp
     ;
 
 primaryExpression
-    : INTEGER_LITERAL
-    | FLOAT_LITERAL
-    | CHAR_LITERAL
-    | STRING_LITERAL
-    | TRUE
-    | FALSE
-    | ID
-    | LPAREN expression RPAREN
+    : INTEGER_LITERAL                             #IntegerLiteralExpr
+    | FLOAT_LITERAL                               #FloatLiteralExpr
+    | CHAR_LITERAL                                #CharLiteralExpr
+    | STRING_LITERAL                              #StringLiteralExpr
+    | TRUE                                        #TrueLiteralExpr
+    | FALSE                                       #FalseLiteralExpr
+    | ID                                          #VariableExpr
+    | READ LPAREN RPAREN                          #ReadExpr
+    | LPAREN expression RPAREN                    #ParenthesizedExpr
     ;
 
 argumentList
@@ -217,10 +222,10 @@ argumentList
 
 // TIPOS
 type
-    : INTEGER
-    | FLOAT
-    | CHARACTER
-    | BOOLEAN
-    | STRING
-    | ID
+    : INTEGER                                     #IntegerType
+    | FLOAT                                       #FloatType
+    | CHARACTER                                   #CharacterType
+    | BOOLEAN                                     #BooleanType
+    | STRING                                      #StringType
+    | ID                                          #StructureType
     ;

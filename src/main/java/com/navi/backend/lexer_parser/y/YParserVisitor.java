@@ -64,11 +64,26 @@ public interface YParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParameterList(YParser.ParameterListContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#parameter}.
+	 * Visit a parse tree produced by the {@code ArrayParameterParam}
+	 * labeled alternative in {@link YParser#parameter}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitParameter(YParser.ParameterContext ctx);
+	T visitArrayParameterParam(YParser.ArrayParameterParamContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StructureParameterParam}
+	 * labeled alternative in {@link YParser#parameter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStructureParameterParam(YParser.StructureParameterParamContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NormalParameter}
+	 * labeled alternative in {@link YParser#parameter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNormalParameter(YParser.NormalParameterContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link YParser#arrayParameter}.
 	 * @param ctx the parse tree
@@ -82,11 +97,110 @@ public interface YParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStructureParameter(YParser.StructureParameterContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#statement}.
+	 * Visit a parse tree produced by the {@code VariableDeclarationStmt}
+	 * labeled alternative in {@link YParser#statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStatement(YParser.StatementContext ctx);
+	T visitVariableDeclarationStmt(YParser.VariableDeclarationStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StructureDeclarationStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStructureDeclarationStmt(YParser.StructureDeclarationStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AssignmentStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignmentStmt(YParser.AssignmentStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IncrementStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIncrementStmt(YParser.IncrementStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IfStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIfStmt(YParser.IfStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code SwitchStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSwitchStmt(YParser.SwitchStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ForStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForStmt(YParser.ForStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code WhileStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhileStmt(YParser.WhileStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DoWhileStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDoWhileStmt(YParser.DoWhileStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code BreakStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBreakStmt(YParser.BreakStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ContinueStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitContinueStmt(YParser.ContinueStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ReturnStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnStmt(YParser.ReturnStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PrintStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrintStmt(YParser.PrintStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ReadStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReadStmt(YParser.ReadStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ExpressionStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpressionStmt(YParser.ExpressionStmtContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link YParser#variableDeclaration}.
 	 * @param ctx the parse tree
@@ -94,17 +208,38 @@ public interface YParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVariableDeclaration(YParser.VariableDeclarationContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link YParser#variableDeclarationCore}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariableDeclarationCore(YParser.VariableDeclarationCoreContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link YParser#arrayDeclaration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitArrayDeclaration(YParser.ArrayDeclarationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#initializer}.
+	 * Visit a parse tree produced by the {@code ExpressionInitializer}
+	 * labeled alternative in {@link YParser#initializer}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitInitializer(YParser.InitializerContext ctx);
+	T visitExpressionInitializer(YParser.ExpressionInitializerContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ArrayInitializerValue}
+	 * labeled alternative in {@link YParser#initializer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayInitializerValue(YParser.ArrayInitializerValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StructureInitializerValue}
+	 * labeled alternative in {@link YParser#initializer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStructureInitializerValue(YParser.StructureInitializerValueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link YParser#arrayInitializer}.
 	 * @param ctx the parse tree
@@ -130,11 +265,33 @@ public interface YParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignmentStatement(YParser.AssignmentStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#assignmentOperator}.
+	 * Visit a parse tree produced by the {@code AssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAssignmentOperator(YParser.AssignmentOperatorContext ctx);
+	T visitAssignOperator(YParser.AssignOperatorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PlusAssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPlusAssignOperator(YParser.PlusAssignOperatorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MinusAssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMinusAssignOperator(YParser.MinusAssignOperatorContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MultiplyAssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiplyAssignOperator(YParser.MultiplyAssignOperatorContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link YParser#incrementStatement}.
 	 * @param ctx the parse tree
@@ -196,12 +353,6 @@ public interface YParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitForInitializer(YParser.ForInitializerContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#variableDeclarationWithoutNewline}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVariableDeclarationWithoutNewline(YParser.VariableDeclarationWithoutNewlineContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link YParser#forUpdate}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -262,47 +413,159 @@ public interface YParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpression(YParser.ExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#logicalOrExpression}.
+	 * Visit a parse tree produced by the {@code ToLogicalAndExpr}
+	 * labeled alternative in {@link YParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLogicalOrExpression(YParser.LogicalOrExpressionContext ctx);
+	T visitToLogicalAndExpr(YParser.ToLogicalAndExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#logicalAndExpression}.
+	 * Visit a parse tree produced by the {@code OrExpr}
+	 * labeled alternative in {@link YParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLogicalAndExpression(YParser.LogicalAndExpressionContext ctx);
+	T visitOrExpr(YParser.OrExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#equalityExpression}.
+	 * Visit a parse tree produced by the {@code AndExpr}
+	 * labeled alternative in {@link YParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitEqualityExpression(YParser.EqualityExpressionContext ctx);
+	T visitAndExpr(YParser.AndExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#comparisonExpression}.
+	 * Visit a parse tree produced by the {@code ToEqualityExpr}
+	 * labeled alternative in {@link YParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitComparisonExpression(YParser.ComparisonExpressionContext ctx);
+	T visitToEqualityExpr(YParser.ToEqualityExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#additiveExpression}.
+	 * Visit a parse tree produced by the {@code EqualExpr}
+	 * labeled alternative in {@link YParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAdditiveExpression(YParser.AdditiveExpressionContext ctx);
+	T visitEqualExpr(YParser.EqualExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#multiplicativeExpression}.
+	 * Visit a parse tree produced by the {@code ToComparisonExpr}
+	 * labeled alternative in {@link YParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMultiplicativeExpression(YParser.MultiplicativeExpressionContext ctx);
+	T visitToComparisonExpr(YParser.ToComparisonExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#unaryExpression}.
+	 * Visit a parse tree produced by the {@code NotEqualExpr}
+	 * labeled alternative in {@link YParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitUnaryExpression(YParser.UnaryExpressionContext ctx);
+	T visitNotEqualExpr(YParser.NotEqualExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ToAdditiveExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitToAdditiveExpr(YParser.ToAdditiveExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code GreaterExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGreaterExpr(YParser.GreaterExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code GreaterEqualExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGreaterEqualExpr(YParser.GreaterEqualExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code LessExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLessExpr(YParser.LessExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code LessEqualExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLessEqualExpr(YParser.LessEqualExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ToMultiplicativeExpr}
+	 * labeled alternative in {@link YParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitToMultiplicativeExpr(YParser.ToMultiplicativeExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AdditionExpr}
+	 * labeled alternative in {@link YParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAdditionExpr(YParser.AdditionExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code SubtractionExpr}
+	 * labeled alternative in {@link YParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubtractionExpr(YParser.SubtractionExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ModuloExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitModuloExpr(YParser.ModuloExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ToUnaryExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitToUnaryExpr(YParser.ToUnaryExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DivisionExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDivisionExpr(YParser.DivisionExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MultiplicationExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiplicationExpr(YParser.MultiplicationExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NotExpr}
+	 * labeled alternative in {@link YParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNotExpr(YParser.NotExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NegateExpr}
+	 * labeled alternative in {@link YParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNegateExpr(YParser.NegateExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ToPostfixExpr}
+	 * labeled alternative in {@link YParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitToPostfixExpr(YParser.ToPostfixExprContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link YParser#postfixExpression}.
 	 * @param ctx the parse tree
@@ -310,17 +573,103 @@ public interface YParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPostfixExpression(YParser.PostfixExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#postfixOperation}.
+	 * Visit a parse tree produced by the {@code ArrayAccessOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPostfixOperation(YParser.PostfixOperationContext ctx);
+	T visitArrayAccessOp(YParser.ArrayAccessOpContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#primaryExpression}.
+	 * Visit a parse tree produced by the {@code MemberAccessOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPrimaryExpression(YParser.PrimaryExpressionContext ctx);
+	T visitMemberAccessOp(YParser.MemberAccessOpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunctionCallOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctionCallOp(YParser.FunctionCallOpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PostIncrementOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPostIncrementOp(YParser.PostIncrementOpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PostDecrementOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPostDecrementOp(YParser.PostDecrementOpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IntegerLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIntegerLiteralExpr(YParser.IntegerLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FloatLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFloatLiteralExpr(YParser.FloatLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CharLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCharLiteralExpr(YParser.CharLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StringLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringLiteralExpr(YParser.StringLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code TrueLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTrueLiteralExpr(YParser.TrueLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FalseLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFalseLiteralExpr(YParser.FalseLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code VariableExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariableExpr(YParser.VariableExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ReadExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReadExpr(YParser.ReadExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ParenthesizedExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParenthesizedExpr(YParser.ParenthesizedExprContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link YParser#argumentList}.
 	 * @param ctx the parse tree
@@ -328,9 +677,45 @@ public interface YParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArgumentList(YParser.ArgumentListContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link YParser#type}.
+	 * Visit a parse tree produced by the {@code IntegerType}
+	 * labeled alternative in {@link YParser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitType(YParser.TypeContext ctx);
+	T visitIntegerType(YParser.IntegerTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FloatType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFloatType(YParser.FloatTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CharacterType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCharacterType(YParser.CharacterTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code BooleanType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBooleanType(YParser.BooleanTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StringType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringType(YParser.StringTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StructureType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStructureType(YParser.StructureTypeContext ctx);
 }

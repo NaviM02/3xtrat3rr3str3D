@@ -97,15 +97,41 @@ public interface YParserListener extends ParseTreeListener {
 	 */
 	void exitParameterList(YParser.ParameterListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#parameter}.
+	 * Enter a parse tree produced by the {@code ArrayParameterParam}
+	 * labeled alternative in {@link YParser#parameter}.
 	 * @param ctx the parse tree
 	 */
-	void enterParameter(YParser.ParameterContext ctx);
+	void enterArrayParameterParam(YParser.ArrayParameterParamContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#parameter}.
+	 * Exit a parse tree produced by the {@code ArrayParameterParam}
+	 * labeled alternative in {@link YParser#parameter}.
 	 * @param ctx the parse tree
 	 */
-	void exitParameter(YParser.ParameterContext ctx);
+	void exitArrayParameterParam(YParser.ArrayParameterParamContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code StructureParameterParam}
+	 * labeled alternative in {@link YParser#parameter}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructureParameterParam(YParser.StructureParameterParamContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StructureParameterParam}
+	 * labeled alternative in {@link YParser#parameter}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructureParameterParam(YParser.StructureParameterParamContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NormalParameter}
+	 * labeled alternative in {@link YParser#parameter}.
+	 * @param ctx the parse tree
+	 */
+	void enterNormalParameter(YParser.NormalParameterContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NormalParameter}
+	 * labeled alternative in {@link YParser#parameter}.
+	 * @param ctx the parse tree
+	 */
+	void exitNormalParameter(YParser.NormalParameterContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link YParser#arrayParameter}.
 	 * @param ctx the parse tree
@@ -127,15 +153,185 @@ public interface YParserListener extends ParseTreeListener {
 	 */
 	void exitStructureParameter(YParser.StructureParameterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#statement}.
+	 * Enter a parse tree produced by the {@code VariableDeclarationStmt}
+	 * labeled alternative in {@link YParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void enterStatement(YParser.StatementContext ctx);
+	void enterVariableDeclarationStmt(YParser.VariableDeclarationStmtContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#statement}.
+	 * Exit a parse tree produced by the {@code VariableDeclarationStmt}
+	 * labeled alternative in {@link YParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void exitStatement(YParser.StatementContext ctx);
+	void exitVariableDeclarationStmt(YParser.VariableDeclarationStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code StructureDeclarationStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructureDeclarationStmt(YParser.StructureDeclarationStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StructureDeclarationStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructureDeclarationStmt(YParser.StructureDeclarationStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AssignmentStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignmentStmt(YParser.AssignmentStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AssignmentStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignmentStmt(YParser.AssignmentStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code IncrementStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterIncrementStmt(YParser.IncrementStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code IncrementStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitIncrementStmt(YParser.IncrementStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code IfStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfStmt(YParser.IfStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code IfStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfStmt(YParser.IfStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code SwitchStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterSwitchStmt(YParser.SwitchStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code SwitchStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitSwitchStmt(YParser.SwitchStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ForStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterForStmt(YParser.ForStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ForStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitForStmt(YParser.ForStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code WhileStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhileStmt(YParser.WhileStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code WhileStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhileStmt(YParser.WhileStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code DoWhileStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterDoWhileStmt(YParser.DoWhileStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code DoWhileStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitDoWhileStmt(YParser.DoWhileStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code BreakStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterBreakStmt(YParser.BreakStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code BreakStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitBreakStmt(YParser.BreakStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ContinueStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterContinueStmt(YParser.ContinueStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ContinueStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitContinueStmt(YParser.ContinueStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ReturnStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturnStmt(YParser.ReturnStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ReturnStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturnStmt(YParser.ReturnStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code PrintStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrintStmt(YParser.PrintStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code PrintStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrintStmt(YParser.PrintStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ReadStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterReadStmt(YParser.ReadStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ReadStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitReadStmt(YParser.ReadStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExpressionStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressionStmt(YParser.ExpressionStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExpressionStmt}
+	 * labeled alternative in {@link YParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressionStmt(YParser.ExpressionStmtContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link YParser#variableDeclaration}.
 	 * @param ctx the parse tree
@@ -147,6 +343,16 @@ public interface YParserListener extends ParseTreeListener {
 	 */
 	void exitVariableDeclaration(YParser.VariableDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link YParser#variableDeclarationCore}.
+	 * @param ctx the parse tree
+	 */
+	void enterVariableDeclarationCore(YParser.VariableDeclarationCoreContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link YParser#variableDeclarationCore}.
+	 * @param ctx the parse tree
+	 */
+	void exitVariableDeclarationCore(YParser.VariableDeclarationCoreContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link YParser#arrayDeclaration}.
 	 * @param ctx the parse tree
 	 */
@@ -157,15 +363,41 @@ public interface YParserListener extends ParseTreeListener {
 	 */
 	void exitArrayDeclaration(YParser.ArrayDeclarationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#initializer}.
+	 * Enter a parse tree produced by the {@code ExpressionInitializer}
+	 * labeled alternative in {@link YParser#initializer}.
 	 * @param ctx the parse tree
 	 */
-	void enterInitializer(YParser.InitializerContext ctx);
+	void enterExpressionInitializer(YParser.ExpressionInitializerContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#initializer}.
+	 * Exit a parse tree produced by the {@code ExpressionInitializer}
+	 * labeled alternative in {@link YParser#initializer}.
 	 * @param ctx the parse tree
 	 */
-	void exitInitializer(YParser.InitializerContext ctx);
+	void exitExpressionInitializer(YParser.ExpressionInitializerContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArrayInitializerValue}
+	 * labeled alternative in {@link YParser#initializer}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayInitializerValue(YParser.ArrayInitializerValueContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArrayInitializerValue}
+	 * labeled alternative in {@link YParser#initializer}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayInitializerValue(YParser.ArrayInitializerValueContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code StructureInitializerValue}
+	 * labeled alternative in {@link YParser#initializer}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructureInitializerValue(YParser.StructureInitializerValueContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StructureInitializerValue}
+	 * labeled alternative in {@link YParser#initializer}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructureInitializerValue(YParser.StructureInitializerValueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link YParser#arrayInitializer}.
 	 * @param ctx the parse tree
@@ -207,15 +439,53 @@ public interface YParserListener extends ParseTreeListener {
 	 */
 	void exitAssignmentStatement(YParser.AssignmentStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#assignmentOperator}.
+	 * Enter a parse tree produced by the {@code AssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
 	 * @param ctx the parse tree
 	 */
-	void enterAssignmentOperator(YParser.AssignmentOperatorContext ctx);
+	void enterAssignOperator(YParser.AssignOperatorContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#assignmentOperator}.
+	 * Exit a parse tree produced by the {@code AssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
 	 * @param ctx the parse tree
 	 */
-	void exitAssignmentOperator(YParser.AssignmentOperatorContext ctx);
+	void exitAssignOperator(YParser.AssignOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code PlusAssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterPlusAssignOperator(YParser.PlusAssignOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code PlusAssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitPlusAssignOperator(YParser.PlusAssignOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MinusAssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterMinusAssignOperator(YParser.MinusAssignOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MinusAssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitMinusAssignOperator(YParser.MinusAssignOperatorContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MultiplyAssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
+	 * @param ctx the parse tree
+	 */
+	void enterMultiplyAssignOperator(YParser.MultiplyAssignOperatorContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MultiplyAssignOperator}
+	 * labeled alternative in {@link YParser#assignmentOperator}.
+	 * @param ctx the parse tree
+	 */
+	void exitMultiplyAssignOperator(YParser.MultiplyAssignOperatorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link YParser#incrementStatement}.
 	 * @param ctx the parse tree
@@ -317,16 +587,6 @@ public interface YParserListener extends ParseTreeListener {
 	 */
 	void exitForInitializer(YParser.ForInitializerContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#variableDeclarationWithoutNewline}.
-	 * @param ctx the parse tree
-	 */
-	void enterVariableDeclarationWithoutNewline(YParser.VariableDeclarationWithoutNewlineContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link YParser#variableDeclarationWithoutNewline}.
-	 * @param ctx the parse tree
-	 */
-	void exitVariableDeclarationWithoutNewline(YParser.VariableDeclarationWithoutNewlineContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link YParser#forUpdate}.
 	 * @param ctx the parse tree
 	 */
@@ -427,75 +687,269 @@ public interface YParserListener extends ParseTreeListener {
 	 */
 	void exitExpression(YParser.ExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#logicalOrExpression}.
+	 * Enter a parse tree produced by the {@code ToLogicalAndExpr}
+	 * labeled alternative in {@link YParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterLogicalOrExpression(YParser.LogicalOrExpressionContext ctx);
+	void enterToLogicalAndExpr(YParser.ToLogicalAndExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#logicalOrExpression}.
+	 * Exit a parse tree produced by the {@code ToLogicalAndExpr}
+	 * labeled alternative in {@link YParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitLogicalOrExpression(YParser.LogicalOrExpressionContext ctx);
+	void exitToLogicalAndExpr(YParser.ToLogicalAndExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#logicalAndExpression}.
+	 * Enter a parse tree produced by the {@code OrExpr}
+	 * labeled alternative in {@link YParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterLogicalAndExpression(YParser.LogicalAndExpressionContext ctx);
+	void enterOrExpr(YParser.OrExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#logicalAndExpression}.
+	 * Exit a parse tree produced by the {@code OrExpr}
+	 * labeled alternative in {@link YParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitLogicalAndExpression(YParser.LogicalAndExpressionContext ctx);
+	void exitOrExpr(YParser.OrExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#equalityExpression}.
+	 * Enter a parse tree produced by the {@code AndExpr}
+	 * labeled alternative in {@link YParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterEqualityExpression(YParser.EqualityExpressionContext ctx);
+	void enterAndExpr(YParser.AndExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#equalityExpression}.
+	 * Exit a parse tree produced by the {@code AndExpr}
+	 * labeled alternative in {@link YParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitEqualityExpression(YParser.EqualityExpressionContext ctx);
+	void exitAndExpr(YParser.AndExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#comparisonExpression}.
+	 * Enter a parse tree produced by the {@code ToEqualityExpr}
+	 * labeled alternative in {@link YParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterComparisonExpression(YParser.ComparisonExpressionContext ctx);
+	void enterToEqualityExpr(YParser.ToEqualityExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#comparisonExpression}.
+	 * Exit a parse tree produced by the {@code ToEqualityExpr}
+	 * labeled alternative in {@link YParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitComparisonExpression(YParser.ComparisonExpressionContext ctx);
+	void exitToEqualityExpr(YParser.ToEqualityExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#additiveExpression}.
+	 * Enter a parse tree produced by the {@code EqualExpr}
+	 * labeled alternative in {@link YParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterAdditiveExpression(YParser.AdditiveExpressionContext ctx);
+	void enterEqualExpr(YParser.EqualExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#additiveExpression}.
+	 * Exit a parse tree produced by the {@code EqualExpr}
+	 * labeled alternative in {@link YParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitAdditiveExpression(YParser.AdditiveExpressionContext ctx);
+	void exitEqualExpr(YParser.EqualExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#multiplicativeExpression}.
+	 * Enter a parse tree produced by the {@code ToComparisonExpr}
+	 * labeled alternative in {@link YParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterMultiplicativeExpression(YParser.MultiplicativeExpressionContext ctx);
+	void enterToComparisonExpr(YParser.ToComparisonExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#multiplicativeExpression}.
+	 * Exit a parse tree produced by the {@code ToComparisonExpr}
+	 * labeled alternative in {@link YParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitMultiplicativeExpression(YParser.MultiplicativeExpressionContext ctx);
+	void exitToComparisonExpr(YParser.ToComparisonExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#unaryExpression}.
+	 * Enter a parse tree produced by the {@code NotEqualExpr}
+	 * labeled alternative in {@link YParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterUnaryExpression(YParser.UnaryExpressionContext ctx);
+	void enterNotEqualExpr(YParser.NotEqualExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#unaryExpression}.
+	 * Exit a parse tree produced by the {@code NotEqualExpr}
+	 * labeled alternative in {@link YParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitUnaryExpression(YParser.UnaryExpressionContext ctx);
+	void exitNotEqualExpr(YParser.NotEqualExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ToAdditiveExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterToAdditiveExpr(YParser.ToAdditiveExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ToAdditiveExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitToAdditiveExpr(YParser.ToAdditiveExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code GreaterExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterGreaterExpr(YParser.GreaterExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code GreaterExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitGreaterExpr(YParser.GreaterExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code GreaterEqualExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterGreaterEqualExpr(YParser.GreaterEqualExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code GreaterEqualExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitGreaterEqualExpr(YParser.GreaterEqualExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code LessExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLessExpr(YParser.LessExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code LessExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLessExpr(YParser.LessExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code LessEqualExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLessEqualExpr(YParser.LessEqualExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code LessEqualExpr}
+	 * labeled alternative in {@link YParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLessEqualExpr(YParser.LessEqualExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ToMultiplicativeExpr}
+	 * labeled alternative in {@link YParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterToMultiplicativeExpr(YParser.ToMultiplicativeExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ToMultiplicativeExpr}
+	 * labeled alternative in {@link YParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitToMultiplicativeExpr(YParser.ToMultiplicativeExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AdditionExpr}
+	 * labeled alternative in {@link YParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAdditionExpr(YParser.AdditionExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AdditionExpr}
+	 * labeled alternative in {@link YParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAdditionExpr(YParser.AdditionExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code SubtractionExpr}
+	 * labeled alternative in {@link YParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubtractionExpr(YParser.SubtractionExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code SubtractionExpr}
+	 * labeled alternative in {@link YParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubtractionExpr(YParser.SubtractionExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ModuloExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterModuloExpr(YParser.ModuloExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ModuloExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitModuloExpr(YParser.ModuloExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ToUnaryExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterToUnaryExpr(YParser.ToUnaryExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ToUnaryExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitToUnaryExpr(YParser.ToUnaryExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code DivisionExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterDivisionExpr(YParser.DivisionExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code DivisionExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitDivisionExpr(YParser.DivisionExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MultiplicationExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterMultiplicationExpr(YParser.MultiplicationExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MultiplicationExpr}
+	 * labeled alternative in {@link YParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitMultiplicationExpr(YParser.MultiplicationExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NotExpr}
+	 * labeled alternative in {@link YParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNotExpr(YParser.NotExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NotExpr}
+	 * labeled alternative in {@link YParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNotExpr(YParser.NotExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NegateExpr}
+	 * labeled alternative in {@link YParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNegateExpr(YParser.NegateExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NegateExpr}
+	 * labeled alternative in {@link YParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNegateExpr(YParser.NegateExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ToPostfixExpr}
+	 * labeled alternative in {@link YParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterToPostfixExpr(YParser.ToPostfixExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ToPostfixExpr}
+	 * labeled alternative in {@link YParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitToPostfixExpr(YParser.ToPostfixExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link YParser#postfixExpression}.
 	 * @param ctx the parse tree
@@ -507,25 +961,173 @@ public interface YParserListener extends ParseTreeListener {
 	 */
 	void exitPostfixExpression(YParser.PostfixExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#postfixOperation}.
+	 * Enter a parse tree produced by the {@code ArrayAccessOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void enterPostfixOperation(YParser.PostfixOperationContext ctx);
+	void enterArrayAccessOp(YParser.ArrayAccessOpContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#postfixOperation}.
+	 * Exit a parse tree produced by the {@code ArrayAccessOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void exitPostfixOperation(YParser.PostfixOperationContext ctx);
+	void exitArrayAccessOp(YParser.ArrayAccessOpContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#primaryExpression}.
+	 * Enter a parse tree produced by the {@code MemberAccessOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void enterPrimaryExpression(YParser.PrimaryExpressionContext ctx);
+	void enterMemberAccessOp(YParser.MemberAccessOpContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#primaryExpression}.
+	 * Exit a parse tree produced by the {@code MemberAccessOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void exitPrimaryExpression(YParser.PrimaryExpressionContext ctx);
+	void exitMemberAccessOp(YParser.MemberAccessOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FunctionCallOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionCallOp(YParser.FunctionCallOpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FunctionCallOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionCallOp(YParser.FunctionCallOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code PostIncrementOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
+	 * @param ctx the parse tree
+	 */
+	void enterPostIncrementOp(YParser.PostIncrementOpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code PostIncrementOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
+	 * @param ctx the parse tree
+	 */
+	void exitPostIncrementOp(YParser.PostIncrementOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code PostDecrementOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
+	 * @param ctx the parse tree
+	 */
+	void enterPostDecrementOp(YParser.PostDecrementOpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code PostDecrementOp}
+	 * labeled alternative in {@link YParser#postfixOperation}.
+	 * @param ctx the parse tree
+	 */
+	void exitPostDecrementOp(YParser.PostDecrementOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code IntegerLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntegerLiteralExpr(YParser.IntegerLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code IntegerLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntegerLiteralExpr(YParser.IntegerLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FloatLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterFloatLiteralExpr(YParser.FloatLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FloatLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitFloatLiteralExpr(YParser.FloatLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code CharLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterCharLiteralExpr(YParser.CharLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code CharLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitCharLiteralExpr(YParser.CharLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code StringLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringLiteralExpr(YParser.StringLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StringLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringLiteralExpr(YParser.StringLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code TrueLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterTrueLiteralExpr(YParser.TrueLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code TrueLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitTrueLiteralExpr(YParser.TrueLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FalseLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterFalseLiteralExpr(YParser.FalseLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FalseLiteralExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitFalseLiteralExpr(YParser.FalseLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code VariableExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterVariableExpr(YParser.VariableExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code VariableExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitVariableExpr(YParser.VariableExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ReadExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterReadExpr(YParser.ReadExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ReadExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitReadExpr(YParser.ReadExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ParenthesizedExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterParenthesizedExpr(YParser.ParenthesizedExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ParenthesizedExpr}
+	 * labeled alternative in {@link YParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitParenthesizedExpr(YParser.ParenthesizedExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link YParser#argumentList}.
 	 * @param ctx the parse tree
@@ -537,13 +1139,75 @@ public interface YParserListener extends ParseTreeListener {
 	 */
 	void exitArgumentList(YParser.ArgumentListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link YParser#type}.
+	 * Enter a parse tree produced by the {@code IntegerType}
+	 * labeled alternative in {@link YParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterType(YParser.TypeContext ctx);
+	void enterIntegerType(YParser.IntegerTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link YParser#type}.
+	 * Exit a parse tree produced by the {@code IntegerType}
+	 * labeled alternative in {@link YParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitType(YParser.TypeContext ctx);
+	void exitIntegerType(YParser.IntegerTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FloatType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterFloatType(YParser.FloatTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FloatType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitFloatType(YParser.FloatTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code CharacterType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterCharacterType(YParser.CharacterTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code CharacterType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitCharacterType(YParser.CharacterTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code BooleanType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterBooleanType(YParser.BooleanTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code BooleanType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitBooleanType(YParser.BooleanTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code StringType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringType(YParser.StringTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StringType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringType(YParser.StringTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code StructureType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructureType(YParser.StructureTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StructureType}
+	 * labeled alternative in {@link YParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructureType(YParser.StructureTypeContext ctx);
 }
