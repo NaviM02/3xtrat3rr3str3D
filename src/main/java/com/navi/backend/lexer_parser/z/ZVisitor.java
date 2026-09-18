@@ -22,11 +22,26 @@ public interface ZVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitClassDeclaration(ZParser.ClassDeclarationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#classMember}.
+	 * Visit a parse tree produced by the {@code FieldMember}
+	 * labeled alternative in {@link ZParser#classMember}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitClassMember(ZParser.ClassMemberContext ctx);
+	T visitFieldMember(ZParser.FieldMemberContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ConstructorMember}
+	 * labeled alternative in {@link ZParser#classMember}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConstructorMember(ZParser.ConstructorMemberContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MethodMember}
+	 * labeled alternative in {@link ZParser#classMember}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMethodMember(ZParser.MethodMemberContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ZParser#fieldDeclaration}.
 	 * @param ctx the parse tree
@@ -52,11 +67,19 @@ public interface ZVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitConstructorDeclaration(ZParser.ConstructorDeclarationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#methodDeclaration}.
+	 * Visit a parse tree produced by the {@code TypedMethodDeclaration}
+	 * labeled alternative in {@link ZParser#methodDeclaration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMethodDeclaration(ZParser.MethodDeclarationContext ctx);
+	T visitTypedMethodDeclaration(ZParser.TypedMethodDeclarationContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code VoidMethodDeclaration}
+	 * labeled alternative in {@link ZParser#methodDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVoidMethodDeclaration(ZParser.VoidMethodDeclarationContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ZParser#parameterList}.
 	 * @param ctx the parse tree
@@ -88,11 +111,19 @@ public interface ZVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVariableDeclarationStatement(ZParser.VariableDeclarationStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#initializer}.
+	 * Visit a parse tree produced by the {@code ExpressionInitializerValue}
+	 * labeled alternative in {@link ZParser#initializer}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitInitializer(ZParser.InitializerContext ctx);
+	T visitExpressionInitializerValue(ZParser.ExpressionInitializerValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ArrayInitializerValue}
+	 * labeled alternative in {@link ZParser#initializer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayInitializerValue(ZParser.ArrayInitializerValueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ZParser#statementOrBlock}.
 	 * @param ctx the parse tree
@@ -214,11 +245,19 @@ public interface ZVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpression(ZParser.ExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#assignmentExpression}.
+	 * Visit a parse tree produced by the {@code ToConditionalExpression}
+	 * labeled alternative in {@link ZParser#assignmentExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAssignmentExpression(ZParser.AssignmentExpressionContext ctx);
+	T visitToConditionalExpression(ZParser.ToConditionalExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AssignmentExpressionValue}
+	 * labeled alternative in {@link ZParser#assignmentExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignmentExpressionValue(ZParser.AssignmentExpressionValueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ZParser#assignmentOperator}.
 	 * @param ctx the parse tree
@@ -226,53 +265,180 @@ public interface ZVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignmentOperator(ZParser.AssignmentOperatorContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#conditionalExpression}.
+	 * Visit a parse tree produced by the {@code LogicalOrConditionalExpression}
+	 * labeled alternative in {@link ZParser#conditionalExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitConditionalExpression(ZParser.ConditionalExpressionContext ctx);
+	T visitLogicalOrConditionalExpression(ZParser.LogicalOrConditionalExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#logicalOrExpression}.
+	 * Visit a parse tree produced by the {@code TernaryExpression}
+	 * labeled alternative in {@link ZParser#conditionalExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLogicalOrExpression(ZParser.LogicalOrExpressionContext ctx);
+	T visitTernaryExpression(ZParser.TernaryExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#logicalAndExpression}.
+	 * Visit a parse tree produced by the {@code ToLogicalAndExpr}
+	 * labeled alternative in {@link ZParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLogicalAndExpression(ZParser.LogicalAndExpressionContext ctx);
+	T visitToLogicalAndExpr(ZParser.ToLogicalAndExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#equalityExpression}.
+	 * Visit a parse tree produced by the {@code OrExpr}
+	 * labeled alternative in {@link ZParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitEqualityExpression(ZParser.EqualityExpressionContext ctx);
+	T visitOrExpr(ZParser.OrExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#relationalExpression}.
+	 * Visit a parse tree produced by the {@code AndExpr}
+	 * labeled alternative in {@link ZParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitRelationalExpression(ZParser.RelationalExpressionContext ctx);
+	T visitAndExpr(ZParser.AndExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#additiveExpression}.
+	 * Visit a parse tree produced by the {@code ToEqualityExpr}
+	 * labeled alternative in {@link ZParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAdditiveExpression(ZParser.AdditiveExpressionContext ctx);
+	T visitToEqualityExpr(ZParser.ToEqualityExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#multiplicativeExpression}.
+	 * Visit a parse tree produced by the {@code EqualExpr}
+	 * labeled alternative in {@link ZParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMultiplicativeExpression(ZParser.MultiplicativeExpressionContext ctx);
+	T visitEqualExpr(ZParser.EqualExprContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#unaryExpression}.
+	 * Visit a parse tree produced by the {@code ToComparisonExpr}
+	 * labeled alternative in {@link ZParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitUnaryExpression(ZParser.UnaryExpressionContext ctx);
+	T visitToComparisonExpr(ZParser.ToComparisonExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NotEqualExpr}
+	 * labeled alternative in {@link ZParser#equalityExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNotEqualExpr(ZParser.NotEqualExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ToAdditiveExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitToAdditiveExpr(ZParser.ToAdditiveExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code GreaterExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGreaterExpr(ZParser.GreaterExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code GreaterEqualExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGreaterEqualExpr(ZParser.GreaterEqualExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code LessExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLessExpr(ZParser.LessExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code LessEqualExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLessEqualExpr(ZParser.LessEqualExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ToMultiplicativeExpr}
+	 * labeled alternative in {@link ZParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitToMultiplicativeExpr(ZParser.ToMultiplicativeExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AdditionExpr}
+	 * labeled alternative in {@link ZParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAdditionExpr(ZParser.AdditionExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code SubtractionExpr}
+	 * labeled alternative in {@link ZParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubtractionExpr(ZParser.SubtractionExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ModuloExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitModuloExpr(ZParser.ModuloExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ToUnaryExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitToUnaryExpr(ZParser.ToUnaryExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DivisionExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDivisionExpr(ZParser.DivisionExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MultiplicationExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiplicationExpr(ZParser.MultiplicationExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NotExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNotExpr(ZParser.NotExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NegateExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNegateExpr(ZParser.NegateExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PositiveExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPositiveExpr(ZParser.PositiveExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ToPostfixExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitToPostfixExpr(ZParser.ToPostfixExprContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ZParser#postfixExpression}.
 	 * @param ctx the parse tree
@@ -280,35 +446,89 @@ public interface ZVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPostfixExpression(ZParser.PostfixExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#postfixOperation}.
+	 * Visit a parse tree produced by the {@code ArrayAccessOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPostfixOperation(ZParser.PostfixOperationContext ctx);
+	T visitArrayAccessOp(ZParser.ArrayAccessOpContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#arrayAccess}.
+	 * Visit a parse tree produced by the {@code MemberAccessOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitArrayAccess(ZParser.ArrayAccessContext ctx);
+	T visitMemberAccessOp(ZParser.MemberAccessOpContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#memberAccess}.
+	 * Visit a parse tree produced by the {@code FunctionCallOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMemberAccess(ZParser.MemberAccessContext ctx);
+	T visitFunctionCallOp(ZParser.FunctionCallOpContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#functionCall}.
+	 * Visit a parse tree produced by the {@code PostIncrementOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFunctionCall(ZParser.FunctionCallContext ctx);
+	T visitPostIncrementOp(ZParser.PostIncrementOpContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#primaryExpression}.
+	 * Visit a parse tree produced by the {@code PostDecrementOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPrimaryExpression(ZParser.PrimaryExpressionContext ctx);
+	T visitPostDecrementOp(ZParser.PostDecrementOpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code LiteralExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLiteralExpr(ZParser.LiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code VariableExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariableExpr(ZParser.VariableExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ObjCreationExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjCreationExpr(ZParser.ObjCreationExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ArrayCreationExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayCreationExpr(ZParser.ArrayCreationExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NullExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNullExpr(ZParser.NullExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ReadExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReadExpr(ZParser.ReadExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ParenthesizedExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParenthesizedExpr(ZParser.ParenthesizedExprContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ZParser#arrayCreation}.
 	 * @param ctx the parse tree
@@ -322,11 +542,47 @@ public interface ZVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArrayCreationDimensions(ZParser.ArrayCreationDimensionsContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ZParser#literal}.
+	 * Visit a parse tree produced by the {@code IntegerLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLiteral(ZParser.LiteralContext ctx);
+	T visitIntegerLiteralExpr(ZParser.IntegerLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FloatLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFloatLiteralExpr(ZParser.FloatLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CharLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCharLiteralExpr(ZParser.CharLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StringLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringLiteralExpr(ZParser.StringLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code TrueLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTrueLiteralExpr(ZParser.TrueLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FalseLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFalseLiteralExpr(ZParser.FalseLiteralExprContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ZParser#argumentList}.
 	 * @param ctx the parse tree

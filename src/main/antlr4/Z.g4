@@ -5,9 +5,9 @@ program : classDeclaration EOF;
 classDeclaration : PUBLIC CLASS ID LBRACE classMember* RBRACE;
 
 classMember
-    : fieldDeclaration
-    | constructorDeclaration
-    | methodDeclaration
+    : fieldDeclaration          #FieldMember
+    | constructorDeclaration    #ConstructorMember
+    | methodDeclaration         #MethodMember
     ;
 
 fieldDeclaration : PUBLIC? type variableDeclaratorList SEMI;
@@ -19,8 +19,9 @@ variableDeclarator : ID initializer?;
 constructorDeclaration : PUBLIC ID LPAREN parameterList? RPAREN block;
 
 methodDeclaration
-    : PUBLIC? type ID LPAREN parameterList? RPAREN block
-    | PUBLIC? VOID ID LPAREN parameterList? RPAREN block;
+    : PUBLIC? type ID LPAREN parameterList? RPAREN block #TypedMethodDeclaration
+    | PUBLIC? VOID ID LPAREN parameterList? RPAREN block #VoidMethodDeclaration
+    ;
 
 parameterList : parameter (COMMA parameter)*;
 
@@ -47,8 +48,8 @@ statement
 variableDeclarationStatement : type variableDeclaratorList SEMI;
 
 initializer
-    : ASSIGN expression
-    | ASSIGN arrayInitializer
+    : ASSIGN expression       #ExpressionInitializerValue
+    | ASSIGN arrayInitializer #ArrayInitializerValue
     ;
 
 statementOrBlock
@@ -98,8 +99,8 @@ expressionStatement : expression SEMI;
 expression : assignmentExpression;
 
 assignmentExpression
-    : conditionalExpression
-    | postfixExpression assignmentOperator assignmentExpression
+    : conditionalExpression                                         #ToConditionalExpression
+    | postfixExpression assignmentOperator assignmentExpression     #AssignmentExpressionValue
     ;
 
 assignmentOperator
@@ -110,52 +111,52 @@ assignmentOperator
     ;
 
 conditionalExpression
-    : logicalOrExpression
-    | logicalOrExpression QUESTION expression COLON expression
+    : logicalOrExpression                                       #LogicalOrConditionalExpression
+    | logicalOrExpression QUESTION expression COLON expression  #TernaryExpression
     ;
 
 logicalOrExpression
-    : logicalOrExpression OR logicalAndExpression
-    | logicalAndExpression
+    : logicalOrExpression OR logicalAndExpression  #OrExpr
+    | logicalAndExpression                         #ToLogicalAndExpr
     ;
 
 logicalAndExpression
-    : logicalAndExpression AND equalityExpression
-    | equalityExpression
+    : logicalAndExpression AND equalityExpression  #AndExpr
+    | equalityExpression                           #ToEqualityExpr
     ;
 
 equalityExpression
-    : equalityExpression EQUAL relationalExpression
-    | equalityExpression NOT_EQUAL relationalExpression
-    | relationalExpression
+    : equalityExpression EQUAL comparisonExpression       #EqualExpr
+    | equalityExpression NOT_EQUAL comparisonExpression   #NotEqualExpr
+    | comparisonExpression                                #ToComparisonExpr
     ;
 
-relationalExpression
-    : relationalExpression LESS additiveExpression
-    | relationalExpression GREATER additiveExpression
-    | relationalExpression LESS_EQUAL additiveExpression
-    | relationalExpression GREATER_EQUAL additiveExpression
-    | additiveExpression
+comparisonExpression
+    : comparisonExpression LESS additiveExpression             #LessExpr
+    | comparisonExpression GREATER additiveExpression          #GreaterExpr
+    | comparisonExpression LESS_EQUAL additiveExpression       #LessEqualExpr
+    | comparisonExpression GREATER_EQUAL additiveExpression    #GreaterEqualExpr
+    | additiveExpression                                       #ToAdditiveExpr
     ;
 
 additiveExpression
-    : additiveExpression PLUS multiplicativeExpression
-    | additiveExpression MINUS multiplicativeExpression
-    | multiplicativeExpression
+    : additiveExpression PLUS multiplicativeExpression     #AdditionExpr
+    | additiveExpression MINUS multiplicativeExpression    #SubtractionExpr
+    | multiplicativeExpression                             #ToMultiplicativeExpr
     ;
 
 multiplicativeExpression
-    : multiplicativeExpression MULT unaryExpression
-    | multiplicativeExpression DIV unaryExpression
-    | multiplicativeExpression MOD unaryExpression
-    | unaryExpression
+    : multiplicativeExpression MULT unaryExpression        #MultiplicationExpr
+    | multiplicativeExpression DIV unaryExpression         #DivisionExpr
+    | multiplicativeExpression MOD unaryExpression         #ModuloExpr
+    | unaryExpression                                      #ToUnaryExpr
     ;
 
 unaryExpression
-    : NOT unaryExpression
-    | MINUS unaryExpression
-    | PLUS unaryExpression
-    | postfixExpression
+    : NOT unaryExpression       #NotExpr
+    | MINUS unaryExpression     #NegateExpr
+    | PLUS unaryExpression      #PositiveExpr
+    | postfixExpression         #ToPostfixExpr
     ;
 
 postfixExpression
@@ -163,32 +164,21 @@ postfixExpression
     ;
 
 postfixOperation
-    : arrayAccess
-    | memberAccess
-    | functionCall
-    | INCREMENT
-    | DECREMENT
-    ;
-
-arrayAccess
-    : LBRACK expression RBRACK
-    ;
-
-memberAccess
-    : DOT ID
-    ;
-
-functionCall
-    : LPAREN argumentList? RPAREN
+    : LBRACK expression RBRACK                    #ArrayAccessOp
+    | DOT ID                                      #MemberAccessOp
+    | LPAREN argumentList? RPAREN                 #FunctionCallOp
+    | INCREMENT                                   #PostIncrementOp
+    | DECREMENT                                   #PostDecrementOp
     ;
 
 primaryExpression
-    : literal
-    | ID
-    | NEW ID LPAREN argumentList? RPAREN
-    | arrayCreation
-    | NULL
-    | LPAREN expression RPAREN
+    : literal                                   #LiteralExpr
+    | ID                                        #VariableExpr
+    | NEW ID LPAREN argumentList? RPAREN        #ObjCreationExpr
+    | arrayCreation                             #ArrayCreationExpr
+    | NULL                                      #NullExpr
+    | READLN LPAREN RPAREN                        #ReadExpr
+    | LPAREN expression RPAREN                  #ParenthesizedExpr
     ;
 
 arrayCreation
@@ -201,12 +191,12 @@ arrayCreationDimensions
     ;
 
 literal
-    : INTEGER_LITERAL
-    | FLOAT_LITERAL
-    | CHAR_LITERAL
-    | STRING_LITERAL
-    | TRUE
-    | FALSE
+    : INTEGER_LITERAL                             #IntegerLiteralExpr
+    | FLOAT_LITERAL                               #FloatLiteralExpr
+    | CHAR_LITERAL                                #CharLiteralExpr
+    | STRING_LITERAL                              #StringLiteralExpr
+    | TRUE                                        #TrueLiteralExpr
+    | FALSE                                       #FalseLiteralExpr
     ;
 
 argumentList : expression (COMMA expression)*;

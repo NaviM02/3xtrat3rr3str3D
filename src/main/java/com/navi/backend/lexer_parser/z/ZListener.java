@@ -27,15 +27,41 @@ public interface ZListener extends ParseTreeListener {
 	 */
 	void exitClassDeclaration(ZParser.ClassDeclarationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#classMember}.
+	 * Enter a parse tree produced by the {@code FieldMember}
+	 * labeled alternative in {@link ZParser#classMember}.
 	 * @param ctx the parse tree
 	 */
-	void enterClassMember(ZParser.ClassMemberContext ctx);
+	void enterFieldMember(ZParser.FieldMemberContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#classMember}.
+	 * Exit a parse tree produced by the {@code FieldMember}
+	 * labeled alternative in {@link ZParser#classMember}.
 	 * @param ctx the parse tree
 	 */
-	void exitClassMember(ZParser.ClassMemberContext ctx);
+	void exitFieldMember(ZParser.FieldMemberContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ConstructorMember}
+	 * labeled alternative in {@link ZParser#classMember}.
+	 * @param ctx the parse tree
+	 */
+	void enterConstructorMember(ZParser.ConstructorMemberContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ConstructorMember}
+	 * labeled alternative in {@link ZParser#classMember}.
+	 * @param ctx the parse tree
+	 */
+	void exitConstructorMember(ZParser.ConstructorMemberContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MethodMember}
+	 * labeled alternative in {@link ZParser#classMember}.
+	 * @param ctx the parse tree
+	 */
+	void enterMethodMember(ZParser.MethodMemberContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MethodMember}
+	 * labeled alternative in {@link ZParser#classMember}.
+	 * @param ctx the parse tree
+	 */
+	void exitMethodMember(ZParser.MethodMemberContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ZParser#fieldDeclaration}.
 	 * @param ctx the parse tree
@@ -77,15 +103,29 @@ public interface ZListener extends ParseTreeListener {
 	 */
 	void exitConstructorDeclaration(ZParser.ConstructorDeclarationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#methodDeclaration}.
+	 * Enter a parse tree produced by the {@code TypedMethodDeclaration}
+	 * labeled alternative in {@link ZParser#methodDeclaration}.
 	 * @param ctx the parse tree
 	 */
-	void enterMethodDeclaration(ZParser.MethodDeclarationContext ctx);
+	void enterTypedMethodDeclaration(ZParser.TypedMethodDeclarationContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#methodDeclaration}.
+	 * Exit a parse tree produced by the {@code TypedMethodDeclaration}
+	 * labeled alternative in {@link ZParser#methodDeclaration}.
 	 * @param ctx the parse tree
 	 */
-	void exitMethodDeclaration(ZParser.MethodDeclarationContext ctx);
+	void exitTypedMethodDeclaration(ZParser.TypedMethodDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code VoidMethodDeclaration}
+	 * labeled alternative in {@link ZParser#methodDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterVoidMethodDeclaration(ZParser.VoidMethodDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code VoidMethodDeclaration}
+	 * labeled alternative in {@link ZParser#methodDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitVoidMethodDeclaration(ZParser.VoidMethodDeclarationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ZParser#parameterList}.
 	 * @param ctx the parse tree
@@ -137,15 +177,29 @@ public interface ZListener extends ParseTreeListener {
 	 */
 	void exitVariableDeclarationStatement(ZParser.VariableDeclarationStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#initializer}.
+	 * Enter a parse tree produced by the {@code ExpressionInitializerValue}
+	 * labeled alternative in {@link ZParser#initializer}.
 	 * @param ctx the parse tree
 	 */
-	void enterInitializer(ZParser.InitializerContext ctx);
+	void enterExpressionInitializerValue(ZParser.ExpressionInitializerValueContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#initializer}.
+	 * Exit a parse tree produced by the {@code ExpressionInitializerValue}
+	 * labeled alternative in {@link ZParser#initializer}.
 	 * @param ctx the parse tree
 	 */
-	void exitInitializer(ZParser.InitializerContext ctx);
+	void exitExpressionInitializerValue(ZParser.ExpressionInitializerValueContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArrayInitializerValue}
+	 * labeled alternative in {@link ZParser#initializer}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayInitializerValue(ZParser.ArrayInitializerValueContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArrayInitializerValue}
+	 * labeled alternative in {@link ZParser#initializer}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayInitializerValue(ZParser.ArrayInitializerValueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ZParser#statementOrBlock}.
 	 * @param ctx the parse tree
@@ -347,15 +401,29 @@ public interface ZListener extends ParseTreeListener {
 	 */
 	void exitExpression(ZParser.ExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#assignmentExpression}.
+	 * Enter a parse tree produced by the {@code ToConditionalExpression}
+	 * labeled alternative in {@link ZParser#assignmentExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterAssignmentExpression(ZParser.AssignmentExpressionContext ctx);
+	void enterToConditionalExpression(ZParser.ToConditionalExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#assignmentExpression}.
+	 * Exit a parse tree produced by the {@code ToConditionalExpression}
+	 * labeled alternative in {@link ZParser#assignmentExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitAssignmentExpression(ZParser.AssignmentExpressionContext ctx);
+	void exitToConditionalExpression(ZParser.ToConditionalExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AssignmentExpressionValue}
+	 * labeled alternative in {@link ZParser#assignmentExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAssignmentExpressionValue(ZParser.AssignmentExpressionValueContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AssignmentExpressionValue}
+	 * labeled alternative in {@link ZParser#assignmentExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAssignmentExpressionValue(ZParser.AssignmentExpressionValueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ZParser#assignmentOperator}.
 	 * @param ctx the parse tree
@@ -367,85 +435,305 @@ public interface ZListener extends ParseTreeListener {
 	 */
 	void exitAssignmentOperator(ZParser.AssignmentOperatorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#conditionalExpression}.
+	 * Enter a parse tree produced by the {@code LogicalOrConditionalExpression}
+	 * labeled alternative in {@link ZParser#conditionalExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterConditionalExpression(ZParser.ConditionalExpressionContext ctx);
+	void enterLogicalOrConditionalExpression(ZParser.LogicalOrConditionalExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#conditionalExpression}.
+	 * Exit a parse tree produced by the {@code LogicalOrConditionalExpression}
+	 * labeled alternative in {@link ZParser#conditionalExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitConditionalExpression(ZParser.ConditionalExpressionContext ctx);
+	void exitLogicalOrConditionalExpression(ZParser.LogicalOrConditionalExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#logicalOrExpression}.
+	 * Enter a parse tree produced by the {@code TernaryExpression}
+	 * labeled alternative in {@link ZParser#conditionalExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterLogicalOrExpression(ZParser.LogicalOrExpressionContext ctx);
+	void enterTernaryExpression(ZParser.TernaryExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#logicalOrExpression}.
+	 * Exit a parse tree produced by the {@code TernaryExpression}
+	 * labeled alternative in {@link ZParser#conditionalExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitLogicalOrExpression(ZParser.LogicalOrExpressionContext ctx);
+	void exitTernaryExpression(ZParser.TernaryExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#logicalAndExpression}.
+	 * Enter a parse tree produced by the {@code ToLogicalAndExpr}
+	 * labeled alternative in {@link ZParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterLogicalAndExpression(ZParser.LogicalAndExpressionContext ctx);
+	void enterToLogicalAndExpr(ZParser.ToLogicalAndExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#logicalAndExpression}.
+	 * Exit a parse tree produced by the {@code ToLogicalAndExpr}
+	 * labeled alternative in {@link ZParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitLogicalAndExpression(ZParser.LogicalAndExpressionContext ctx);
+	void exitToLogicalAndExpr(ZParser.ToLogicalAndExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#equalityExpression}.
+	 * Enter a parse tree produced by the {@code OrExpr}
+	 * labeled alternative in {@link ZParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterEqualityExpression(ZParser.EqualityExpressionContext ctx);
+	void enterOrExpr(ZParser.OrExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#equalityExpression}.
+	 * Exit a parse tree produced by the {@code OrExpr}
+	 * labeled alternative in {@link ZParser#logicalOrExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitEqualityExpression(ZParser.EqualityExpressionContext ctx);
+	void exitOrExpr(ZParser.OrExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#relationalExpression}.
+	 * Enter a parse tree produced by the {@code AndExpr}
+	 * labeled alternative in {@link ZParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterRelationalExpression(ZParser.RelationalExpressionContext ctx);
+	void enterAndExpr(ZParser.AndExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#relationalExpression}.
+	 * Exit a parse tree produced by the {@code AndExpr}
+	 * labeled alternative in {@link ZParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitRelationalExpression(ZParser.RelationalExpressionContext ctx);
+	void exitAndExpr(ZParser.AndExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#additiveExpression}.
+	 * Enter a parse tree produced by the {@code ToEqualityExpr}
+	 * labeled alternative in {@link ZParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterAdditiveExpression(ZParser.AdditiveExpressionContext ctx);
+	void enterToEqualityExpr(ZParser.ToEqualityExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#additiveExpression}.
+	 * Exit a parse tree produced by the {@code ToEqualityExpr}
+	 * labeled alternative in {@link ZParser#logicalAndExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitAdditiveExpression(ZParser.AdditiveExpressionContext ctx);
+	void exitToEqualityExpr(ZParser.ToEqualityExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#multiplicativeExpression}.
+	 * Enter a parse tree produced by the {@code EqualExpr}
+	 * labeled alternative in {@link ZParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterMultiplicativeExpression(ZParser.MultiplicativeExpressionContext ctx);
+	void enterEqualExpr(ZParser.EqualExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#multiplicativeExpression}.
+	 * Exit a parse tree produced by the {@code EqualExpr}
+	 * labeled alternative in {@link ZParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitMultiplicativeExpression(ZParser.MultiplicativeExpressionContext ctx);
+	void exitEqualExpr(ZParser.EqualExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#unaryExpression}.
+	 * Enter a parse tree produced by the {@code ToComparisonExpr}
+	 * labeled alternative in {@link ZParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterUnaryExpression(ZParser.UnaryExpressionContext ctx);
+	void enterToComparisonExpr(ZParser.ToComparisonExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#unaryExpression}.
+	 * Exit a parse tree produced by the {@code ToComparisonExpr}
+	 * labeled alternative in {@link ZParser#equalityExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitUnaryExpression(ZParser.UnaryExpressionContext ctx);
+	void exitToComparisonExpr(ZParser.ToComparisonExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NotEqualExpr}
+	 * labeled alternative in {@link ZParser#equalityExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNotEqualExpr(ZParser.NotEqualExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NotEqualExpr}
+	 * labeled alternative in {@link ZParser#equalityExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNotEqualExpr(ZParser.NotEqualExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ToAdditiveExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterToAdditiveExpr(ZParser.ToAdditiveExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ToAdditiveExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitToAdditiveExpr(ZParser.ToAdditiveExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code GreaterExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterGreaterExpr(ZParser.GreaterExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code GreaterExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitGreaterExpr(ZParser.GreaterExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code GreaterEqualExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterGreaterEqualExpr(ZParser.GreaterEqualExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code GreaterEqualExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitGreaterEqualExpr(ZParser.GreaterEqualExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code LessExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLessExpr(ZParser.LessExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code LessExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLessExpr(ZParser.LessExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code LessEqualExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLessEqualExpr(ZParser.LessEqualExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code LessEqualExpr}
+	 * labeled alternative in {@link ZParser#comparisonExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLessEqualExpr(ZParser.LessEqualExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ToMultiplicativeExpr}
+	 * labeled alternative in {@link ZParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterToMultiplicativeExpr(ZParser.ToMultiplicativeExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ToMultiplicativeExpr}
+	 * labeled alternative in {@link ZParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitToMultiplicativeExpr(ZParser.ToMultiplicativeExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AdditionExpr}
+	 * labeled alternative in {@link ZParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterAdditionExpr(ZParser.AdditionExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AdditionExpr}
+	 * labeled alternative in {@link ZParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitAdditionExpr(ZParser.AdditionExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code SubtractionExpr}
+	 * labeled alternative in {@link ZParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubtractionExpr(ZParser.SubtractionExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code SubtractionExpr}
+	 * labeled alternative in {@link ZParser#additiveExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubtractionExpr(ZParser.SubtractionExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ModuloExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterModuloExpr(ZParser.ModuloExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ModuloExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitModuloExpr(ZParser.ModuloExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ToUnaryExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterToUnaryExpr(ZParser.ToUnaryExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ToUnaryExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitToUnaryExpr(ZParser.ToUnaryExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code DivisionExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterDivisionExpr(ZParser.DivisionExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code DivisionExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitDivisionExpr(ZParser.DivisionExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MultiplicationExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterMultiplicationExpr(ZParser.MultiplicationExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MultiplicationExpr}
+	 * labeled alternative in {@link ZParser#multiplicativeExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitMultiplicationExpr(ZParser.MultiplicationExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NotExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNotExpr(ZParser.NotExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NotExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNotExpr(ZParser.NotExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NegateExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNegateExpr(ZParser.NegateExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NegateExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNegateExpr(ZParser.NegateExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code PositiveExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterPositiveExpr(ZParser.PositiveExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code PositiveExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitPositiveExpr(ZParser.PositiveExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ToPostfixExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterToPostfixExpr(ZParser.ToPostfixExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ToPostfixExpr}
+	 * labeled alternative in {@link ZParser#unaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitToPostfixExpr(ZParser.ToPostfixExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ZParser#postfixExpression}.
 	 * @param ctx the parse tree
@@ -457,55 +745,149 @@ public interface ZListener extends ParseTreeListener {
 	 */
 	void exitPostfixExpression(ZParser.PostfixExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#postfixOperation}.
+	 * Enter a parse tree produced by the {@code ArrayAccessOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void enterPostfixOperation(ZParser.PostfixOperationContext ctx);
+	void enterArrayAccessOp(ZParser.ArrayAccessOpContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#postfixOperation}.
+	 * Exit a parse tree produced by the {@code ArrayAccessOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void exitPostfixOperation(ZParser.PostfixOperationContext ctx);
+	void exitArrayAccessOp(ZParser.ArrayAccessOpContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#arrayAccess}.
+	 * Enter a parse tree produced by the {@code MemberAccessOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void enterArrayAccess(ZParser.ArrayAccessContext ctx);
+	void enterMemberAccessOp(ZParser.MemberAccessOpContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#arrayAccess}.
+	 * Exit a parse tree produced by the {@code MemberAccessOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void exitArrayAccess(ZParser.ArrayAccessContext ctx);
+	void exitMemberAccessOp(ZParser.MemberAccessOpContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#memberAccess}.
+	 * Enter a parse tree produced by the {@code FunctionCallOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void enterMemberAccess(ZParser.MemberAccessContext ctx);
+	void enterFunctionCallOp(ZParser.FunctionCallOpContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#memberAccess}.
+	 * Exit a parse tree produced by the {@code FunctionCallOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void exitMemberAccess(ZParser.MemberAccessContext ctx);
+	void exitFunctionCallOp(ZParser.FunctionCallOpContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#functionCall}.
+	 * Enter a parse tree produced by the {@code PostIncrementOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void enterFunctionCall(ZParser.FunctionCallContext ctx);
+	void enterPostIncrementOp(ZParser.PostIncrementOpContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#functionCall}.
+	 * Exit a parse tree produced by the {@code PostIncrementOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void exitFunctionCall(ZParser.FunctionCallContext ctx);
+	void exitPostIncrementOp(ZParser.PostIncrementOpContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#primaryExpression}.
+	 * Enter a parse tree produced by the {@code PostDecrementOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void enterPrimaryExpression(ZParser.PrimaryExpressionContext ctx);
+	void enterPostDecrementOp(ZParser.PostDecrementOpContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#primaryExpression}.
+	 * Exit a parse tree produced by the {@code PostDecrementOp}
+	 * labeled alternative in {@link ZParser#postfixOperation}.
 	 * @param ctx the parse tree
 	 */
-	void exitPrimaryExpression(ZParser.PrimaryExpressionContext ctx);
+	void exitPostDecrementOp(ZParser.PostDecrementOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code LiteralExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLiteralExpr(ZParser.LiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code LiteralExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLiteralExpr(ZParser.LiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code VariableExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterVariableExpr(ZParser.VariableExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code VariableExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitVariableExpr(ZParser.VariableExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ObjCreationExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjCreationExpr(ZParser.ObjCreationExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ObjCreationExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjCreationExpr(ZParser.ObjCreationExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArrayCreationExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayCreationExpr(ZParser.ArrayCreationExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArrayCreationExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayCreationExpr(ZParser.ArrayCreationExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NullExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNullExpr(ZParser.NullExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NullExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNullExpr(ZParser.NullExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ReadExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterReadExpr(ZParser.ReadExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ReadExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitReadExpr(ZParser.ReadExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ParenthesizedExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterParenthesizedExpr(ZParser.ParenthesizedExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ParenthesizedExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitParenthesizedExpr(ZParser.ParenthesizedExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ZParser#arrayCreation}.
 	 * @param ctx the parse tree
@@ -527,15 +909,77 @@ public interface ZListener extends ParseTreeListener {
 	 */
 	void exitArrayCreationDimensions(ZParser.ArrayCreationDimensionsContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ZParser#literal}.
+	 * Enter a parse tree produced by the {@code IntegerLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
 	 * @param ctx the parse tree
 	 */
-	void enterLiteral(ZParser.LiteralContext ctx);
+	void enterIntegerLiteralExpr(ZParser.IntegerLiteralExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ZParser#literal}.
+	 * Exit a parse tree produced by the {@code IntegerLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
 	 * @param ctx the parse tree
 	 */
-	void exitLiteral(ZParser.LiteralContext ctx);
+	void exitIntegerLiteralExpr(ZParser.IntegerLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FloatLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void enterFloatLiteralExpr(ZParser.FloatLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FloatLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void exitFloatLiteralExpr(ZParser.FloatLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code CharLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void enterCharLiteralExpr(ZParser.CharLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code CharLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void exitCharLiteralExpr(ZParser.CharLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code StringLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringLiteralExpr(ZParser.StringLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StringLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringLiteralExpr(ZParser.StringLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code TrueLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void enterTrueLiteralExpr(ZParser.TrueLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code TrueLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void exitTrueLiteralExpr(ZParser.TrueLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FalseLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void enterFalseLiteralExpr(ZParser.FalseLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FalseLiteralExpr}
+	 * labeled alternative in {@link ZParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void exitFalseLiteralExpr(ZParser.FalseLiteralExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ZParser#argumentList}.
 	 * @param ctx the parse tree

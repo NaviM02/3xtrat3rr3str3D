@@ -1,12 +1,8 @@
 package com.navi;
 
-import com.navi.backend.ast.y.AstYNode;
-import com.navi.backend.ast.y.global.Program;
-import com.navi.backend.ast.y.visitors.ProgramVisitor;
-import com.navi.backend.lexer_parser.y.IndentationTokenSource;
-import com.navi.backend.lexer_parser.y.YLexer;
-import com.navi.backend.lexer_parser.y.YParser;
-import com.navi.backend.lexer_parser.y.errors.YErrorListener;
+import com.navi.backend.ast.z.AstZNode;
+import com.navi.backend.ast.z.global.Program;
+import com.navi.backend.ast.z.visitors.ProgramVisitor;
 import com.navi.backend.lexer_parser.z.ZLexer;
 import com.navi.backend.lexer_parser.z.ZParser;
 import com.navi.backend.lexer_parser.z.errors.ZErrorListener;
@@ -16,225 +12,275 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 
 public class Main {
-    public static void main(String[] args) {
-        String codigo = """
-                // definición de estructuras globales, la sección es opcional
-                %estructuras
-                estructura MiEstructura:
-                    cadena nombre
-                
-                estructura Persona:\s
-                     entero edad
-                     cadena nombre
-                     flotante promedio // numero con decimales
-                     caracter letra
-                     /*\s
-                       la expresión para definir  arreglos\s
-                       obligatoriamente debe ser constante
-                       unicamente dentro de la definición de una estructura
-                     */
-                     entero miArray[10]\s
-                
-                	// es posible anidar estructuras
-                     MiEstructura miEstructura\s
-                
-                
-                
-                // definición de un funciones, la seccion es obligatoria
-                %funciones
-                /*
-                    Importante
-                    Todos los tipos de datos primitivos se pasan por valor
-                    Los arreglos se pasan asi:
-                           [] entero miArray\s
-                           ejemplo: definir miFuncion([] enterro miArray):
-                           Los arreglos se van a pasar exclusivamente por referencia
-                           Es decir que la función recibe un acceso directo\s
-                           a la ubicación original del arreglo en la memoria.\s
-                           Los arreglos a bajo nivel deben estar aplanados.
-                    Las estructuras se pasan asi:
-                           {} MiEstructura miEstructura
-                           ejemplo:\s
-                           Al igual que los arreglos,\s
-                           se pasan exclusivamente por referencia
-                */
-                // Función sin retorno, con un parámetro. Los parametros son opcionales
-                definir funcionSinRetorno(entero miEntero):
-                   miEntero = 90 * 10
-                
-                // Función con retorno de tipo entero
-                definir funcionConRetorno(entero miEntero) -> entero :
-                    miEntero = 10 + 10
-                    retornar 160
-                    
-                definir funcionPrueba():
-                    entero numeros[5] = {10, 20, 30, 40, 50}
-                    entero resultado
-                    resultado = numeros[0] + numeros[1] // 10 + 20 = 30
-                    numeros[2] = numeros[0] * 3 // numeros[2] ahora vale 30
-                    
-                    // Se pueden declarar estructuras dentro de las funciones
-                    estructura Punto:
-                        entero x
-                        entero y
-                        flotante promedio
-                    
-                    Punto p1 = {10, 20, 85.5}
-                    Punto p2 = {5, 15, 90.0}
-                    flotante sumaPromedios
-                    entero distanciaCuadrada
-                    
-                    sumaPromedios = p1.promedio + p2.promedio
-                    
-                    Punto p3
-                    p3 = p1\s
-                    
-                    entero sinInicializacion
-                    entero edadUsuario = 25
-                    flotante temperatura = 36.6
-                    caracter inicial = 'A'
-                    bool bandera = verdadero
-                    bool bandera2 = falso     
-                    cadena saludos =  "Saludos zetarianos"
-                    entero numeros[10]
-                    entero matriz[3][3]
-                    Persona alumno1
-                    alumno1.nombre = "Yennifer"
-                
-                definir funcionCondicionales():
-                    si(edad > 18) entonces
-                        imprimir("Codigo si es mayor de edad")
-                
-                        si(condicion == verdadero) entonces
-                            imprimir("Otra condicion")
-                
-                        imprimir("Esto siempre se imprime")
-                    sino (edad == 18) entonces  // opcional
-                        imprimir("Codigo si tiene exactamente 18")
-                    contrario  // opcional
-                        imprimir("Codigo si es menor de edad")
-                
-                    elegir(opcion) :
-                        caso 1:
-                            // Código para la opción 1
-                            x = 10
-                            romper
-                        caso 2:
-                            // Código para la opción 2
-                            x = 20
-                            romper
-                        siempre:
-                            // Código por defecto
-                            x = 30
-                            romper
-                
-                    para(entero i = 0; i < 10; i++):
-                        si(i == 3) entonces
-                            continuar // Salta esta iteración cuando i es 3
 
-                        si(i == 8) entonces
-                            romper    // Sale del ciclo por completo cuando i es 8
+    public static void main(String[] args) throws Exception {
 
-                
-                    entero contador = 0
-                    mientras(contador < 5) hacer:
-                        contador++
-                
-                        si(contador == 2) entonces
-                            continuar // Salta el resto del ciclo y vuelve a evaluar
-                
-                    entero intentos = 0
-                    hacer:
-                        intentos++
-                
-                        si(intentos == 4) entonces
-                            romper // Rompe el ciclo inmediatamente
-                
-                    mientras(intentos < 10)
-                
-                    imprimir("Imprimir")
-                    leer()
-                    cadena x = leer()
-                    x = leer()
-                
+        String source = """
+                public class Persona {
+
+                    int edad = 25;
+                    double altura = 1.75;
+                    char inicial = 'A';
+                    boolean esEstudiante = true;
+                    int[] calificaciones = new int[5];
+                    String[] nombres = {"Carlos", "Ana", "Pedro"};
+                    int[][] matriz = new int[3][3];
+
+                    public Persona(String nombreParametro, int edadParametro) {
+                        nombre = nombreParametro;
+                        edad = edadParametro;
+                    }
+
+                    public Persona() {
+                        nombre = "Sin nombre";
+                        edad = 0;
+                    }
+
+                    public void saludar() {
+                        println("Hola " + nombre);
+                    }
+
+                    public void prueba() {
+                        Persona alumno1;
+                        alumno1 = new Persona("Carlos", 20);
+                        Persona profesor = new Persona("Ana", 45);
+
+                        int a = 10;
+                        int b = 3;
+                        int suma = a + b;
+                        int resta = a - b;
+                        int multiplicacion = a * b;
+                        int division = a / b;
+                        int modulo = a % b;
+
+                        a++;
+                        b--;
+
+                        boolean esMayor = (a > b);
+                        boolean esIgual = (a == 10);
+                        boolean condicionAnd = (a > 5 && b < 10);
+                        boolean condicionOr = (a > 20 || b > 0);
+                        boolean condicionNot = !(a == 10);
+
+                        int x = 5;
+                        x += 3;
+                        x -= 2;
+                        x *= 2;
+
+                        int edad = 20;
+                        String mensaje = (edad >= 18)
+                                ? "Es mayor de edad"
+                                : "Es menor de edad";
+
+                        int numero = 7;
+                        int esParOImpar = (numero % 2 == 0) ? 0 : 1;
+
+                        int[] numeros = {10, 20, 30, 40, 50};
+                        int resultado;
+
+                        resultado = numeros[0] + numeros[1];
+                        numeros[2] = numeros[0] * 3;
+
+                        Persona p1 = new Persona("Carlos", 25);
+                        Persona p2 = new Persona("Ana", 30);
+
+                        int sumaEdades;
+                        String mensajeClasificacion;
+
+                        sumaEdades = p1.edad + p2.edad;
+
+                        mensajeClasificacion =
+                                (p1.edad >= 18) ? "Adulto" : "Menor";
+
+                        int anioNac = 2026 - p1.obtenerEdad();
+
+                        if (p1 == null) {
+                            print("Es posible comparar si un objeto es nulo");
+                        }
+                    }
+
+                    public void condicionales() {
+
+                        int edad = 18;
+                        int opcion = 2;
+
+                        if (edad > 18) {
+                            println("Es mayor de edad.");
+                        } else if (edad == 18) {
+                            println("Justo tiene 18 años!");
+                        } else {
+                            println("Es menor de edad.");
+                        }
+
+                        if (edad >= 18)
+                            println("Es adulto");
+                        else
+                            println("Es menor");
+
+                        if (condicion == true)
+                            if (otraCondicion == false)
+                                print("hola");
+
+                        switch (opcion) {
+                            case 1:
+                                println("Opción 1 seleccionada");
+                                break;
+
+                            case 2:
+                                println("Opción 2 seleccionada");
+
+                            default:
+                                println("Opción no válida");
+                                break;
+                        }
+
+                        for (int i = 0; i < 5; i++) {
+                            println("Iteración número: " + i);
+
+                            if (i == 2) {
+                                continue;
+                            }
+
+                            if (i == 4) {
+                                break;
+                            }
+                        }
+
+                        for (;;) {
+                            println("Este bucle nunca termina a menos que use un break...");
+                            break;
+                        }
+
+                        int contador = 0;
+
+                        while (contador < 3) {
+                            println("Contador while: " + contador);
+                            contador++;
+
+                            if (contador == 1) {
+                                continue;
+                            }
+                        }
+
+                        int intentos = 0;
+
+                        do {
+                            intentos++;
+                            println("Intento número: " + intentos);
+
+                            if (intentos == 2) {
+                                break;
+                            }
+                        } while (intentos < 5);
+
+                        println("Imprimo con un salto de linea");
+                        print("Imprimo sin un salto de linea");
+                        readln();
+                    }
+
+                    public int calcularAnioNacimiento(int anioActual) {
+                        return anioActual - edad;
+                    }
+                }
                 """;
 
-        CharStream input = CharStreams.fromString(codigo);
+        System.out.println("=================================");
+        System.out.println("       PRUEBA DE ZETARIANO");
+        System.out.println("=================================\n");
 
-        YLexer lexer = new YLexer(input);
+        // -------------------------------------------------
+        // 1. Lexer
+        // -------------------------------------------------
 
-        IndentationTokenSource indentationSource =
-                new IndentationTokenSource(lexer);
+        CharStream input = CharStreams.fromString(source);
 
-        indentationSource.setIndentationErrorListener(
-                (line, message) -> {
+        ZLexer lexer = new ZLexer(input);
 
-                    System.err.println(
-                            "ERROR LÉXICO ["
-                                    + line
-                                    + "] "
-                                    + message
-                    );
-                }
-        );
-
-        CommonTokenStream tokens =
-                new CommonTokenStream(indentationSource);
-
-        YParser parser =
-                new YParser(tokens);
-
-        parser.removeErrorListeners();
-
-        parser.addErrorListener(new YErrorListener());
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
 
         tokens.fill();
 
-        System.out.println(
-                "========== TOKENS =========="
-        );
+        System.out.println("========== TOKENS ==========");
 
-        for (var token : tokens.getTokens()) {
+        for (Token token : tokens.getTokens()) {
 
-            String symbolicName =
-                    YLexer.VOCABULARY
-                            .getSymbolicName(
-                                    token.getType()
-                            );
+            String tokenName =
+                    ZLexer.VOCABULARY.getSymbolicName(token.getType());
+
+            if (tokenName == null) {
+                tokenName =
+                        ZLexer.VOCABULARY.getLiteralName(token.getType());
+            }
 
             System.out.printf(
-                    "[%d:%d] %-15s -> '%s'%n",
+                    "[%d:%d] %-20s -> '%s'%n",
                     token.getLine(),
                     token.getCharPositionInLine(),
-                    symbolicName,
+                    tokenName,
                     token.getText()
             );
         }
 
-        System.out.println(
-                "\n========== FIN TOKENS =========="
-        );
+        System.out.println("\n========== FIN TOKENS ==========");
+
+        // -------------------------------------------------
+        // 2. Parser
+        // -------------------------------------------------
+
+        tokens.seek(0);
+
+        ZParser parser = new ZParser(tokens);
+
+        ZErrorListener errorListener = new ZErrorListener();
+
+        parser.removeErrorListeners();
+        parser.addErrorListener(errorListener);
+
+        System.out.println("\n========== PARSER ==========");
+
+        ZParser.ProgramContext tree = parser.program();
 
         System.out.println("\n========== FIN DEL PARSER ==========");
 
-        YParser.ProgramContext tree = parser.program();
+        // -------------------------------------------------
+        // 3. AST
+        // -------------------------------------------------
+
+        if (errorListener.hasErrors()) {
+
+            System.out.println(
+                    "\n========== AST NO GENERADO =========="
+            );
+
+            System.out.println(
+                    "El programa tiene errores sintácticos."
+            );
+
+            return;
+        }
 
         ProgramVisitor visitor = new ProgramVisitor();
+
         Program program = (Program) visitor.visit(tree);
 
         System.out.println("\n========== AST ==========");
+
         printAst(program, 0);
+
         System.out.println("\n========== FIN AST ==========");
     }
 
-    private static void printAst(AstYNode node, int level) {
+    private static void printAst(AstZNode node, int level) {
+
         if (node == null) {
             return;
         }
 
-        System.out.println("  ".repeat(level) + node.getNodeLabel());
+        System.out.println(
+                "  ".repeat(level) + node.getNodeLabel()
+        );
 
-        for (AstYNode child : node.getChildren()) {
+        for (AstZNode child : node.getChildren()) {
             printAst(child, level + 1);
         }
     }
