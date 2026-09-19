@@ -28,6 +28,30 @@ public class PigLatinBaseListener implements PigLatinListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterImportDeclaration(PigLatinParser.ImportDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitImportDeclaration(PigLatinParser.ImportDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterImportPath(PigLatinParser.ImportPathContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitImportPath(PigLatinParser.ImportPathContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterGlobalVariablesSection(PigLatinParser.GlobalVariablesSectionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -59,54 +83,6 @@ public class PigLatinBaseListener implements PigLatinListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitMainSection(PigLatinParser.MainSectionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStructWithSemicolon(PigLatinParser.StructWithSemicolonContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStructWithSemicolon(PigLatinParser.StructWithSemicolonContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStructWithComma(PigLatinParser.StructWithCommaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStructWithComma(PigLatinParser.StructWithCommaContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStructVariableField(PigLatinParser.StructVariableFieldContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStructVariableField(PigLatinParser.StructVariableFieldContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStructArrayField(PigLatinParser.StructArrayFieldContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStructArrayField(PigLatinParser.StructArrayFieldContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1151,6 +1127,18 @@ public class PigLatinBaseListener implements PigLatinListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVariableExpr(PigLatinParser.VariableExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterObjectCreationExpr(PigLatinParser.ObjectCreationExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitObjectCreationExpr(PigLatinParser.ObjectCreationExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

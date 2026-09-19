@@ -44,6 +44,19 @@ public class ExpressionVisitor extends PigLatinBaseVisitor<AstLatNode> {
     }
 
     @Override
+    public AstLatNode visitObjectCreationExpr(PigLatinParser.ObjectCreationExprContext ctx) {
+        List<Expression> arguments = new ArrayList<>();
+
+        if (ctx.argumentList() != null) {
+            for (PigLatinParser.ExpressionContext expr : ctx.argumentList().expression()) {
+                arguments.add((Expression) visit(expr));
+            }
+        }
+
+        return new ObjectCreationExpression(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.ID().getText(), arguments);
+    }
+
+    @Override
     public AstLatNode visitVariableExpr(PigLatinParser.VariableExprContext ctx) {
         return new VariableExpression(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.ID().getText());
     }

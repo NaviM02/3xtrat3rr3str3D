@@ -17,6 +17,26 @@ public interface PigLatinListener extends ParseTreeListener {
 	 */
 	void exitProgram(PigLatinParser.ProgramContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link PigLatinParser#importDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterImportDeclaration(PigLatinParser.ImportDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PigLatinParser#importDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitImportDeclaration(PigLatinParser.ImportDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PigLatinParser#importPath}.
+	 * @param ctx the parse tree
+	 */
+	void enterImportPath(PigLatinParser.ImportPathContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PigLatinParser#importPath}.
+	 * @param ctx the parse tree
+	 */
+	void exitImportPath(PigLatinParser.ImportPathContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link PigLatinParser#globalVariablesSection}.
 	 * @param ctx the parse tree
 	 */
@@ -46,54 +66,6 @@ public interface PigLatinListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMainSection(PigLatinParser.MainSectionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code StructWithSemicolon}
-	 * labeled alternative in {@link PigLatinParser#structDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterStructWithSemicolon(PigLatinParser.StructWithSemicolonContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code StructWithSemicolon}
-	 * labeled alternative in {@link PigLatinParser#structDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitStructWithSemicolon(PigLatinParser.StructWithSemicolonContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code StructWithComma}
-	 * labeled alternative in {@link PigLatinParser#structDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterStructWithComma(PigLatinParser.StructWithCommaContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code StructWithComma}
-	 * labeled alternative in {@link PigLatinParser#structDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitStructWithComma(PigLatinParser.StructWithCommaContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code StructVariableField}
-	 * labeled alternative in {@link PigLatinParser#structField}.
-	 * @param ctx the parse tree
-	 */
-	void enterStructVariableField(PigLatinParser.StructVariableFieldContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code StructVariableField}
-	 * labeled alternative in {@link PigLatinParser#structField}.
-	 * @param ctx the parse tree
-	 */
-	void exitStructVariableField(PigLatinParser.StructVariableFieldContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code StructArrayField}
-	 * labeled alternative in {@link PigLatinParser#structField}.
-	 * @param ctx the parse tree
-	 */
-	void enterStructArrayField(PigLatinParser.StructArrayFieldContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code StructArrayField}
-	 * labeled alternative in {@link PigLatinParser#structField}.
-	 * @param ctx the parse tree
-	 */
-	void exitStructArrayField(PigLatinParser.StructArrayFieldContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PigLatinParser#functionDeclaration}.
 	 * @param ctx the parse tree
@@ -1074,6 +1046,18 @@ public interface PigLatinListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitVariableExpr(PigLatinParser.VariableExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ObjectCreationExpr}
+	 * labeled alternative in {@link PigLatinParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectCreationExpr(PigLatinParser.ObjectCreationExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ObjectCreationExpr}
+	 * labeled alternative in {@link PigLatinParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectCreationExpr(PigLatinParser.ObjectCreationExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ParenthesizedExpr}
 	 * labeled alternative in {@link PigLatinParser#primaryExpression}.

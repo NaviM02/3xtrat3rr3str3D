@@ -1,4 +1,4 @@
-package com.navi.backend.ast.lat.declarations;
+package com.navi.backend.ast.lat.global;
 
 import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
@@ -7,24 +7,22 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class StructDeclaration extends Declaration {
-    private final String name;
-    private final List<StructField> fields;
+public class ImportDeclaration extends AstLatNode {
+    private final String path;
 
-    public StructDeclaration(int line, int column, String name, List<StructField> fields) {
+    public ImportDeclaration(int line, int column, String path) {
         super(line, column);
-        this.name = name;
-        this.fields = fields;
+        this.path = path;
     }
 
     @Override
     public List<? extends AstLatNode> getChildren() {
-        return fields;
+        return List.of();
     }
 
     @Override
     public String getNodeLabel() {
-        return "StructDeclaration: " + name;
+        return "ImportDeclaration: " + path;
     }
 
     @Override

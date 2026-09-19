@@ -2,8 +2,12 @@ grammar PigLatin;
 
 // global
 program
-    : globalVariablesSection? functionSection? mainSection FINIS_PROGRAM ';' EOF
+    : importDeclaration* globalVariablesSection? functionSection? mainSection FINIS_PROGRAM ';' EOF
     ;
+
+importDeclaration : IMPORT importPath; // new
+
+importPath : ID ('.' ID)+; // new
 
 globalVariablesSection
     : VARIABLES_SECTION declaration*
@@ -17,17 +21,7 @@ mainSection
     : MAIN_SECTION statement*
     ;
 
-// structures and functions
-structDeclaration
-    : STRUCTURA ID '{' (structField ';')+ '}' FINIS ';'                  #StructWithSemicolon
-    | STRUCTURA ID '{' structField (',' structField)* ','? '}' FINIS ';' #StructWithComma
-    ;
-
-structField
-    : ESTO ID ':' type      #StructVariableField
-    | SERIES ID ':' type    #StructArrayField
-    ;
-
+// functions
 functionDeclaration
     : procedureDeclaration
     | functionWithReturn
@@ -57,7 +51,6 @@ functionBody
 declaration
     : variableDeclaration
     | arrayDeclaration
-    | structDeclaration
     ;
 
 localVariableSection
@@ -266,6 +259,7 @@ primaryExpression
     | VERUM                  #TrueLiteralExpr
     | FALSUS                 #FalseLiteralExpr
     | ID                     #VariableExpr
+    | NOVUS ID '(' argumentList? ')' #ObjectCreationExpr
     | '(' expression ')'     #ParenthesizedExpr
     ;
 
@@ -277,7 +271,6 @@ MAIN_SECTION      : 'MAIOR>';
 FINIS_PROGRAM     : 'FINIS';
 
 // key words
-STRUCTURA  : 'structura';
 FINIS      : 'finis';
 ESTO       : 'esto';
 SERIES     : 'series';
@@ -292,6 +285,8 @@ REDDERE    : 'reddere';
 PERGE      : 'perge';
 INTERRUMPE : 'interrumpe';
 VARIABILES : 'VARIABILES';
+IMPORT     : 'import';
+NOVUS      : 'novus';
 
 // key word for types
 NUMERUS   : 'numerus';

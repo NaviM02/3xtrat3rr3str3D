@@ -13,6 +13,7 @@ public interface AstLatVisitor<R> {
 
     R visit(Program node);
 
+    R visit(ImportDeclaration node);
     R visit(GlobalVariableSection node);
     R visit(LocalVariableSection node);
     R visit(FunctionDeclaration node);
@@ -22,8 +23,6 @@ public interface AstLatVisitor<R> {
     R visit(VariableDeclaration node);
     R visit(ArrayDeclaration node);
     R visit(ArrayInitializer node);
-    R visit(StructDeclaration node);
-    R visit(StructField node);
 
     R visit(ExpressionInitializer node);
     R visit(StructInitializer node);
@@ -48,6 +47,7 @@ public interface AstLatVisitor<R> {
     R visit(BinaryExpression node);
     R visit(FunctionCallExpression node);
     R visit(MemberAccessExpression node);
+    R visit(ObjectCreationExpression node);
     R visit(UnaryExpression node);
     R visit(VariableExpression node);
 

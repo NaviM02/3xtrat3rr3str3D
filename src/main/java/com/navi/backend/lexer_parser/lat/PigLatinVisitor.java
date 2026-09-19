@@ -16,6 +16,18 @@ public interface PigLatinVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProgram(PigLatinParser.ProgramContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link PigLatinParser#importDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImportDeclaration(PigLatinParser.ImportDeclarationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PigLatinParser#importPath}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImportPath(PigLatinParser.ImportPathContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link PigLatinParser#globalVariablesSection}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -33,34 +45,6 @@ public interface PigLatinVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMainSection(PigLatinParser.MainSectionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code StructWithSemicolon}
-	 * labeled alternative in {@link PigLatinParser#structDeclaration}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStructWithSemicolon(PigLatinParser.StructWithSemicolonContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code StructWithComma}
-	 * labeled alternative in {@link PigLatinParser#structDeclaration}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStructWithComma(PigLatinParser.StructWithCommaContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code StructVariableField}
-	 * labeled alternative in {@link PigLatinParser#structField}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStructVariableField(PigLatinParser.StructVariableFieldContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code StructArrayField}
-	 * labeled alternative in {@link PigLatinParser#structField}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStructArrayField(PigLatinParser.StructArrayFieldContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PigLatinParser#functionDeclaration}.
 	 * @param ctx the parse tree
@@ -638,6 +622,13 @@ public interface PigLatinVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVariableExpr(PigLatinParser.VariableExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ObjectCreationExpr}
+	 * labeled alternative in {@link PigLatinParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectCreationExpr(PigLatinParser.ObjectCreationExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ParenthesizedExpr}
 	 * labeled alternative in {@link PigLatinParser#primaryExpression}.

@@ -3,6 +3,7 @@ package com.navi.backend.ast.lat.visitors;
 import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.global.FunctionDeclaration;
 import com.navi.backend.ast.lat.global.GlobalVariableSection;
+import com.navi.backend.ast.lat.global.ImportDeclaration;
 import com.navi.backend.ast.lat.global.Program;
 import com.navi.backend.ast.lat.declarations.Declaration;
 import com.navi.backend.lexer_parser.lat.PigLatinParser;
@@ -14,9 +15,14 @@ import java.util.List;
 public class ProgramVisitor extends DeclarationVisitor {
     @Override
     public AstLatNode visitProgram(PigLatinParser.ProgramContext ctx) {
+        List<ImportDeclaration> imports = new ArrayList<>();
         GlobalVariableSection globalVariables = null;
         List<FunctionDeclaration> functions = new ArrayList<>();
         List<Statement> mainStatements = new ArrayList<>();
+
+        for (PigLatinParser.ImportDeclarationContext importCtx : ctx.importDeclaration()) {
+            imports.add((ImportDeclaration) visit(importCtx));
+        }
 
         if (ctx.globalVariablesSection() != null) {
             globalVariables = (GlobalVariableSection) visit(ctx.globalVariablesSection());
@@ -32,7 +38,16 @@ public class ProgramVisitor extends DeclarationVisitor {
             mainStatements.add((Statement) visit(statement));
         }
 
-        return new Program(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), globalVariables, functions, mainStatements);
+        return new Program(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), imports, globalVariables, functions, mainStatements);
+    }
+
+    @Override
+    public AstLatNode visitImportDeclaration(PigLatinParser.ImportDeclarationContext ctx) {
+        return new ImportDeclaration(
+                ctx.getStart().getLine(),
+                ctx.getStart().getCharPositionInLine(),
+                ctx.importPath().getText()
+        );
     }
 
     @Override

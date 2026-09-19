@@ -10,12 +10,14 @@ import java.util.List;
 
 @Getter
 public class Program extends AstLatNode {
+    private final List<ImportDeclaration> imports;
     private final GlobalVariableSection globalVariables;
     private final List<FunctionDeclaration> functions;
     private final List<Statement> mainStatements;
 
-    public Program(int line, int column, GlobalVariableSection globalVariables, List<FunctionDeclaration> functions, List<Statement> mainStatements) {
+    public Program(int line, int column, List<ImportDeclaration> imports,  GlobalVariableSection globalVariables, List<FunctionDeclaration> functions, List<Statement> mainStatements) {
         super(line, column);
+        this.imports = imports;
         this.globalVariables = globalVariables;
         this.functions = functions;
         this.mainStatements = mainStatements;
@@ -24,6 +26,10 @@ public class Program extends AstLatNode {
     @Override
     public List<? extends AstLatNode> getChildren() {
         List<AstLatNode> children = new ArrayList<>();
+
+        if (imports != null) {
+            children.addAll(imports);
+        }
 
         if (globalVariables != null) {
             children.add(globalVariables);

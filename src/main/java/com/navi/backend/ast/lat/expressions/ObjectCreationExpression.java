@@ -1,32 +1,35 @@
-package com.navi.backend.ast.lat.declarations;
+package com.navi.backend.ast.lat.expressions;
 
 import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class StructField extends AstLatNode {
-    private final String name;
+public class ObjectCreationExpression extends Expression {
     private final String type;
-    private final boolean isArray;
+    private final List<Expression> arguments;
 
-    public StructField(int line, int column, String name, String type, boolean isArray) {
+    public ObjectCreationExpression(int line, int column, String type, List<Expression> arguments) {
         super(line, column);
-        this.name = name;
         this.type = type;
-        this.isArray = isArray;
+        this.arguments = arguments;
     }
 
     @Override
     public List<? extends AstLatNode> getChildren() {
-        return List.of();
+        if (arguments == null) {
+            return List.of();
+        }
+
+        return new ArrayList<>(arguments);
     }
 
     @Override
     public String getNodeLabel() {
-        return "StructField: " + name + " : " + type;
+        return "ObjectCreationExpression: " + type;
     }
 
     @Override
