@@ -8,10 +8,10 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class Program extends AstZNode {
+public class ProgramZ extends AstZNode {
     private final ClassDeclaration classDeclaration;
 
-    public Program(int line, int column, ClassDeclaration classDeclaration) {
+    public ProgramZ(int line, int column, ClassDeclaration classDeclaration) {
         super(line, column);
         this.classDeclaration = classDeclaration;
     }

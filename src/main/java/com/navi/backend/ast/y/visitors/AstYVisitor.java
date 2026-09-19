@@ -3,12 +3,12 @@ package com.navi.backend.ast.y.visitors;
 import com.navi.backend.ast.y.declarations.*;
 import com.navi.backend.ast.y.expressions.*;
 import com.navi.backend.ast.y.expressions.literals.LiteralExpression;
-import com.navi.backend.ast.y.global.Program;
+import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.y.statements.*;
 
 public interface AstYVisitor<R> {
     // program
-    R visit(Program node);
+    R visit(ProgramY node);
     // declarations
     R visit(ArrayDeclaration node);
     R visit(ArrayDimensions node);

@@ -3,11 +3,11 @@ package com.navi.backend.ast.z.visitors;
 import com.navi.backend.ast.z.declarations.*;
 import com.navi.backend.ast.z.expressions.*;
 import com.navi.backend.ast.z.expressions.literals.LiteralExpression;
-import com.navi.backend.ast.z.global.Program;
+import com.navi.backend.ast.z.global.ProgramZ;
 import com.navi.backend.ast.z.statements.*;
 
 public interface AstZVisitor<R> {
-    R visit(Program node);
+    R visit(ProgramZ node);
     R visit(ClassDeclaration node);
     R visit(ClassMember node);
     R visit(FieldDeclaration node);

@@ -3,7 +3,7 @@ package com.navi.backend.ast.y.visitors;
 import com.navi.backend.ast.y.AstYNode;
 import com.navi.backend.ast.y.declarations.FunctionDeclaration;
 import com.navi.backend.ast.y.declarations.StructureDeclaration;
-import com.navi.backend.ast.y.global.Program;
+import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.lexer_parser.y.YParser;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class ProgramVisitor extends DeclarationVisitor {
             }
         }
 
-        return new Program(
+        return new ProgramY(
             ctx.getStart().getLine(),
             ctx.getStart().getCharPositionInLine(),
             structures,

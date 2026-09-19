@@ -8,12 +8,12 @@ import com.navi.backend.ast.y.visitors.AstYVisitor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Program extends AstYNode {
+public class ProgramY extends AstYNode {
 
     private final List<StructureDeclaration> structures;
     private final List<FunctionDeclaration> functions;
 
-    public Program(int line, int column, List<StructureDeclaration> structures, List<FunctionDeclaration> functions) {
+    public ProgramY(int line, int column, List<StructureDeclaration> structures, List<FunctionDeclaration> functions) {
         super(line, column);
         this.structures = structures;
         this.functions = functions;

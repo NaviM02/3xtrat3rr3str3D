@@ -1,7 +1,7 @@
 package com.navi;
 
 import com.navi.backend.ast.z.AstZNode;
-import com.navi.backend.ast.z.global.Program;
+import com.navi.backend.ast.z.global.ProgramZ;
 import com.navi.backend.ast.z.visitors.ProgramVisitor;
 import com.navi.backend.lexer_parser.z.ZLexer;
 import com.navi.backend.lexer_parser.z.ZParser;
@@ -261,7 +261,7 @@ public class Main {
 
         ProgramVisitor visitor = new ProgramVisitor();
 
-        Program program = (Program) visitor.visit(tree);
+        ProgramZ program = (ProgramZ) visitor.visit(tree);
 
         System.out.println("\n========== AST ==========");
 
