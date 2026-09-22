@@ -9,10 +9,10 @@ import java.util.List;
 
 @Getter
 public class VariableDeclaration extends AstZNode {
-    private final Type type;
+    private final ZType type;
     private final List<VariableDeclarator> variables;
 
-    public VariableDeclaration(int line, int column, Type type, List<VariableDeclarator> variables) {
+    public VariableDeclaration(int line, int column, ZType type, List<VariableDeclarator> variables) {
         super(line, column);
         this.type = type;
         this.variables = variables;

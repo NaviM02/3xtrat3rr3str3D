@@ -1,7 +1,6 @@
 package com.navi.backend.ast.y.declarations;
 
 import com.navi.backend.ast.y.AstYNode;
-import com.navi.backend.ast.y.expressions.Expression;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
 import lombok.Getter;
 
@@ -9,12 +8,12 @@ import java.util.List;
 
 @Getter
 public class VariableDeclaration extends Declaration {
-    private final Type type;
+    private final YType type;
     private final String name;
     private final ArrayDeclaration arrayDeclaration;
     private final Initializer initializer;
 
-    public VariableDeclaration(int line, int column, Type type, String name, ArrayDeclaration arrayDeclaration, Initializer initializer) {
+    public VariableDeclaration(int line, int column, YType type, String name, ArrayDeclaration arrayDeclaration, Initializer initializer) {
         super(line, column);
         this.type = type;
         this.name = name;

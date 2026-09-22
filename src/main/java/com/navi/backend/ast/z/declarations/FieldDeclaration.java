@@ -10,10 +10,10 @@ import java.util.List;
 @Getter
 public class FieldDeclaration extends ClassMember {
     private final boolean publicAccess;
-    private final Type type;
+    private final ZType type;
     private final List<VariableDeclarator> variables;
 
-    public FieldDeclaration(int line, int column, boolean publicAccess, Type type, List<VariableDeclarator> variables) {
+    public FieldDeclaration(int line, int column, boolean publicAccess, ZType type, List<VariableDeclarator> variables) {
         super(line, column);
         this.publicAccess = publicAccess;
         this.type = type;

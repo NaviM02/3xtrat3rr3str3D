@@ -7,10 +7,10 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class Type extends AstYNode {
+public class YType extends AstYNode {
     private final String name;
 
-    public Type(int line, int column, String name) {
+    public YType(int line, int column, String name) {
         super(line, column);
         this.name = name;
     }

@@ -37,7 +37,7 @@ public class DeclarationVisitor extends StatementVisitor {
     public AstZNode visitFieldDeclaration(ZParser.FieldDeclarationContext ctx) {
         return new FieldDeclaration(
                 ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
-                ctx.PUBLIC() != null, (Type) visit(ctx.type()), visitVariableDeclarators(ctx.variableDeclaratorList()));
+                ctx.PUBLIC() != null, (ZType) visit(ctx.type()), visitVariableDeclarators(ctx.variableDeclaratorList()));
     }
 
     @Override
@@ -49,7 +49,7 @@ public class DeclarationVisitor extends StatementVisitor {
 
     private VariableDeclaration visitVariableDeclaration(ZParser.TypeContext typeCtx, ZParser.VariableDeclaratorListContext listCtx) {
         return new VariableDeclaration(typeCtx.getStart().getLine(), typeCtx.getStart().getCharPositionInLine(),
-                (Type) visit(typeCtx), visitVariableDeclarators(listCtx));
+                (ZType) visit(typeCtx), visitVariableDeclarators(listCtx));
     }
 
     private List<VariableDeclarator> visitVariableDeclarators(ZParser.VariableDeclaratorListContext ctx) {
@@ -105,7 +105,7 @@ public class DeclarationVisitor extends StatementVisitor {
     @Override
     public AstZNode visitTypedMethodDeclaration(ZParser.TypedMethodDeclarationContext ctx) {
         return new MethodDeclaration(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
-                ctx.PUBLIC() != null, (Type) visit(ctx.type()), ctx.ID().getText(), visitParameters(ctx.parameterList()), (BlockStatement) visit(ctx.block()));
+                ctx.PUBLIC() != null, (ZType) visit(ctx.type()), ctx.ID().getText(), visitParameters(ctx.parameterList()), (BlockStatement) visit(ctx.block()));
     }
 
     @Override
@@ -122,7 +122,7 @@ public class DeclarationVisitor extends StatementVisitor {
 
     @Override
     public AstZNode visitParameter(ZParser.ParameterContext ctx) {
-        return new Parameter(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), (Type) visit(ctx.type()), ctx.ID().getText());
+        return new Parameter(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), (ZType) visit(ctx.type()), ctx.ID().getText());
     }
 
     @Override
@@ -131,7 +131,7 @@ public class DeclarationVisitor extends StatementVisitor {
         if (ctx.primitiveType() != null) name = ctx.primitiveType().getText();
         else name = ctx.referenceType().getText();
         ArrayDimensions dimensions = ctx.arrayDimensions() != null ? (ArrayDimensions) visit(ctx.arrayDimensions()) : null;
-        return new Type(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), name, dimensions);
+        return new ZType(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), name, dimensions);
     }
 
     @Override

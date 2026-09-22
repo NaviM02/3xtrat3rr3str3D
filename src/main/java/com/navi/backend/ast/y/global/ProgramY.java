@@ -4,10 +4,12 @@ import com.navi.backend.ast.y.AstYNode;
 import com.navi.backend.ast.y.declarations.FunctionDeclaration;
 import com.navi.backend.ast.y.declarations.StructureDeclaration;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class ProgramY extends AstYNode {
 
     private final List<StructureDeclaration> structures;

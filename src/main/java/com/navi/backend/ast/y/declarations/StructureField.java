@@ -8,11 +8,11 @@ import java.util.List;
 
 @Getter
 public class StructureField extends Declaration {
-    private final Type type;
+    private final YType type;
     private final String name;
     private final ArrayDimensions arrayDimensions;
 
-    public StructureField(int line, int column, Type type, String name, ArrayDimensions arrayDimensions) {
+    public StructureField(int line, int column, YType type, String name, ArrayDimensions arrayDimensions) {
         super(line, column);
         this.type = type;
         this.name = name;

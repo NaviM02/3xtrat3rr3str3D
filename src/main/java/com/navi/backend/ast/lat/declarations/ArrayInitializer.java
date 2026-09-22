@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 public class ArrayInitializer extends AstLatNode {
-    private final List<Expression> values;
+    private final List  <Expression> values;
 
     public ArrayInitializer(int line, int column, List<Expression> values) {
         super(line, column);

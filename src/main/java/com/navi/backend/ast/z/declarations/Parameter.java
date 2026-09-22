@@ -6,10 +6,10 @@ import lombok.Getter;
 
 @Getter
 public class Parameter extends AstZNode {
-    private final Type type;
+    private final ZType type;
     private final String name;
 
-    public Parameter(int line, int column, Type type, String name) {
+    public Parameter(int line, int column, ZType type, String name) {
         super(line, column);
         this.type = type;
         this.name = name;

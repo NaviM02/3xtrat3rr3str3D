@@ -1,7 +1,7 @@
 package com.navi.backend.ast.z.visitors;
 
 import com.navi.backend.ast.z.AstZNode;
-import com.navi.backend.ast.z.declarations.Type;
+import com.navi.backend.ast.z.declarations.ZType;
 import com.navi.backend.ast.z.expressions.*;
 import com.navi.backend.ast.z.expressions.literals.LiteralExpression;
 import com.navi.backend.ast.z.statements.AssignmentOperator;
@@ -289,7 +289,7 @@ public class ExpressionVisitor extends ZBaseVisitor<AstZNode> {
     @Override
     public AstZNode visitArrayCreation(ZParser.ArrayCreationContext ctx) {
         String typeName = ctx.primitiveType() != null ? ctx.primitiveType().getText() : ctx.ID().getText();
-        Type type = new Type(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), typeName, null);
+        ZType type = new ZType(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), typeName, null);
         List<Expression> dimensions = new ArrayList<>();
         for (ZParser.ExpressionContext e : ctx.arrayCreationDimensions().expression())
             dimensions.add((Expression) visit(e));

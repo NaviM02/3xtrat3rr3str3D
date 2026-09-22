@@ -8,10 +8,10 @@ import java.util.List;
 
 @Getter
 public class ArrayParameter extends Parameter {
-    private final Type type;
+    private final YType type;
     private final String name;
 
-    public ArrayParameter(int line, int column, Type type, String name) {
+    public ArrayParameter(int line, int column, YType type, String name) {
         super(line, column);
         this.type = type;
         this.name = name;

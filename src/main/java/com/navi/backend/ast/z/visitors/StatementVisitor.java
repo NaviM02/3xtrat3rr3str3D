@@ -26,7 +26,7 @@ public class StatementVisitor extends ExpressionVisitor {
     private AstZNode visitVariableDeclarationCore(ZParser.TypeContext typeCtx, ZParser.VariableDeclaratorListContext listCtx) {
         return new VariableDeclaration(
                 typeCtx.getStart().getLine(), typeCtx.getStart().getCharPositionInLine(),
-                (Type) visit(typeCtx),
+                (ZType) visit(typeCtx),
                 visitVariableDeclarators(listCtx)
         );
     }

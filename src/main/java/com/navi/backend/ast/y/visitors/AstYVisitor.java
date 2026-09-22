@@ -21,7 +21,7 @@ public interface AstYVisitor<R> {
     R visit(StructureField node);
     R visit(StructureInitializer node);
     R visit(StructureParameter node);
-    R visit(Type node);
+    R visit(YType node);
     R visit(VariableDeclaration node);
     // statements
     R visit(AssignmentStatement node);

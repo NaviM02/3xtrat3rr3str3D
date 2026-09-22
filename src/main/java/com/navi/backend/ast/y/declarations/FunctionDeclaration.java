@@ -12,10 +12,10 @@ import java.util.List;
 public class FunctionDeclaration extends Declaration {
     private final String name;
     private final List<Parameter> parameters;
-    private final Type returnType;
+    private final YType returnType;
     private final List<Statement> statements;
 
-    public FunctionDeclaration(int line, int column, String name, List<Parameter> parameters, Type returnType, List<Statement> statements) {
+    public FunctionDeclaration(int line, int column, String name, List<Parameter> parameters, YType returnType, List<Statement> statements) {
         super(line, column);
         this.name = name;
         this.parameters = parameters;

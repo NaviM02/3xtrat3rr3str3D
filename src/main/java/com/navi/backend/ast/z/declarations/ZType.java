@@ -4,15 +4,14 @@ import com.navi.backend.ast.z.AstZNode;
 import com.navi.backend.ast.z.visitors.AstZVisitor;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class Type extends AstZNode {
+public class ZType extends AstZNode {
     private final String name;
     private final ArrayDimensions arrayDimensions;
 
-    public Type(int line, int column, String name, ArrayDimensions arrayDimensions) {
+    public ZType(int line, int column, String name, ArrayDimensions arrayDimensions) {
         super(line, column);
         this.name = name;
         this.arrayDimensions = arrayDimensions;

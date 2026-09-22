@@ -11,12 +11,12 @@ import java.util.List;
 @Getter
 public class MethodDeclaration extends ClassMember {
     private final boolean publicAccess;
-    private final Type returnType;
+    private final ZType returnType;
     private final String name;
     private final List<Parameter> parameters;
     private final BlockStatement body;
 
-    public MethodDeclaration(int line, int column, boolean publicAccess, Type returnType, String name, List<Parameter> parameters, BlockStatement body) {
+    public MethodDeclaration(int line, int column, boolean publicAccess, ZType returnType, String name, List<Parameter> parameters, BlockStatement body) {
         super(line, column);
         this.publicAccess = publicAccess;
         this.returnType = returnType;

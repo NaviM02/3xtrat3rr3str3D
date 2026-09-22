@@ -18,7 +18,7 @@ public class DeclarationVisitor extends StatementVisitor {
 
     @Override
     public AstYNode visitVariableDeclarationCore(YParser.VariableDeclarationCoreContext ctx) {
-        Type type = (Type) visit(ctx.type());
+        YType type = (YType) visit(ctx.type());
         String name = ctx.ID().getText();
 
         ArrayDeclaration arrayDeclaration = null;
@@ -45,7 +45,7 @@ public class DeclarationVisitor extends StatementVisitor {
 
     @Override
     public AstYNode visitStructureField(YParser.StructureFieldContext ctx) {
-        Type type = (Type) visit(ctx.type());
+        YType type = (YType) visit(ctx.type());
         ArrayDimensions dimensions = ctx.arrayDimensions() != null ? (ArrayDimensions) visit(ctx.arrayDimensions()) : null;
         return new StructureField(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), type, ctx.ID().getText(), dimensions);
     }
@@ -68,7 +68,7 @@ public class DeclarationVisitor extends StatementVisitor {
             }
         }
 
-        Type returnType = ctx.returnType() != null ? (Type) visit(ctx.returnType()) : null;
+        YType returnType = ctx.returnType() != null ? (YType) visit(ctx.returnType()) : null;
 
         List<Statement> statements = new ArrayList<>();
 
@@ -91,7 +91,7 @@ public class DeclarationVisitor extends StatementVisitor {
         return new NormalParameter(
             ctx.getStart().getLine(),
             ctx.getStart().getCharPositionInLine(),
-            (Type) visit(ctx.type()),
+            (YType) visit(ctx.type()),
             ctx.ID().getText()
         );
     }
@@ -103,7 +103,7 @@ public class DeclarationVisitor extends StatementVisitor {
         return new ArrayParameter(
             ctx.getStart().getLine(),
             ctx.getStart().getCharPositionInLine(),
-            (Type) visit(parameter.type()),
+            (YType) visit(parameter.type()),
             parameter.ID().getText()
         );
     }
@@ -177,31 +177,31 @@ public class DeclarationVisitor extends StatementVisitor {
 
     @Override
     public AstYNode visitIntegerType(YParser.IntegerTypeContext ctx) {
-        return new Type(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getText());
+        return new YType(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getText());
     }
 
     @Override
     public AstYNode visitFloatType(YParser.FloatTypeContext ctx) {
-        return new Type(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getText());
+        return new YType(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getText());
     }
 
     @Override
     public AstYNode visitCharacterType(YParser.CharacterTypeContext ctx) {
-        return new Type(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getText());
+        return new YType(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getText());
     }
 
     @Override
     public AstYNode visitBooleanType(YParser.BooleanTypeContext ctx) {
-        return new Type(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getText());
+        return new YType(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getText());
     }
 
     @Override
     public AstYNode visitStringType(YParser.StringTypeContext ctx) {
-        return new Type(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getText());
+        return new YType(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.getText());
     }
 
     @Override
     public AstYNode visitStructureType(YParser.StructureTypeContext ctx) {
-        return new Type(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.ID().getText());
+        return new YType(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.ID().getText());
     }
 }

@@ -1,7 +1,7 @@
 package com.navi.backend.ast.z.expressions;
 
 import com.navi.backend.ast.z.AstZNode;
-import com.navi.backend.ast.z.declarations.Type;
+import com.navi.backend.ast.z.declarations.ZType;
 import com.navi.backend.ast.z.visitors.AstZVisitor;
 import lombok.Getter;
 
@@ -10,10 +10,10 @@ import java.util.List;
 
 @Getter
 public class ArrayCreationExpression extends Expression {
-    private final Type type;
+    private final ZType type;
     private final List<Expression> dimensions;
 
-    public ArrayCreationExpression(int line, int column, Type type, List<Expression> dimensions) {
+    public ArrayCreationExpression(int line, int column, ZType type, List<Expression> dimensions) {
         super(line, column);
         this.type = type;
         this.dimensions = dimensions;

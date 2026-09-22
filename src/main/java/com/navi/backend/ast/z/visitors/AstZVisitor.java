@@ -14,7 +14,7 @@ public interface AstZVisitor<R> {
     R visit(ConstructorDeclaration node);
     R visit(MethodDeclaration node);
     R visit(Parameter node);
-    R visit(Type node);
+    R visit(ZType node);
     R visit(ArrayDimensions node);
     R visit(VariableDeclarator node);
     R visit(VariableDeclaration node);
