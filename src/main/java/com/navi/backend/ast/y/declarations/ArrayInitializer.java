@@ -1,7 +1,6 @@
 package com.navi.backend.ast.y.declarations;
 
 import com.navi.backend.ast.y.AstYNode;
-import com.navi.backend.ast.y.expressions.Expression;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
 import lombok.Getter;
 
@@ -10,16 +9,16 @@ import java.util.List;
 
 @Getter
 public class ArrayInitializer extends Initializer {
-    private final List<Expression> expressions;
+    private final List<AstYNode> elements;
 
-    public ArrayInitializer(int line, int column, List<Expression> expressions) {
+    public ArrayInitializer(int line, int column, List<AstYNode> elements) {
         super(line, column);
-        this.expressions = expressions;
+        this.elements = elements;
     }
 
     @Override
     public List<? extends AstYNode> getChildren() {
-        return expressions == null ? List.of() : new ArrayList<>(expressions);
+        return elements == null ? List.of() : new ArrayList<>(elements);
     }
 
     @Override

@@ -1,8 +1,7 @@
-package com.navi.backend.semantic.enums;
+package com.navi.backend.semantic;
 
 public enum ScopeKind {
     GLOBAL,
-    MODULE,
     FUNCTION,
     CLASS,
     STRUCT,

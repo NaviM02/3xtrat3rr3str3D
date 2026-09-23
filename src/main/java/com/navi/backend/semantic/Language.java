@@ -1,4 +1,4 @@
-package com.navi.backend.semantic.enums;
+package com.navi.backend.semantic;
 
 public enum Language {
     LAT,

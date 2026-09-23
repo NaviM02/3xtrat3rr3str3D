@@ -196,6 +196,18 @@ public class PigLatinBaseListener implements PigLatinListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNewObjectDeclaration(PigLatinParser.NewObjectDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNewObjectDeclaration(PigLatinParser.NewObjectDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExprInit(PigLatinParser.ExprInitContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -275,6 +287,42 @@ public class PigLatinBaseListener implements PigLatinListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArrayInitializer(PigLatinParser.ArrayInitializerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayInitializerElementList(PigLatinParser.ArrayInitializerElementListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayInitializerElementList(PigLatinParser.ArrayInitializerElementListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayExprElement(PigLatinParser.ArrayExprElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayExprElement(PigLatinParser.ArrayExprElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNestedArrayElement(PigLatinParser.NestedArrayElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNestedArrayElement(PigLatinParser.NestedArrayElementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

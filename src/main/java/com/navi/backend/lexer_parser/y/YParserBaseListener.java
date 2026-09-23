@@ -448,6 +448,42 @@ public class YParserBaseListener implements YParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArrayInitializerElementList(YParser.ArrayInitializerElementListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayInitializerElementList(YParser.ArrayInitializerElementListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayExprElement(YParser.ArrayExprElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayExprElement(YParser.ArrayExprElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNestedArrayElement(YParser.NestedArrayElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNestedArrayElement(YParser.NestedArrayElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStructureInitializer(YParser.StructureInitializerContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -647,6 +683,18 @@ public class YParserBaseListener implements YParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitForInitializer(YParser.ForInitializerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterVariableDeclarationWithoutNewline(YParser.VariableDeclarationWithoutNewlineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVariableDeclarationWithoutNewline(YParser.VariableDeclarationWithoutNewlineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

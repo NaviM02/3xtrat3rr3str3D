@@ -73,7 +73,16 @@ initializer
     | ASSIGN structureInitializer            #StructureInitializerValue
     ;
 
-arrayInitializer : LBRACE expressionList? RBRACE;
+arrayInitializer : LBRACE arrayInitializerElementList? RBRACE;
+
+arrayInitializerElementList
+    : arrayInitializerElement (COMMA arrayInitializerElement)*
+    ;
+
+arrayInitializerElement
+    : expression       #ArrayExprElement
+    | arrayInitializer #NestedArrayElement
+    ;
 
 structureInitializer : LBRACE expressionList? RBRACE;
 

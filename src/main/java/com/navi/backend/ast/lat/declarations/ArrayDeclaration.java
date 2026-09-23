@@ -10,14 +10,14 @@ import java.util.List;
 @Getter
 public class ArrayDeclaration extends Declaration {
     private final String name;
-    private final Expression size;
+    private final List<Expression> sizes;
     private final String type;
     private final ArrayInitializer initializer;
 
-    public ArrayDeclaration(int line, int column, String name, Expression size, String type, ArrayInitializer initializer) {
+    public ArrayDeclaration(int line, int column, String name, List<Expression> sizes, String type, ArrayInitializer initializer) {
         super(line, column);
         this.name = name;
-        this.size = size;
+        this.sizes = sizes;
         this.type = type;
         this.initializer = initializer;
     }
@@ -26,8 +26,8 @@ public class ArrayDeclaration extends Declaration {
     public List<? extends AstLatNode> getChildren() {
         List<AstLatNode> children = new java.util.ArrayList<>();
 
-        if (size != null) {
-            children.add(size);
+        if (sizes != null) {
+            children.addAll(sizes);
         }
 
         if (initializer != null) {

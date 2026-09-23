@@ -1,26 +1,65 @@
 package com.navi.backend.semantic.y;
 
-import com.navi.backend.ast.y.declarations.*;
-import com.navi.backend.ast.y.expressions.*;
+import com.navi.backend.ast.y.declarations.ArrayDeclaration;
+import com.navi.backend.ast.y.declarations.ArrayDimensions;
+import com.navi.backend.ast.y.declarations.ArrayInitializer;
+import com.navi.backend.ast.y.declarations.ArrayParameter;
+import com.navi.backend.ast.y.declarations.ExpressionInitializer;
+import com.navi.backend.ast.y.declarations.FunctionDeclaration;
+import com.navi.backend.ast.y.declarations.NormalParameter;
+import com.navi.backend.ast.y.declarations.Parameter;
+import com.navi.backend.ast.y.declarations.StructureDeclaration;
+import com.navi.backend.ast.y.declarations.StructureField;
+import com.navi.backend.ast.y.declarations.StructureInitializer;
+import com.navi.backend.ast.y.declarations.StructureParameter;
+import com.navi.backend.ast.y.declarations.VariableDeclaration;
+import com.navi.backend.ast.y.declarations.YType;
+import com.navi.backend.ast.y.expressions.ArrayAccessExpression;
+import com.navi.backend.ast.y.expressions.BinaryExpression;
+import com.navi.backend.ast.y.expressions.FunctionCallExpression;
+import com.navi.backend.ast.y.expressions.MemberAccessExpression;
+import com.navi.backend.ast.y.expressions.ReadExpression;
+import com.navi.backend.ast.y.expressions.UnaryExpression;
+import com.navi.backend.ast.y.expressions.VariableExpression;
 import com.navi.backend.ast.y.expressions.literals.LiteralExpression;
 import com.navi.backend.ast.y.global.ProgramY;
-import com.navi.backend.ast.y.statements.*;
+import com.navi.backend.ast.y.statements.AssignmentStatement;
+import com.navi.backend.ast.y.statements.BreakStatement;
+import com.navi.backend.ast.y.statements.ContinueStatement;
+import com.navi.backend.ast.y.statements.DefaultCase;
+import com.navi.backend.ast.y.statements.DoWhileStatement;
+import com.navi.backend.ast.y.statements.ElseClause;
+import com.navi.backend.ast.y.statements.ElseIfClause;
+import com.navi.backend.ast.y.statements.ExpressionStatement;
+import com.navi.backend.ast.y.statements.ForStatement;
+import com.navi.backend.ast.y.statements.IfStatement;
+import com.navi.backend.ast.y.statements.IncrementStatement;
+import com.navi.backend.ast.y.statements.PrintStatement;
+import com.navi.backend.ast.y.statements.ReadStatement;
+import com.navi.backend.ast.y.statements.ReturnStatement;
+import com.navi.backend.ast.y.statements.SwitchCase;
+import com.navi.backend.ast.y.statements.SwitchStatement;
+import com.navi.backend.ast.y.statements.WhileStatement;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
+import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.Field;
+import com.navi.backend.semantic.FunctionSignature;
+import com.navi.backend.semantic.Scope;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.enums.Language;
-import com.navi.backend.semantic.enums.ScopeKind;
-import com.navi.backend.semantic.enums.SymbolKind;
-import com.navi.backend.semantic.enums.TypeKind;
-import com.navi.backend.semantic.model.FunctionSignature;
-import com.navi.backend.semantic.model.Symbol;
-import com.navi.backend.semantic.model.SymbolModifiers;
-import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.Symbol;
+import com.navi.backend.semantic.SymbolKind;
+import com.navi.backend.semantic.Type;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Pasada de declaraciones de Y. Registra estructuras (TypeTable) y funciones
+ * (scope global) en tres sub-fases para soportar referencias entre structs.
+ */
 public class YDeclarationVisitor implements AstYVisitor<Void> {
+
     private final SemanticContext context;
 
     public YDeclarationVisitor(SemanticContext context) {
@@ -33,382 +72,133 @@ public class YDeclarationVisitor implements AstYVisitor<Void> {
 
     @Override
     public Void visit(ProgramY node) {
+        Scope global = context.getSymbolTable().getGlobalScope();
+
         if (node.getStructures() != null) {
-            for (StructureDeclaration structure : node.getStructures()) {
-                structure.accept(this);
+            for (StructureDeclaration s : node.getStructures()) {
+                registerStructName(s, global);
             }
         }
-
         if (node.getFunctions() != null) {
-            for (FunctionDeclaration function : node.getFunctions()) {
-                function.accept(this);
+            for (FunctionDeclaration f : node.getFunctions()) {
+                f.accept(this);
             }
         }
-
+        if (node.getStructures() != null) {
+            for (StructureDeclaration s : node.getStructures()) {
+                fillStructFields(s);
+            }
+        }
         return null;
+    }
+
+    private void registerStructName(StructureDeclaration node, Scope global) {
+        AggregateType agg = new AggregateType(node.getName(), false, global);
+        if (!context.getTypeTable().register(agg)) {
+            context.getErrors().report(node.getLine(), node.getColumn(), "Estructura duplicada: " + node.getName());
+        }
+    }
+
+    private void fillStructFields(StructureDeclaration node) {
+        AggregateType agg = context.getTypeTable().resolve(node.getName());
+        if (agg == null || node.getFields() == null) return;
+        for (StructureField field : node.getFields()) {
+            agg.addField(new Field(field.getName(), resolveFieldType(field)));
+        }
     }
 
     @Override
     public Void visit(StructureDeclaration node) {
-        Type type = new Type(TypeKind.STRUCT, node.getName(), List.of());
-
-        if (!context.getTypeRegistry().register(type)) {
-            throw new IllegalStateException("Estructura Y duplicada: " + node.getName());
-        }
-
-        context.getSymbolTable().enterScope(ScopeKind.STRUCT);
-
-        if (node.getFields() != null) {
-            for (StructureField field : node.getFields()) {
-                field.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(StructureField node) {
-        Type type = resolveType(node.getType(), node.getArrayDimensions());
-
-        Symbol symbol = new Symbol(
-                node.getName(),
-                type.getKind() == TypeKind.ARRAY ? SymbolKind.ARRAY : SymbolKind.FIELD,
-                Language.Y,
-                type,
-                context.getSymbolTable().getCurrentScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                null
-        );
-
-        define(symbol);
-        return null;
+        return null; // llenado en visit(ProgramY)
     }
 
     @Override
     public Void visit(FunctionDeclaration node) {
-        Type returnType = node.getReturnType() == null
-                ? new Type(TypeKind.VOID, "void", List.of())
-                : resolveType(node.getReturnType());
-
-        List<Type> parameterTypes = new ArrayList<>();
-
+        Type returnType = node.getReturnType() == null ? Type.VOID : resolveType(node.getReturnType());
+        List<Type> paramTypes = new ArrayList<>();
         if (node.getParameters() != null) {
-            for (Parameter parameter : node.getParameters()) {
-                parameterTypes.add(resolveParameterType(parameter));
+            for (Parameter p : node.getParameters()) paramTypes.add(paramType(p));
+        }
+        Symbol fn = new Symbol(node.getName(), SymbolKind.FUNCTION, returnType,
+                new FunctionSignature(paramTypes, returnType), false,
+                context.getSymbolTable().getGlobalScope(), null, node.getLine(), node.getColumn());
+        try {
+            context.getSymbolTable().defineCallable(fn);
+        } catch (RuntimeException e) {
+            context.getErrors().report(node.getLine(), node.getColumn(), e.getMessage());
+        }
+        return null;
+    }
+
+    private Type resolveFieldType(StructureField field) {
+        Type base = resolveType(field.getType());
+        ArrayDimensions dims = field.getArrayDimensions();
+        if (dims == null || dims.getDimensions() == null || dims.getDimensions().isEmpty()) return base;
+        return Type.array(base, dims.getDimensions().size());
+    }
+
+    private Type paramType(Parameter p) {
+        if (p instanceof NormalParameter n) return resolveType(n.getType());
+        if (p instanceof ArrayParameter a) return Type.array(resolveType(a.getType()), 1);
+        if (p instanceof StructureParameter s) {
+            AggregateType agg = context.getTypeTable().resolve(s.getStructureName());
+            if (agg == null) {
+                context.getErrors().report(s.getLine(), s.getColumn(), "Estructura no definida: " + s.getStructureName());
+                return Type.ERROR;
             }
+            return Type.struct(s.getStructureName());
         }
+        return Type.ERROR;
+    }
 
-        FunctionSignature signature = new FunctionSignature(parameterTypes, returnType);
-
-        Symbol function = new Symbol(
-                node.getName(),
-                SymbolKind.FUNCTION,
-                Language.Y,
-                returnType,
-                context.getSymbolTable().getCurrentScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                signature
-        );
-
-        define(function);
-
-        context.getSymbolTable().enterScope(ScopeKind.FUNCTION);
-
-        if (node.getParameters() != null) {
-            for (Parameter parameter : node.getParameters()) {
-                parameter.accept(this);
+    private Type resolveType(YType node) {
+        String value = node.getName().toLowerCase(Locale.ROOT);
+        return switch (value) {
+            case "entero" -> Type.INT;
+            case "flotante" -> Type.DOUBLE;
+            case "cadena" -> Type.STRING;
+            case "caracter" -> Type.CHAR;
+            case "bool" -> Type.BOOLEAN;
+            default -> {
+                AggregateType agg = context.getTypeTable().resolve(node.getName());
+                if (agg == null) {
+                    context.getErrors().report(node.getLine(), node.getColumn(), "Tipo no definido: " + node.getName());
+                    yield Type.ERROR;
+                }
+                yield Type.struct(node.getName());
             }
-        }
-
-        if (node.getStatements() != null) {
-            for (Statement statement : node.getStatements()) {
-                statement.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
+        };
     }
 
-    @Override
-    public Void visit(NormalParameter node) {
-        Type type = resolveType(node.getType());
+    @Override public Void visit(StructureField node) { return null; }
+    @Override public Void visit(YType node) { return null; }
+    @Override public Void visit(ArrayDimensions node) { return null; }
+    @Override public Void visit(ArrayDeclaration node) { return null; }
+    @Override public Void visit(ArrayInitializer node) { return null; }
+    @Override public Void visit(ExpressionInitializer node) { return null; }
+    @Override public Void visit(StructureInitializer node) { return null; }
+    @Override public Void visit(ArrayParameter node) { return null; }
+    @Override public Void visit(NormalParameter node) { return null; }
+    @Override public Void visit(StructureParameter node) { return null; }
+    @Override public Void visit(VariableDeclaration node) { return null; }
 
-        Symbol symbol = new Symbol(
-                node.getName(),
-                SymbolKind.PARAMETER,
-                Language.Y,
-                type,
-                context.getSymbolTable().getCurrentScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                null
-        );
-
-        define(symbol);
-        return null;
-    }
-
-    @Override
-    public Void visit(ArrayParameter node) {
-        Type type = new Type(TypeKind.ARRAY, node.getType().getName(), List.of());
-
-        Symbol symbol = new Symbol(
-                node.getName(),
-                SymbolKind.PARAMETER,
-                Language.Y,
-                type,
-                context.getSymbolTable().getCurrentScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                null
-        );
-
-        define(symbol);
-        return null;
-    }
-
-    @Override
-    public Void visit(StructureParameter node) {
-        Type type = new Type(TypeKind.STRUCT, node.getStructureName(), List.of());
-
-        Symbol symbol = new Symbol(
-                node.getName(),
-                SymbolKind.PARAMETER,
-                Language.Y,
-                type,
-                context.getSymbolTable().getCurrentScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                null
-        );
-
-        define(symbol);
-        return null;
-    }
-
-    @Override
-    public Void visit(VariableDeclaration node) {
-        Type type = resolveType(node.getType(), node.getArrayDeclaration());
-
-        SymbolKind kind = type.getKind() == TypeKind.ARRAY
-                ? SymbolKind.ARRAY
-                : SymbolKind.VARIABLE;
-
-        Symbol symbol = new Symbol(
-                node.getName(),
-                kind,
-                Language.Y,
-                type,
-                context.getSymbolTable().getCurrentScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                null
-        );
-
-        define(symbol);
-        return null;
-    }
-
-    @Override
-    public Void visit(ArrayDeclaration node) {
-        if (node.getDimensions() != null) {
-            for (Expression dimension : node.getDimensions()) {
-                dimension.accept(this);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Void visit(ArrayDimensions node) {
-        return null;
-    }
-
-    @Override
-    public Void visit(YType node) {
-        return null;
-    }
-
-    @Override
-    public Void visit(AssignmentStatement node) {
-        return null;
-    }
-
-    @Override
-    public Void visit(BreakStatement node) {
-        return null;
-    }
-
-    @Override
-    public Void visit(ContinueStatement node) {
-        return null;
-    }
-
-    @Override
-    public Void visit(ExpressionStatement node) {
-        return null;
-    }
-
-    @Override
-    public Void visit(ForStatement node) {
-        context.getSymbolTable().enterScope(ScopeKind.LOOP);
-
-        if (node.getInitializer() != null) {
-            node.getInitializer().accept(this);
-        }
-
-        if (node.getStatements() != null) {
-            for (Statement statement : node.getStatements()) {
-                statement.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(IfStatement node) {
-        context.getSymbolTable().enterScope(ScopeKind.BLOCK);
-
-        if (node.getStatements() != null) {
-            for (Statement statement : node.getStatements()) {
-                statement.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-
-        if (node.getElseIfClauses() != null) {
-            for (ElseIfClause clause : node.getElseIfClauses()) {
-                clause.accept(this);
-            }
-        }
-
-        if (node.getElseClause() != null) {
-            node.getElseClause().accept(this);
-        }
-
-        return null;
-    }
-
-    @Override
-    public Void visit(ElseIfClause node) {
-        context.getSymbolTable().enterScope(ScopeKind.BLOCK);
-
-        if (node.getStatements() != null) {
-            for (Statement statement : node.getStatements()) {
-                statement.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(ElseClause node) {
-        context.getSymbolTable().enterScope(ScopeKind.BLOCK);
-
-        if (node.getStatements() != null) {
-            for (Statement statement : node.getStatements()) {
-                statement.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(WhileStatement node) {
-        context.getSymbolTable().enterScope(ScopeKind.LOOP);
-
-        if (node.getStatements() != null) {
-            for (Statement statement : node.getStatements()) {
-                statement.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(DoWhileStatement node) {
-        context.getSymbolTable().enterScope(ScopeKind.LOOP);
-
-        if (node.getStatements() != null) {
-            for (Statement statement : node.getStatements()) {
-                statement.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(SwitchStatement node) {
-        context.getSymbolTable().enterScope(ScopeKind.BLOCK);
-
-        if (node.getCases() != null) {
-            for (SwitchCase switchCase : node.getCases()) {
-                switchCase.accept(this);
-            }
-        }
-
-        if (node.getDefaultCase() != null) {
-            node.getDefaultCase().accept(this);
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(SwitchCase node) {
-        context.getSymbolTable().enterScope(ScopeKind.BLOCK);
-
-        if (node.getStatements() != null) {
-            for (Statement statement : node.getStatements()) {
-                statement.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(DefaultCase node) {
-        context.getSymbolTable().enterScope(ScopeKind.BLOCK);
-
-        if (node.getStatements() != null) {
-            for (Statement statement : node.getStatements()) {
-                statement.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
+    @Override public Void visit(AssignmentStatement node) { return null; }
+    @Override public Void visit(BreakStatement node) { return null; }
+    @Override public Void visit(ContinueStatement node) { return null; }
+    @Override public Void visit(DefaultCase node) { return null; }
+    @Override public Void visit(DoWhileStatement node) { return null; }
+    @Override public Void visit(ElseClause node) { return null; }
+    @Override public Void visit(ElseIfClause node) { return null; }
+    @Override public Void visit(ExpressionStatement node) { return null; }
+    @Override public Void visit(ForStatement node) { return null; }
+    @Override public Void visit(IfStatement node) { return null; }
     @Override public Void visit(IncrementStatement node) { return null; }
     @Override public Void visit(PrintStatement node) { return null; }
     @Override public Void visit(ReadStatement node) { return null; }
     @Override public Void visit(ReturnStatement node) { return null; }
+    @Override public Void visit(SwitchCase node) { return null; }
+    @Override public Void visit(SwitchStatement node) { return null; }
+    @Override public Void visit(WhileStatement node) { return null; }
 
     @Override public Void visit(ArrayAccessExpression node) { return null; }
     @Override public Void visit(BinaryExpression node) { return null; }
@@ -418,82 +208,4 @@ public class YDeclarationVisitor implements AstYVisitor<Void> {
     @Override public Void visit(UnaryExpression node) { return null; }
     @Override public Void visit(VariableExpression node) { return null; }
     @Override public Void visit(LiteralExpression node) { return null; }
-
-    @Override
-    public Void visit(ExpressionInitializer node) {
-        return null;
-    }
-
-    @Override
-    public Void visit(ArrayInitializer node) {
-        return null;
-    }
-
-    @Override
-    public Void visit(StructureInitializer node) {
-        return null;
-    }
-
-    private void define(Symbol symbol) {
-        if (!context.getSymbolTable().define(symbol)) {
-            throw new IllegalStateException(
-                    "Identificador Y duplicado: " + symbol.getName()
-            );
-        }
-    }
-
-    private Type resolveParameterType(Parameter parameter) {
-        if (parameter instanceof NormalParameter normal) {
-            return resolveType(normal.getType());
-        }
-
-        if (parameter instanceof ArrayParameter array) {
-            return new Type(TypeKind.ARRAY, array.getType().getName(), List.of());
-        }
-
-        StructureParameter structure = (StructureParameter) parameter;
-        return new Type(TypeKind.STRUCT, structure.getStructureName(), List.of());
-    }
-
-    private Type resolveType(YType node, ArrayDeclaration arrayDeclaration) {
-        Type base = resolveType(node);
-
-        if (arrayDeclaration == null) {
-            return base;
-        }
-
-        List<Integer> dimensions = new ArrayList<>();
-
-        if (arrayDeclaration.getDimensions() != null) {
-            for (int i = 0; i < arrayDeclaration.getDimensions().size(); i++) {
-                dimensions.add(0);
-            }
-        }
-
-        return new Type(TypeKind.ARRAY, node.getName(), dimensions);
-    }
-
-    private Type resolveType(YType node, ArrayDimensions dimensions) {
-        Type base = resolveType(node);
-
-        if (dimensions == null) {
-            return base;
-        }
-
-        return new Type(TypeKind.ARRAY, node.getName(), dimensions.getDimensions());
-    }
-
-    private Type resolveType(YType node) {
-        String name = node.getName();
-        String value = name.toLowerCase(Locale.ROOT);
-
-        return switch (value) {
-            case "entero" -> new Type(TypeKind.INT, name, List.of());
-            case "flotante" -> new Type(TypeKind.DOUBLE, name, List.of());
-            case "caracter" -> new Type(TypeKind.CHAR, name, List.of());
-            case "bool" -> new Type(TypeKind.BOOLEAN, name, List.of());
-            case "cadena" -> new Type(TypeKind.STRING, name, List.of());
-            default -> new Type(TypeKind.STRUCT, name, List.of());
-        };
-    }
 }

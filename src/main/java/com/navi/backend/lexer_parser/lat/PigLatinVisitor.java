@@ -101,6 +101,13 @@ public interface PigLatinVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNormalVarDeclaration(PigLatinParser.NormalVarDeclarationContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code NewObjectDeclaration}
+	 * labeled alternative in {@link PigLatinParser#variableDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNewObjectDeclaration(PigLatinParser.NewObjectDeclarationContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code ExprInit}
 	 * labeled alternative in {@link PigLatinParser#initializer}.
 	 * @param ctx the parse tree
@@ -144,6 +151,26 @@ public interface PigLatinVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArrayInitializer(PigLatinParser.ArrayInitializerContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PigLatinParser#arrayInitializerElementList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayInitializerElementList(PigLatinParser.ArrayInitializerElementListContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ArrayExprElement}
+	 * labeled alternative in {@link PigLatinParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayExprElement(PigLatinParser.ArrayExprElementContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NestedArrayElement}
+	 * labeled alternative in {@link PigLatinParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNestedArrayElement(PigLatinParser.NestedArrayElementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PigLatinParser#type}.
 	 * @param ctx the parse tree

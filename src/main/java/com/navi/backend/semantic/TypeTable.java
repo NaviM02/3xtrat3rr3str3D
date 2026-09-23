@@ -1,22 +1,25 @@
 package com.navi.backend.semantic;
 
-import com.navi.backend.semantic.model.Type;
 import lombok.Getter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Registro de tipos agregados (struct de Y y class de Z) por nombre canónico.
+ * Namespace único y plano: una struct y una class con el mismo nombre colisionan.
+ */
 @Getter
-public class TypeRegistry {
-    private final Map<String, Type> types = new LinkedHashMap<>();
+public class TypeTable {
+    private final Map<String, AggregateType> types = new LinkedHashMap<>();
 
-    public boolean register(Type type) {
+    public boolean register(AggregateType type) {
         if (types.containsKey(type.getName())) return false;
         types.put(type.getName(), type);
         return true;
     }
 
-    public Type resolve(String name) {
+    public AggregateType resolve(String name) {
         return types.get(name);
     }
 

@@ -7,6 +7,7 @@ import com.navi.backend.ast.lat.declarations.initializers.Initializer;
 import com.navi.backend.ast.lat.declarations.initializers.StructFieldInitializer;
 import com.navi.backend.ast.lat.declarations.initializers.StructInitializer;
 import com.navi.backend.ast.lat.expressions.Expression;
+import com.navi.backend.ast.lat.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.lat.global.FunctionBody;
 import com.navi.backend.ast.lat.global.FunctionDeclaration;
 import com.navi.backend.ast.lat.global.LocalVariableSection;
@@ -47,6 +48,38 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
+    public AstLatNode visitNewObjectDeclaration(PigLatinParser.NewObjectDeclarationContext ctx) {
+        List<Expression> arguments = new ArrayList<>();
+
+        if (ctx.functionArguments().argumentList() != null) {
+            for (PigLatinParser.ExpressionContext expr : ctx.functionArguments().argumentList().expression()) {
+                arguments.add((Expression) visit(expr));
+            }
+        }
+
+        ObjectCreationExpression objectCreation = new ObjectCreationExpression(
+                ctx.getStart().getLine(),
+                ctx.getStart().getCharPositionInLine(),
+                ctx.objectType.getText(),
+                arguments
+        );
+
+        ExpressionInitializer initializer = new ExpressionInitializer(
+                ctx.getStart().getLine(),
+                ctx.getStart().getCharPositionInLine(),
+                objectCreation
+        );
+
+        return new VariableDeclaration(
+                ctx.getStart().getLine(),
+                ctx.getStart().getCharPositionInLine(),
+                ctx.variableName.getText(),
+                ctx.objectType.getText(),
+                initializer
+        );
+    }
+
+    @Override
     public AstLatNode visitArrayDeclaration(PigLatinParser.ArrayDeclarationContext ctx) {
         String type = "boolean";
 
@@ -60,10 +93,16 @@ public class DeclarationVisitor extends StatementVisitor {
             initializer = (ArrayInitializer) visit(ctx.arrayInitializer());
         }
 
+        List<Expression> sizes = new ArrayList<>();
+
+        for (PigLatinParser.ExpressionContext sizeExpr : ctx.expression()) {
+            sizes.add((Expression) visit(sizeExpr));
+        }
+
         return new ArrayDeclaration(
             ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
             ctx.ID().getText(),
-            (Expression) visit(ctx.expression()),
+            sizes,
             type,
             initializer
         );
@@ -71,13 +110,25 @@ public class DeclarationVisitor extends StatementVisitor {
 
     @Override
     public AstLatNode visitArrayInitializer(PigLatinParser.ArrayInitializerContext ctx) {
-        List<Expression> values = new ArrayList<>();
+        List<AstLatNode> elements = new ArrayList<>();
 
-        for (PigLatinParser.ExpressionContext expression : ctx.values) {
-            values.add((Expression) visit(expression));
+        if (ctx.arrayInitializerElementList() != null) {
+            for (PigLatinParser.ArrayInitializerElementContext element : ctx.arrayInitializerElementList().arrayInitializerElement()) {
+                elements.add(visit(element));
+            }
         }
 
-        return new ArrayInitializer(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), values);
+        return new ArrayInitializer(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), elements);
+    }
+
+    @Override
+    public AstLatNode visitArrayExprElement(PigLatinParser.ArrayExprElementContext ctx) {
+        return visit(ctx.expression());
+    }
+
+    @Override
+    public AstLatNode visitNestedArrayElement(PigLatinParser.NestedArrayElementContext ctx) {
+        return visit(ctx.arrayInitializer());
     }
 
     @Override

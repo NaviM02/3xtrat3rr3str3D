@@ -61,6 +61,7 @@ variableDeclaration
     : ESTO ID ':' type ';'                           #NormalVarDeclaration
     | ESTO ID ':' type expression ';'                #NormalVarDeclaration
     | ESTO ID ':' type structInitializer ';'?        #NormalVarDeclaration
+    | ESTO variableName=ID ':' NOVUS objectType=ID functionArguments ';' #NewObjectDeclaration
     ;
 
 initializer
@@ -81,11 +82,20 @@ arrayConstructor
     ;
 
 arrayDeclaration
-    : SERIES ID '[' expression ']' (':' type)? arrayInitializer? ';'
+    : SERIES ID ('[' expression ']')+ ':' type arrayInitializer? ';'
     ;
 
 arrayInitializer
-    : '{' values+=expression (',' values+=expression)* '}'
+    : '{' arrayInitializerElementList? '}'
+    ;
+
+arrayInitializerElementList
+    : arrayInitializerElement (',' arrayInitializerElement)*
+    ;
+
+arrayInitializerElement
+    : expression       #ArrayExprElement
+    | arrayInitializer #NestedArrayElement
     ;
 
 type

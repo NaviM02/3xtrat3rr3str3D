@@ -247,6 +247,26 @@ public interface YParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArrayInitializer(YParser.ArrayInitializerContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link YParser#arrayInitializerElementList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayInitializerElementList(YParser.ArrayInitializerElementListContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ArrayExprElement}
+	 * labeled alternative in {@link YParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayExprElement(YParser.ArrayExprElementContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NestedArrayElement}
+	 * labeled alternative in {@link YParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNestedArrayElement(YParser.NestedArrayElementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link YParser#structureInitializer}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -352,6 +372,12 @@ public interface YParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitForInitializer(YParser.ForInitializerContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link YParser#variableDeclarationWithoutNewline}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariableDeclarationWithoutNewline(YParser.VariableDeclarationWithoutNewlineContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link YParser#forUpdate}.
 	 * @param ctx the parse tree

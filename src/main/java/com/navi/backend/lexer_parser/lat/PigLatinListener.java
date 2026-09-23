@@ -159,6 +159,18 @@ public interface PigLatinListener extends ParseTreeListener {
 	 */
 	void exitNormalVarDeclaration(PigLatinParser.NormalVarDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code NewObjectDeclaration}
+	 * labeled alternative in {@link PigLatinParser#variableDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewObjectDeclaration(PigLatinParser.NewObjectDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NewObjectDeclaration}
+	 * labeled alternative in {@link PigLatinParser#variableDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewObjectDeclaration(PigLatinParser.NewObjectDeclarationContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ExprInit}
 	 * labeled alternative in {@link PigLatinParser#initializer}.
 	 * @param ctx the parse tree
@@ -232,6 +244,40 @@ public interface PigLatinListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArrayInitializer(PigLatinParser.ArrayInitializerContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PigLatinParser#arrayInitializerElementList}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayInitializerElementList(PigLatinParser.ArrayInitializerElementListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PigLatinParser#arrayInitializerElementList}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayInitializerElementList(PigLatinParser.ArrayInitializerElementListContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArrayExprElement}
+	 * labeled alternative in {@link PigLatinParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayExprElement(PigLatinParser.ArrayExprElementContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArrayExprElement}
+	 * labeled alternative in {@link PigLatinParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayExprElement(PigLatinParser.ArrayExprElementContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NestedArrayElement}
+	 * labeled alternative in {@link PigLatinParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 */
+	void enterNestedArrayElement(PigLatinParser.NestedArrayElementContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NestedArrayElement}
+	 * labeled alternative in {@link PigLatinParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 */
+	void exitNestedArrayElement(PigLatinParser.NestedArrayElementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PigLatinParser#type}.
 	 * @param ctx the parse tree

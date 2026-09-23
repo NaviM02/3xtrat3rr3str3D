@@ -4,29 +4,60 @@ import com.navi.backend.ast.lat.declarations.ArrayDeclaration;
 import com.navi.backend.ast.lat.declarations.ArrayInitializer;
 import com.navi.backend.ast.lat.declarations.Declaration;
 import com.navi.backend.ast.lat.declarations.VariableDeclaration;
-import com.navi.backend.ast.lat.declarations.initializers.*;
-import com.navi.backend.ast.lat.expressions.*;
-import com.navi.backend.ast.lat.expressions.literals.*;
-import com.navi.backend.ast.lat.global.*;
-import com.navi.backend.ast.lat.statements.*;
+import com.navi.backend.ast.lat.declarations.initializers.ExpressionInitializer;
+import com.navi.backend.ast.lat.declarations.initializers.StructFieldInitializer;
+import com.navi.backend.ast.lat.declarations.initializers.StructInitializer;
+import com.navi.backend.ast.lat.expressions.ArrayAccessExpression;
+import com.navi.backend.ast.lat.expressions.BinaryExpression;
+import com.navi.backend.ast.lat.expressions.FunctionCallExpression;
+import com.navi.backend.ast.lat.expressions.MemberAccessExpression;
+import com.navi.backend.ast.lat.expressions.ObjectCreationExpression;
+import com.navi.backend.ast.lat.expressions.UnaryExpression;
+import com.navi.backend.ast.lat.expressions.VariableExpression;
+import com.navi.backend.ast.lat.expressions.literals.BooleanLiteral;
+import com.navi.backend.ast.lat.expressions.literals.CharLiteral;
+import com.navi.backend.ast.lat.expressions.literals.DecimalLiteral;
+import com.navi.backend.ast.lat.expressions.literals.NumberLiteral;
+import com.navi.backend.ast.lat.expressions.literals.StringLiteral;
+import com.navi.backend.ast.lat.global.FunctionBody;
+import com.navi.backend.ast.lat.global.FunctionDeclaration;
+import com.navi.backend.ast.lat.global.GlobalVariableSection;
+import com.navi.backend.ast.lat.global.ImportDeclaration;
+import com.navi.backend.ast.lat.global.LocalVariableSection;
+import com.navi.backend.ast.lat.global.Parameter;
+import com.navi.backend.ast.lat.global.Program;
+import com.navi.backend.ast.lat.statements.AssignmentStatement;
+import com.navi.backend.ast.lat.statements.BlockStatement;
+import com.navi.backend.ast.lat.statements.BreakStatement;
+import com.navi.backend.ast.lat.statements.ContinueStatement;
+import com.navi.backend.ast.lat.statements.DoWhileStatement;
+import com.navi.backend.ast.lat.statements.ElseIfStatement;
+import com.navi.backend.ast.lat.statements.ForStatement;
+import com.navi.backend.ast.lat.statements.FunctionCallStatement;
+import com.navi.backend.ast.lat.statements.IfStatement;
+import com.navi.backend.ast.lat.statements.IncrementStatement;
+import com.navi.backend.ast.lat.statements.PrintStatement;
+import com.navi.backend.ast.lat.statements.ReadStatement;
+import com.navi.backend.ast.lat.statements.ReturnStatement;
+import com.navi.backend.ast.lat.statements.WhileStatement;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
+import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.FunctionSignature;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.enums.Language;
-import com.navi.backend.semantic.enums.ScopeKind;
-import com.navi.backend.semantic.enums.SymbolKind;
-import com.navi.backend.semantic.enums.TypeKind;
-import com.navi.backend.semantic.model.FunctionSignature;
-import com.navi.backend.semantic.model.Module;
-import com.navi.backend.semantic.model.Scope;
-import com.navi.backend.semantic.model.Symbol;
-import com.navi.backend.semantic.model.SymbolModifiers;
-import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.Symbol;
+import com.navi.backend.semantic.SymbolKind;
+import com.navi.backend.semantic.Type;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Pasada de declaraciones de Lat. Registra variables globales y signatures de
+ * funciones en el scope global. Los imports ya fueron procesados por el orquestador.
+ */
 public class LatDeclarationVisitor implements AstLatVisitor<Void> {
+
     private final SemanticContext context;
 
     public LatDeclarationVisitor(SemanticContext context) {
@@ -39,78 +70,26 @@ public class LatDeclarationVisitor implements AstLatVisitor<Void> {
 
     @Override
     public Void visit(Program node) {
-        if (node.getImports() != null) {
-            for (ImportDeclaration declaration : node.getImports()) {
-                declaration.accept(this);
-            }
-        }
-
         if (node.getGlobalVariables() != null) {
             node.getGlobalVariables().accept(this);
         }
-
         if (node.getFunctions() != null) {
             for (FunctionDeclaration function : node.getFunctions()) {
                 function.accept(this);
             }
         }
-
-        if (node.getMainStatements() != null) {
-            for (Statement statement : node.getMainStatements()) {
-                statement.accept(this);
-            }
-        }
-
         return null;
     }
 
     @Override
     public Void visit(ImportDeclaration node) {
-        Scope moduleScope = context.getSymbolTable().enterScope(ScopeKind.MODULE);
-
-        Module module = new Module(node.getPath(), Language.LAT, moduleScope);
-        if (!context.getModuleRegistry().register(module)) {
-            context.getSymbolTable().exitScope();
-            throw new IllegalStateException("Modulo LAT duplicado: " + node.getPath());
-        }
-
-        Symbol symbol = new Symbol(
-                node.getPath(),
-                SymbolKind.MODULE,
-                Language.LAT,
-                null,
-                context.getSymbolTable().getGlobalScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                null
-        );
-
-        if (!context.getSymbolTable().getGlobalScope().define(symbol)) {
-            context.getSymbolTable().exitScope();
-            throw new IllegalStateException("Modulo LAT duplicado: " + node.getPath());
-        }
-
-        context.getSymbolTable().exitScope();
         return null;
     }
 
     @Override
     public Void visit(GlobalVariableSection node) {
-        if (node.getDeclarations() != null) {
-            for (Declaration declaration : node.getDeclarations()) {
-                declaration.accept(this);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Void visit(LocalVariableSection node) {
-        if (node.getDeclarations() != null) {
-            for (Declaration declaration : node.getDeclarations()) {
-                declaration.accept(this);
-            }
+        for (Declaration declaration : node.getDeclarations()) {
+            declaration.accept(this);
         }
         return null;
     }
@@ -118,285 +97,89 @@ public class LatDeclarationVisitor implements AstLatVisitor<Void> {
     @Override
     public Void visit(FunctionDeclaration node) {
         Type returnType = resolveType(node.getReturnType(), node.getLine(), node.getColumn());
-
-        List<Type> parameterTypes = new ArrayList<>();
+        List<Type> paramTypes = new ArrayList<>();
         if (node.getParameters() != null) {
-            for (Parameter parameter : node.getParameters()) {
-                parameterTypes.add(resolveType(parameter.getType(), parameter.getLine(), parameter.getColumn()));
+            for (Parameter p : node.getParameters()) {
+                paramTypes.add(resolveType(p.getType(), p.getLine(), p.getColumn()));
             }
         }
-
-        FunctionSignature signature = new FunctionSignature(parameterTypes, returnType);
-
-        Symbol function = new Symbol(
-                node.getName(),
-                SymbolKind.FUNCTION,
-                Language.LAT,
-                returnType,
-                context.getSymbolTable().getCurrentScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                signature
-        );
-
-        define(function);
-
-        context.getSymbolTable().enterScope(ScopeKind.FUNCTION);
-
-        if (node.getParameters() != null) {
-            for (Parameter parameter : node.getParameters()) {
-                parameter.accept(this);
-            }
+        Symbol fn = new Symbol(node.getName(), SymbolKind.FUNCTION, returnType,
+                new FunctionSignature(paramTypes, returnType), false,
+                context.getSymbolTable().getGlobalScope(), null, node.getLine(), node.getColumn());
+        try {
+            context.getSymbolTable().defineCallable(fn);
+        } catch (RuntimeException e) {
+            context.getErrors().report(node.getLine(), node.getColumn(), e.getMessage());
         }
-
-        if (node.getBody() != null) {
-            node.getBody().accept(this);
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(FunctionBody node) {
-        if (node.getLocalVariables() != null) {
-            node.getLocalVariables().accept(this);
-        }
-
-        if (node.getBody() != null) {
-            node.getBody().accept(this);
-        }
-
-        return null;
-    }
-
-    @Override
-    public Void visit(Parameter node) {
-        Type type = resolveType(node.getType(), node.getLine(), node.getColumn());
-
-        Symbol symbol = new Symbol(
-                node.getName(),
-                SymbolKind.PARAMETER,
-                Language.LAT,
-                type,
-                context.getSymbolTable().getCurrentScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                null
-        );
-
-        define(symbol);
         return null;
     }
 
     @Override
     public Void visit(VariableDeclaration node) {
         Type type = resolveType(node.getType(), node.getLine(), node.getColumn());
-
-        Symbol symbol = new Symbol(
-                node.getName(),
-                SymbolKind.VARIABLE,
-                Language.LAT,
-                type,
-                context.getSymbolTable().getCurrentScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                null
-        );
-
-        define(symbol);
-
-        if (node.getInitializer() != null) {
-            node.getInitializer().accept(this);
+        Symbol s = new Symbol(node.getName(), SymbolKind.VARIABLE, type, null, false,
+                context.getSymbolTable().getCurrentScope(), null, node.getLine(), node.getColumn());
+        if (!context.getSymbolTable().defineUnique(s)) {
+            context.getErrors().report(node.getLine(), node.getColumn(), "Variable duplicada: " + node.getName());
         }
-
         return null;
     }
 
     @Override
     public Void visit(ArrayDeclaration node) {
-        Type elementType = resolveType(node.getType(), node.getLine(), node.getColumn());
-        Type arrayType = new Type(TypeKind.ARRAY, node.getType(), List.of());
-
-        Symbol symbol = new Symbol(
-                node.getName(),
-                SymbolKind.ARRAY,
-                Language.LAT,
-                arrayType,
-                context.getSymbolTable().getCurrentScope(),
-                node.getLine(),
-                node.getColumn(),
-                SymbolModifiers.defaults(),
-                null
-        );
-
-        define(symbol);
-
-        if (node.getSize() != null) {
-            node.getSize().accept(this);
-        }
-
-        if (node.getInitializer() != null) {
-            node.getInitializer().accept(this);
-        }
-
-        return null;
-    }
-
-    @Override
-    public Void visit(ArrayInitializer node) {
-        if (node.getValues() != null) {
-            for (Expression expression : node.getValues()) {
-                expression.accept(this);
-            }
+        Type base = resolveType(node.getType(), node.getLine(), node.getColumn());
+        int rank = node.getSizes() == null ? 0 : node.getSizes().size();
+        Symbol s = new Symbol(node.getName(), SymbolKind.VARIABLE, Type.array(base, rank), null, false,
+                context.getSymbolTable().getCurrentScope(), null, node.getLine(), node.getColumn());
+        if (!context.getSymbolTable().defineUnique(s)) {
+            context.getErrors().report(node.getLine(), node.getColumn(), "Variable duplicada: " + node.getName());
         }
         return null;
-    }
-
-    @Override
-    public Void visit(ExpressionInitializer node) {
-        if (node.getExpression() != null) {
-            node.getExpression().accept(this);
-        }
-        return null;
-    }
-
-    @Override
-    public Void visit(StructInitializer node) {
-        if (node.getFields() != null) {
-            for (StructFieldInitializer field : node.getFields()) {
-                field.accept(this);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Void visit(StructFieldInitializer node) {
-        if (node.getValue() != null) {
-            node.getValue().accept(this);
-        }
-        return null;
-    }
-
-    @Override
-    public Void visit(BlockStatement node) {
-        context.getSymbolTable().enterScope(ScopeKind.BLOCK);
-
-        if (node.getStatements() != null) {
-            for (Statement statement : node.getStatements()) {
-                statement.accept(this);
-            }
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(ForStatement node) {
-        context.getSymbolTable().enterScope(ScopeKind.LOOP);
-
-        if (node.getInitializer() != null) {
-            node.getInitializer().accept(this);
-        }
-
-        if (node.getBlock() != null) {
-            node.getBlock().accept(this);
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(IfStatement node) {
-        if (node.getThenBlock() != null) {
-            node.getThenBlock().accept(this);
-        }
-
-        if (node.getElseIfStatements() != null) {
-            for (ElseIfStatement elseIf : node.getElseIfStatements()) {
-                elseIf.accept(this);
-            }
-        }
-
-        if (node.getElseBlock() != null) {
-            node.getElseBlock().accept(this);
-        }
-
-        return null;
-    }
-
-    @Override
-    public Void visit(ElseIfStatement node) {
-        if (node.getBlock() != null) {
-            node.getBlock().accept(this);
-        }
-        return null;
-    }
-
-    @Override
-    public Void visit(WhileStatement node) {
-        context.getSymbolTable().enterScope(ScopeKind.LOOP);
-
-        if (node.getBlock() != null) {
-            node.getBlock().accept(this);
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    @Override
-    public Void visit(DoWhileStatement node) {
-        context.getSymbolTable().enterScope(ScopeKind.LOOP);
-
-        if (node.getBlock() != null) {
-            node.getBlock().accept(this);
-        }
-
-        context.getSymbolTable().exitScope();
-        return null;
-    }
-
-    private void define(Symbol symbol) {
-        if (!context.getSymbolTable().define(symbol)) {
-            throw new IllegalStateException(
-                    "Identificador LAT duplicado: " + symbol.getName()
-            );
-        }
     }
 
     private Type resolveType(String name, int line, int column) {
-        if (name == null) {
-            return new Type(TypeKind.VOID, "void", List.of());
-        }
-
+        if (name == null) return Type.VOID;
         String value = name.toLowerCase(Locale.ROOT);
-
         return switch (value) {
-            case "numerus" -> new Type(TypeKind.INT, name, List.of());
-            case "decimalis" -> new Type(TypeKind.DOUBLE, name, List.of());
-            case "littera" -> new Type(TypeKind.CHAR, name, List.of());
-            case "textum" -> new Type(TypeKind.STRING, name, List.of());
-            case "bool", "boolean" -> new Type(TypeKind.BOOLEAN, name, List.of());
-            case "void" -> new Type(TypeKind.VOID, name, List.of());
-            default -> new Type(TypeKind.STRUCT, name, List.of());
+            case "numerus" -> Type.INT;
+            case "decimalis" -> Type.DOUBLE;
+            case "textum" -> Type.STRING;
+            case "littera" -> Type.CHAR;
+            case "bool", "boolean" -> Type.BOOLEAN;
+            case "void" -> Type.VOID;
+            default -> {
+                AggregateType agg = context.getTypeTable().resolve(name);
+                if (agg == null) {
+                    context.getErrors().report(line, column, "Tipo no definido: " + name);
+                    yield Type.ERROR;
+                }
+                yield agg.isClass() ? Type.classType(name) : Type.struct(name);
+            }
         };
     }
 
+    @Override public Void visit(LocalVariableSection node) { return null; }
+    @Override public Void visit(FunctionBody node) { return null; }
+    @Override public Void visit(Parameter node) { return null; }
+    @Override public Void visit(ArrayInitializer node) { return null; }
+    @Override public Void visit(ExpressionInitializer node) { return null; }
+    @Override public Void visit(StructInitializer node) { return null; }
+    @Override public Void visit(StructFieldInitializer node) { return null; }
+
     @Override public Void visit(AssignmentStatement node) { return null; }
+    @Override public Void visit(BlockStatement node) { return null; }
     @Override public Void visit(BreakStatement node) { return null; }
     @Override public Void visit(ContinueStatement node) { return null; }
+    @Override public Void visit(DoWhileStatement node) { return null; }
+    @Override public Void visit(ElseIfStatement node) { return null; }
+    @Override public Void visit(ForStatement node) { return null; }
     @Override public Void visit(FunctionCallStatement node) { return null; }
+    @Override public Void visit(IfStatement node) { return null; }
     @Override public Void visit(IncrementStatement node) { return null; }
     @Override public Void visit(PrintStatement node) { return null; }
     @Override public Void visit(ReadStatement node) { return null; }
     @Override public Void visit(ReturnStatement node) { return null; }
+    @Override public Void visit(WhileStatement node) { return null; }
 
     @Override public Void visit(ArrayAccessExpression node) { return null; }
     @Override public Void visit(BinaryExpression node) { return null; }

@@ -409,6 +409,40 @@ public interface YParserListener extends ParseTreeListener {
 	 */
 	void exitArrayInitializer(YParser.ArrayInitializerContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link YParser#arrayInitializerElementList}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayInitializerElementList(YParser.ArrayInitializerElementListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link YParser#arrayInitializerElementList}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayInitializerElementList(YParser.ArrayInitializerElementListContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArrayExprElement}
+	 * labeled alternative in {@link YParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayExprElement(YParser.ArrayExprElementContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArrayExprElement}
+	 * labeled alternative in {@link YParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayExprElement(YParser.ArrayExprElementContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NestedArrayElement}
+	 * labeled alternative in {@link YParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 */
+	void enterNestedArrayElement(YParser.NestedArrayElementContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NestedArrayElement}
+	 * labeled alternative in {@link YParser#arrayInitializerElement}.
+	 * @param ctx the parse tree
+	 */
+	void exitNestedArrayElement(YParser.NestedArrayElementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link YParser#structureInitializer}.
 	 * @param ctx the parse tree
 	 */
@@ -586,6 +620,16 @@ public interface YParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitForInitializer(YParser.ForInitializerContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link YParser#variableDeclarationWithoutNewline}.
+	 * @param ctx the parse tree
+	 */
+	void enterVariableDeclarationWithoutNewline(YParser.VariableDeclarationWithoutNewlineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link YParser#variableDeclarationWithoutNewline}.
+	 * @param ctx the parse tree
+	 */
+	void exitVariableDeclarationWithoutNewline(YParser.VariableDeclarationWithoutNewlineContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link YParser#forUpdate}.
 	 * @param ctx the parse tree

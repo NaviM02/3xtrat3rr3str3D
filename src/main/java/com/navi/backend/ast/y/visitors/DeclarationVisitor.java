@@ -155,13 +155,23 @@ public class DeclarationVisitor extends StatementVisitor {
 
     @Override
     public AstYNode visitArrayInitializer(YParser.ArrayInitializerContext ctx) {
-        List<Expression> expressions = new ArrayList<>();
-        if (ctx.expressionList() != null) {
-            for (YParser.ExpressionContext expressionCtx : ctx.expressionList().expression()) {
-                expressions.add((Expression) visit(expressionCtx));
+        List<AstYNode> elements = new ArrayList<>();
+        if (ctx.arrayInitializerElementList() != null) {
+            for (YParser.ArrayInitializerElementContext elementCtx : ctx.arrayInitializerElementList().arrayInitializerElement()) {
+                elements.add(visit(elementCtx));
             }
         }
-        return new ArrayInitializer(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), expressions);
+        return new ArrayInitializer(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), elements);
+    }
+
+    @Override
+    public AstYNode visitArrayExprElement(YParser.ArrayExprElementContext ctx) {
+        return visit(ctx.expression());
+    }
+
+    @Override
+    public AstYNode visitNestedArrayElement(YParser.NestedArrayElementContext ctx) {
+        return visit(ctx.arrayInitializer());
     }
 
     @Override
