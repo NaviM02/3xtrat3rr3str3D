@@ -1,6 +1,7 @@
 package com.navi.backend.semantic;
 
 import com.navi.backend.ast.lat.global.Program;
+import com.navi.backend.ast.lat.visitors.ProgramVisitor;
 import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.y.visitors.ProgramYVisitor;
 import com.navi.backend.ast.z.global.ProgramZ;
@@ -67,7 +68,7 @@ public class FileModuleLoader implements ModuleLoader {
         parser.addErrorListener(errors);
         PigLatinParser.ProgramContext tree = parser.program();
         if (errors.hasErrors()) throw new SemanticError(String.join("\n", errors.getErrors()));
-        return (Program) new com.navi.backend.ast.lat.visitors.ProgramVisitor().visit(tree);
+        return (Program) new ProgramVisitor().visit(tree);
     }
 
     public static ProgramY parseY(String source) {
@@ -80,7 +81,7 @@ public class FileModuleLoader implements ModuleLoader {
         parser.addErrorListener(errors);
         YParser.ProgramContext tree = parser.program();
         if (errors.hasErrors()) throw new SemanticError(String.join("\n", errors.getErrors()));
-        return (ProgramY) new ProgramYVisitor().visit(tree); // todo: change
+        return (ProgramY) new ProgramYVisitor().visit(tree);
     }
 
     public static ProgramZ parseZ(String source) {

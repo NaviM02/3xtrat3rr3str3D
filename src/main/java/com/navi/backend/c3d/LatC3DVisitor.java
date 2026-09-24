@@ -315,7 +315,7 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
 
     @Override
     public String visit(FunctionCallStatement node) {
-        emitCall(node.getCallee(), node.getArguments());
+        emitCall(node.getCallee(), node.getArguments(), true);
         return null;
     }
 
@@ -384,7 +384,8 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
 
     @Override
     public String visit(FunctionCallExpression node) {
-        return emitCall(node.getCallee(), node.getArguments());
+        Type t = context.typeOf(node);
+        return emitCall(node.getCallee(), node.getArguments(), t != null && t.isVoid());
     }
 
     @Override
@@ -479,9 +480,13 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
 
     // ---------------------------------------------------------------- helpers
 
-    private String emitCall(Expression callee, List<Expression> args) {
+    private String emitCall(Expression callee, List<Expression> args, boolean isVoid) {
         List<String> argPlaces = evalArgs(args);
         if (callee instanceof VariableExpression ve) {
+            if (isVoid) {
+                emitter.callVoid(ve.getName(), argPlaces);
+                return null;
+            }
             return emitter.call(ve.getName(), argPlaces);
         }
         if (callee instanceof MemberAccessExpression ma) {
@@ -491,6 +496,10 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
             List<String> callArgs = new ArrayList<>();
             callArgs.add(objPlace);
             callArgs.addAll(argPlaces);
+            if (isVoid) {
+                emitter.callVoid(label, callArgs);
+                return null;
+            }
             return emitter.call(label, callArgs);
         }
         return emitter.literal("0");

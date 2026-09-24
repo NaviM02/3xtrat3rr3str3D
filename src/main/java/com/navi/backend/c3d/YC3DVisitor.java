@@ -384,6 +384,11 @@ public class YC3DVisitor implements AstYVisitor<String> {
         List<String> args = new ArrayList<>();
         if (node.getArguments() != null) for (Expression a : node.getArguments()) args.add(a.accept(this));
         if (node.getFunction() instanceof VariableExpression ve) {
+            Type t = context.typeOf(node);
+            if (t != null && t.isVoid()) {
+                emitter.callVoid(ve.getName(), args);
+                return null;
+            }
             return emitter.call(ve.getName(), args);
         }
         return emitter.literal("0");

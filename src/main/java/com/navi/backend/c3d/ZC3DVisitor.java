@@ -432,11 +432,16 @@ public class ZC3DVisitor implements AstZVisitor<String> {
     @Override
     public String visit(FunctionCallExpression node) {
         List<String> argPlaces = evalArgs(node.getArguments());
+        boolean isVoid = context.typeOf(node) != null && context.typeOf(node).isVoid();
         if (node.getFunction() instanceof VariableExpression ve) {
             String label = resolveMethodLabel(currentClass.getName(), ve.getName(), node.getArguments());
             List<String> callArgs = new ArrayList<>();
             callArgs.add(thisPlace());
             callArgs.addAll(argPlaces);
+            if (isVoid) {
+                emitter.callVoid(label, callArgs);
+                return null;
+            }
             return emitter.call(label, callArgs);
         }
         if (node.getFunction() instanceof MemberAccessExpression ma) {
@@ -446,6 +451,10 @@ public class ZC3DVisitor implements AstZVisitor<String> {
             List<String> callArgs = new ArrayList<>();
             callArgs.add(obj);
             callArgs.addAll(argPlaces);
+            if (isVoid) {
+                emitter.callVoid(label, callArgs);
+                return null;
+            }
             return emitter.call(label, callArgs);
         }
         return emitter.literal("0");
