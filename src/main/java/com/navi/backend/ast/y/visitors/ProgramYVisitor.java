@@ -9,7 +9,7 @@ import com.navi.backend.lexer_parser.y.YParser;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProgramVisitor extends DeclarationVisitor {
+public class ProgramYVisitor extends DeclarationVisitor {
 
     @Override
     public AstYNode visitProgram(YParser.ProgramContext ctx) {

@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,8 +25,15 @@ public class SemanticContext {
     private final SymbolTable symbolTable = new SymbolTable();
     private final TypeTable typeTable = new TypeTable();
     private final Set<String> loadedModules = new HashSet<>();
+    private final Map<String, Object> loadedAsts = new LinkedHashMap<>();
     private final Map<Object, Type> annotations = new IdentityHashMap<>();
+    private final Map<Object, Symbol> symbolBindings = new IdentityHashMap<>();
     private final SemanticErrors errors = new SemanticErrors();
+
+    /** Guarda el AST de un módulo importado para que la generación de C3D lo emita. */
+    public void recordAst(String importPath, Object ast) {
+        loadedAsts.put(importPath, ast);
+    }
 
     public boolean isLoaded(String importPath) {
         return loadedModules.contains(importPath);
@@ -42,5 +50,14 @@ public class SemanticContext {
 
     public Type typeOf(Object node) {
         return annotations.get(node);
+    }
+
+    /** Liga un nodo de declaración (variable/parámetro) con su {@link Symbol} para que C3D fije su Pos_memory. */
+    public void bindSymbol(Object node, Symbol symbol) {
+        symbolBindings.put(node, symbol);
+    }
+
+    public Symbol symbolOf(Object node) {
+        return symbolBindings.get(node);
     }
 }

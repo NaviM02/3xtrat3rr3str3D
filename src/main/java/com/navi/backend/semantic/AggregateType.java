@@ -52,7 +52,7 @@ public class AggregateType {
     }
 
     private Symbol resolveCallable(Scope scope, String name, List<Type> argTypes) {
-        java.util.List<Symbol> candidates = scope.resolveOverloads(name);
+        List<Symbol> candidates = scope.resolveOverloads(name);
         if (candidates == null) return null;
         for (Symbol symbol : candidates) {
             if (symbol.getSignature() != null && symbol.getSignature().matches(argTypes)) {

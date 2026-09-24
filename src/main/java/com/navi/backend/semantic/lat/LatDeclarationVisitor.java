@@ -122,6 +122,7 @@ public class LatDeclarationVisitor implements AstLatVisitor<Void> {
         if (!context.getSymbolTable().defineUnique(s)) {
             context.getErrors().report(node.getLine(), node.getColumn(), "Variable duplicada: " + node.getName());
         }
+        context.bindSymbol(node, s);
         return null;
     }
 
@@ -134,6 +135,7 @@ public class LatDeclarationVisitor implements AstLatVisitor<Void> {
         if (!context.getSymbolTable().defineUnique(s)) {
             context.getErrors().report(node.getLine(), node.getColumn(), "Variable duplicada: " + node.getName());
         }
+        context.bindSymbol(node, s);
         return null;
     }
 

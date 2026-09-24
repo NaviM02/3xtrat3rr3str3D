@@ -124,6 +124,7 @@ public class LatSemanticVisitor implements AstLatVisitor<Type> {
                 if (!context.getSymbolTable().defineUnique(s)) {
                     error(p.getLine(), p.getColumn(), "Parámetro duplicado: " + p.getName());
                 }
+                context.bindSymbol(p, s);
             }
         }
         currentReturnType = resolveType(node.getReturnType(), node.getLine(), node.getColumn());
@@ -162,6 +163,7 @@ public class LatSemanticVisitor implements AstLatVisitor<Type> {
         if (!context.getSymbolTable().defineUnique(s)) {
             error(node.getLine(), node.getColumn(), "Variable duplicada: " + node.getName());
         }
+        context.bindSymbol(node, s);
         if (node.getInitializer() != null) {
             checkInitializer(node.getInitializer(), type, node.getLine(), node.getColumn());
         }
@@ -178,6 +180,7 @@ public class LatSemanticVisitor implements AstLatVisitor<Type> {
         if (!context.getSymbolTable().defineUnique(s)) {
             error(node.getLine(), node.getColumn(), "Variable duplicada: " + node.getName());
         }
+        context.bindSymbol(node, s);
         if (node.getInitializer() != null) {
             for (AstLatNode el : node.getInitializer().getElements()) {
                 Type actual = el instanceof Expression e ? e.accept(this) : Type.ERROR;

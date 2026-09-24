@@ -131,6 +131,7 @@ public class YSemanticVisitor implements AstYVisitor<Type> {
         if (!context.getSymbolTable().defineUnique(sym)) {
             context.getErrors().report(p.getLine(), p.getColumn(), "Parámetro duplicado: " + name);
         }
+        context.bindSymbol(p, sym);
     }
 
     @Override
@@ -143,6 +144,7 @@ public class YSemanticVisitor implements AstYVisitor<Type> {
         if (!context.getSymbolTable().defineUnique(s)) {
             context.getErrors().report(node.getLine(), node.getColumn(), "Variable duplicada: " + node.getName());
         }
+        context.bindSymbol(node, s);
         if (node.getInitializer() != null) {
             checkInitializer(node.getInitializer(), type, node.getLine(), node.getColumn());
         }

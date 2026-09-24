@@ -63,6 +63,9 @@ public final class SemanticReporter {
                 if (s.getSignature() != null) {
                     sb.append(sig(s));
                 }
+                if (s.getKind() == SymbolKind.VARIABLE || s.getKind() == SymbolKind.PARAMETER) {
+                    sb.append(" | Pos_memory: ").append(s.getPosMemory());
+                }
                 sb.append("\n");
             }
         }

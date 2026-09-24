@@ -5,7 +5,7 @@ import com.navi.backend.ast.z.declarations.ClassDeclaration;
 import com.navi.backend.ast.z.global.ProgramZ;
 import com.navi.backend.lexer_parser.z.ZParser;
 
-public class ProgramVisitor extends DeclarationVisitor {
+public class ProgramZVisitor extends DeclarationVisitor {
     @Override
     public AstZNode visitProgram(ZParser.ProgramContext ctx) {
         ClassDeclaration classDeclaration = (ClassDeclaration) visit(ctx.classDeclaration());

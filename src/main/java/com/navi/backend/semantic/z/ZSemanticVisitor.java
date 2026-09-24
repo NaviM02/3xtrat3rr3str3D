@@ -144,6 +144,7 @@ public class ZSemanticVisitor implements AstZVisitor<Type> {
             if (!context.getSymbolTable().defineUnique(s)) {
                 context.getErrors().report(p.getLine(), p.getColumn(), "Parámetro duplicado: " + p.getName());
             }
+            context.bindSymbol(p, s);
         }
     }
 
@@ -172,6 +173,7 @@ public class ZSemanticVisitor implements AstZVisitor<Type> {
             if (!context.getSymbolTable().defineUnique(s)) {
                 context.getErrors().report(v.getLine(), v.getColumn(), "Variable duplicada: " + v.getName());
             }
+            context.bindSymbol(v, s);
             if (v.getInitializer() != null) {
                 checkInitializer(v.getInitializer(), type, v.getLine(), v.getColumn());
             }

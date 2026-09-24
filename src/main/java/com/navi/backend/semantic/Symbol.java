@@ -1,10 +1,12 @@
 package com.navi.backend.semantic;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Símbolo semántico. Solo información de tipos/ámbito; los offsets de stack/heap
- * y los temporales los maneja el generador de C3D como concern separado.
+ * Símbolo semántico. Guarda tipo/ámbito y, una vez que el generador de C3D
+ * asigna el marco, la posición de memoria ({@link #posMemory}) de la variable o
+ * parámetro dentro del stack/área global (ver apuntes de clase).
  */
 @Getter
 public class Symbol {
@@ -17,6 +19,8 @@ public class Symbol {
     private final AggregateType owner;       // clase dueña (METHOD/CONSTRUCTOR); null en el resto
     private final int line;
     private final int column;
+    @Setter
+    private int posMemory = -1;              // offset en stack/global; -1 mientras no se asigna
 
     public Symbol(String name, SymbolKind kind, Type type, FunctionSignature signature,
                   boolean reference, Scope scope, AggregateType owner, int line, int column) {

@@ -2,7 +2,9 @@ package com.navi.backend.semantic;
 
 import com.navi.backend.ast.lat.global.Program;
 import com.navi.backend.ast.y.global.ProgramY;
+import com.navi.backend.ast.y.visitors.ProgramYVisitor;
 import com.navi.backend.ast.z.global.ProgramZ;
+import com.navi.backend.ast.z.visitors.ProgramZVisitor;
 import com.navi.backend.lexer_parser.lat.PigLatinLexer;
 import com.navi.backend.lexer_parser.lat.PigLatinParser;
 import com.navi.backend.lexer_parser.y.IndentationTokenSource;
@@ -78,7 +80,7 @@ public class FileModuleLoader implements ModuleLoader {
         parser.addErrorListener(errors);
         YParser.ProgramContext tree = parser.program();
         if (errors.hasErrors()) throw new SemanticError(String.join("\n", errors.getErrors()));
-        return (ProgramY) new com.navi.backend.ast.y.visitors.ProgramVisitor().visit(tree);
+        return (ProgramY) new ProgramYVisitor().visit(tree); // todo: change
     }
 
     public static ProgramZ parseZ(String source) {
@@ -90,6 +92,6 @@ public class FileModuleLoader implements ModuleLoader {
         parser.addErrorListener(errors);
         ZParser.ProgramContext tree = parser.program();
         if (errors.hasErrors()) throw new SemanticError(String.join("\n", errors.getErrors()));
-        return (ProgramZ) new com.navi.backend.ast.z.visitors.ProgramVisitor().visit(tree);
+        return (ProgramZ) new ProgramZVisitor().visit(tree);
     }
 }

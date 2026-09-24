@@ -73,10 +73,12 @@ public class SemanticAnalyzer {
 
         if (path.isY()) {
             ProgramY y = loader.loadY(imp.getPath());
+            context.recordAst(imp.getPath(), y);
             new YDeclarationVisitor(context).build(y);
             new YSemanticVisitor(context).build(y);
         } else {
             ProgramZ z = loader.loadZ(imp.getPath());
+            context.recordAst(imp.getPath(), z);
             new ZDeclarationVisitor(context).build(z);
             new ZSemanticVisitor(context).build(z);
         }
