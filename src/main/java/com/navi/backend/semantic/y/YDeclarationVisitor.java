@@ -42,6 +42,7 @@ import com.navi.backend.ast.y.statements.SwitchStatement;
 import com.navi.backend.ast.y.statements.WhileStatement;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
 import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.Definitions;
 import com.navi.backend.semantic.Field;
 import com.navi.backend.semantic.FunctionSignature;
 import com.navi.backend.semantic.Scope;
@@ -52,7 +53,6 @@ import com.navi.backend.semantic.Type;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Pasada de declaraciones de Y. Registra estructuras (TypeTable) y funciones
@@ -61,9 +61,13 @@ import java.util.Locale;
 public class YDeclarationVisitor implements AstYVisitor<Void> {
 
     private final SemanticContext context;
+    private final YTypeResolver types;
+    private final Definitions defs;
 
     public YDeclarationVisitor(SemanticContext context) {
         this.context = context;
+        this.types = new YTypeResolver(context);
+        this.defs = new Definitions(context);
     }
 
     public void build(ProgramY program) {
@@ -114,7 +118,7 @@ public class YDeclarationVisitor implements AstYVisitor<Void> {
 
     @Override
     public Void visit(FunctionDeclaration node) {
-        Type returnType = node.getReturnType() == null ? Type.VOID : resolveType(node.getReturnType());
+        Type returnType = node.getReturnType() == null ? Type.VOID : types.resolve(node.getReturnType());
         List<Type> paramTypes = new ArrayList<>();
         if (node.getParameters() != null) {
             for (Parameter p : node.getParameters()) paramTypes.add(paramType(p));
@@ -122,24 +126,20 @@ public class YDeclarationVisitor implements AstYVisitor<Void> {
         Symbol fn = new Symbol(node.getName(), SymbolKind.FUNCTION, returnType,
                 new FunctionSignature(paramTypes, returnType), false,
                 context.getSymbolTable().getGlobalScope(), null, node.getLine(), node.getColumn());
-        try {
-            context.getSymbolTable().defineCallable(fn);
-        } catch (RuntimeException e) {
-            context.getErrors().report(node.getLine(), node.getColumn(), e.getMessage());
-        }
+        defs.callable(fn);
         return null;
     }
 
     private Type resolveFieldType(StructureField field) {
-        Type base = resolveType(field.getType());
+        Type base = types.resolve(field.getType());
         ArrayDimensions dims = field.getArrayDimensions();
         if (dims == null || dims.getDimensions() == null || dims.getDimensions().isEmpty()) return base;
         return Type.array(base, dims.getDimensions().size());
     }
 
     private Type paramType(Parameter p) {
-        if (p instanceof NormalParameter n) return resolveType(n.getType());
-        if (p instanceof ArrayParameter a) return Type.array(resolveType(a.getType()), 1);
+        if (p instanceof NormalParameter n) return types.resolve(n.getType());
+        if (p instanceof ArrayParameter a) return Type.array(types.resolve(a.getType()), 1);
         if (p instanceof StructureParameter s) {
             AggregateType agg = context.getTypeTable().resolve(s.getStructureName());
             if (agg == null) {
@@ -149,25 +149,6 @@ public class YDeclarationVisitor implements AstYVisitor<Void> {
             return Type.struct(s.getStructureName());
         }
         return Type.ERROR;
-    }
-
-    private Type resolveType(YType node) {
-        String value = node.getName().toLowerCase(Locale.ROOT);
-        return switch (value) {
-            case "entero" -> Type.INT;
-            case "flotante" -> Type.DOUBLE;
-            case "cadena" -> Type.STRING;
-            case "caracter" -> Type.CHAR;
-            case "bool" -> Type.BOOLEAN;
-            default -> {
-                AggregateType agg = context.getTypeTable().resolve(node.getName());
-                if (agg == null) {
-                    context.getErrors().report(node.getLine(), node.getColumn(), "Tipo no definido: " + node.getName());
-                    yield Type.ERROR;
-                }
-                yield Type.struct(node.getName());
-            }
-        };
     }
 
     @Override public Void visit(StructureField node) { return null; }

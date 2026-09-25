@@ -48,6 +48,7 @@ import com.navi.backend.ast.z.statements.VariableDeclarationStatement;
 import com.navi.backend.ast.z.statements.WhileStatement;
 import com.navi.backend.ast.z.visitors.AstZVisitor;
 import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.Definitions;
 import com.navi.backend.semantic.Field;
 import com.navi.backend.semantic.FunctionSignature;
 import com.navi.backend.semantic.Scope;
@@ -67,9 +68,13 @@ import java.util.List;
 public class ZDeclarationVisitor implements AstZVisitor<Void> {
 
     private final SemanticContext context;
+    private final ZTypeResolver types;
+    private final Definitions defs;
 
     public ZDeclarationVisitor(SemanticContext context) {
         this.context = context;
+        this.types = new ZTypeResolver(context);
+        this.defs = new Definitions(context);
     }
 
     public void build(ProgramZ program) {
@@ -102,23 +107,19 @@ public class ZDeclarationVisitor implements AstZVisitor<Void> {
     }
 
     private void registerField(AggregateType agg, FieldDeclaration node) {
-        Type type = resolveType(node.getType());
+        Type type = types.resolve(node.getType());
         for (VariableDeclarator v : node.getVariables()) {
             agg.addField(new Field(v.getName(), type));
         }
     }
 
     private void registerMethod(AggregateType agg, MethodDeclaration node) {
-        Type returnType = node.getReturnType() == null ? Type.VOID : resolveType(node.getReturnType());
+        Type returnType = node.getReturnType() == null ? Type.VOID : types.resolve(node.getReturnType());
         List<Type> params = resolveParams(node.getParameters());
         Symbol s = new Symbol(node.getName(), SymbolKind.METHOD, returnType,
                 new FunctionSignature(params, returnType), false, agg.getMemberScope(), agg,
                 node.getLine(), node.getColumn());
-        try {
-            context.getSymbolTable().defineCallableIn(agg.getMemberScope(), s);
-        } catch (RuntimeException e) {
-            context.getErrors().report(node.getLine(), node.getColumn(), e.getMessage());
-        }
+        defs.callableIn(agg.getMemberScope(), s);
     }
 
     private void registerConstructor(AggregateType agg, ConstructorDeclaration node) {
@@ -127,43 +128,15 @@ public class ZDeclarationVisitor implements AstZVisitor<Void> {
         Symbol s = new Symbol(node.getName(), SymbolKind.CONSTRUCTOR, classType,
                 new FunctionSignature(params, classType), false, agg.getMemberScope(), agg,
                 node.getLine(), node.getColumn());
-        try {
-            context.getSymbolTable().defineCallableIn(agg.getMemberScope(), s);
-        } catch (RuntimeException e) {
-            context.getErrors().report(node.getLine(), node.getColumn(), e.getMessage());
-        }
+        defs.callableIn(agg.getMemberScope(), s);
     }
 
     private List<Type> resolveParams(List<Parameter> parameters) {
-        List<Type> types = new ArrayList<>();
+        List<Type> paramTypes = new ArrayList<>();
         if (parameters != null) {
-            for (Parameter p : parameters) types.add(resolveType(p.getType()));
+            for (Parameter p : parameters) paramTypes.add(types.resolve(p.getType()));
         }
-        return types;
-    }
-
-    private Type resolveType(ZType node) {
-        String name = node.getName();
-        Type base = switch (name) {
-            case "int" -> Type.INT;
-            case "double" -> Type.DOUBLE;
-            case "char" -> Type.CHAR;
-            case "boolean" -> Type.BOOLEAN;
-            case "String" -> Type.STRING;
-            case "void" -> Type.VOID;
-            default -> {
-                AggregateType agg = context.getTypeTable().resolve(name);
-                if (agg == null) {
-                    context.getErrors().report(node.getLine(), node.getColumn(), "Tipo no definido: " + name);
-                    yield Type.ERROR;
-                }
-                yield Type.classType(name);
-            }
-        };
-        if (node.getArrayDimensions() != null && node.getArrayDimensions().getDimensions() > 0) {
-            return Type.array(base, node.getArrayDimensions().getDimensions());
-        }
-        return base;
+        return paramTypes;
     }
 
     @Override public Void visit(ClassMember node) { return null; }

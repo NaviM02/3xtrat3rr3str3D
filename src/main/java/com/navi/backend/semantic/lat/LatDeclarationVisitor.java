@@ -41,7 +41,7 @@ import com.navi.backend.ast.lat.statements.ReadStatement;
 import com.navi.backend.ast.lat.statements.ReturnStatement;
 import com.navi.backend.ast.lat.statements.WhileStatement;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
-import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.Definitions;
 import com.navi.backend.semantic.FunctionSignature;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.Symbol;
@@ -50,7 +50,6 @@ import com.navi.backend.semantic.Type;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Pasada de declaraciones de Lat. Registra variables globales y signatures de
@@ -59,9 +58,13 @@ import java.util.Locale;
 public class LatDeclarationVisitor implements AstLatVisitor<Void> {
 
     private final SemanticContext context;
+    private final LatTypeResolver types;
+    private final Definitions defs;
 
     public LatDeclarationVisitor(SemanticContext context) {
         this.context = context;
+        this.types = new LatTypeResolver(context);
+        this.defs = new Definitions(context);
     }
 
     public void build(Program program) {
@@ -96,68 +99,33 @@ public class LatDeclarationVisitor implements AstLatVisitor<Void> {
 
     @Override
     public Void visit(FunctionDeclaration node) {
-        Type returnType = resolveType(node.getReturnType(), node.getLine(), node.getColumn());
+        Type returnType = types.resolve(node.getReturnType(), node.getLine(), node.getColumn());
         List<Type> paramTypes = new ArrayList<>();
         if (node.getParameters() != null) {
             for (Parameter p : node.getParameters()) {
-                paramTypes.add(resolveType(p.getType(), p.getLine(), p.getColumn()));
+                paramTypes.add(types.resolve(p.getType(), p.getLine(), p.getColumn()));
             }
         }
         Symbol fn = new Symbol(node.getName(), SymbolKind.FUNCTION, returnType,
                 new FunctionSignature(paramTypes, returnType), false,
                 context.getSymbolTable().getGlobalScope(), null, node.getLine(), node.getColumn());
-        try {
-            context.getSymbolTable().defineCallable(fn);
-        } catch (RuntimeException e) {
-            context.getErrors().report(node.getLine(), node.getColumn(), e.getMessage());
-        }
+        defs.callable(fn);
         return null;
     }
 
     @Override
     public Void visit(VariableDeclaration node) {
-        Type type = resolveType(node.getType(), node.getLine(), node.getColumn());
-        Symbol s = new Symbol(node.getName(), SymbolKind.VARIABLE, type, null, false,
-                context.getSymbolTable().getCurrentScope(), null, node.getLine(), node.getColumn());
-        if (!context.getSymbolTable().defineUnique(s)) {
-            context.getErrors().report(node.getLine(), node.getColumn(), "Variable duplicada: " + node.getName());
-        }
-        context.bindSymbol(node, s);
+        Type type = types.resolve(node.getType(), node.getLine(), node.getColumn());
+        defs.variable(node, node.getName(), type, node.getLine(), node.getColumn());
         return null;
     }
 
     @Override
     public Void visit(ArrayDeclaration node) {
-        Type base = resolveType(node.getType(), node.getLine(), node.getColumn());
+        Type base = types.resolve(node.getType(), node.getLine(), node.getColumn());
         int rank = node.getSizes() == null ? 0 : node.getSizes().size();
-        Symbol s = new Symbol(node.getName(), SymbolKind.VARIABLE, Type.array(base, rank), null, false,
-                context.getSymbolTable().getCurrentScope(), null, node.getLine(), node.getColumn());
-        if (!context.getSymbolTable().defineUnique(s)) {
-            context.getErrors().report(node.getLine(), node.getColumn(), "Variable duplicada: " + node.getName());
-        }
-        context.bindSymbol(node, s);
+        defs.variable(node, node.getName(), Type.array(base, rank), node.getLine(), node.getColumn());
         return null;
-    }
-
-    private Type resolveType(String name, int line, int column) {
-        if (name == null) return Type.VOID;
-        String value = name.toLowerCase(Locale.ROOT);
-        return switch (value) {
-            case "numerus" -> Type.INT;
-            case "decimalis" -> Type.DOUBLE;
-            case "textum" -> Type.STRING;
-            case "littera" -> Type.CHAR;
-            case "bool", "boolean" -> Type.BOOLEAN;
-            case "void" -> Type.VOID;
-            default -> {
-                AggregateType agg = context.getTypeTable().resolve(name);
-                if (agg == null) {
-                    context.getErrors().report(line, column, "Tipo no definido: " + name);
-                    yield Type.ERROR;
-                }
-                yield agg.isClass() ? Type.classType(name) : Type.struct(name);
-            }
-        };
     }
 
     @Override public Void visit(LocalVariableSection node) { return null; }
