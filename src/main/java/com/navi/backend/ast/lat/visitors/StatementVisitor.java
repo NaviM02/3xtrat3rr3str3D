@@ -221,9 +221,15 @@ public class StatementVisitor extends ExpressionVisitor {
 
     @Override
     public AstLatNode visitReturnStmt(PigLatinParser.ReturnStmtContext ctx) {
+        Expression expression = null;
+
+        if (ctx.returnStatement().expression() != null) {
+            expression = (Expression) visit(ctx.returnStatement().expression());
+        }
+
         return new ReturnStatement(
             ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
-            (Expression) visit(ctx.returnStatement().expression())
+            expression
         );
     }
 

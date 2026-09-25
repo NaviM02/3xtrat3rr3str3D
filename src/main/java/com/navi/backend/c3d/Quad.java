@@ -1,5 +1,7 @@
 package com.navi.backend.c3d;
 
+import lombok.Getter;
+
 import java.util.List;
 
 /**
@@ -18,6 +20,7 @@ import java.util.List;
  *   <li>{@code goto L}, {@code L:}, {@code call}, {@code return}, {@code halt}</li>
  * </ul>
  */
+@Getter
 public class Quad {
 
     private final String op;
@@ -36,14 +39,6 @@ public class Quad {
         this.args = List.copyOf(args);
     }
 
-    public String getOp() {
-        return op;
-    }
-
-    public List<String> getArgs() {
-        return args;
-    }
-
     @Override
     public String toString() {
         return switch (op) {
@@ -57,7 +52,7 @@ public class Quad {
             case "heap_load" -> result + " = heap[" + args.get(0) + "]";
             case "heap_store" -> "heap[" + args.get(0) + "] = " + result;
             case "call" -> (result == null ? "" : result + " = ") + "call " + String.join(", ", args);
-            case "enter" -> "enter " + args.get(0);
+            case "enter" -> args.size() > 1 ? "enter " + args.get(0) + ", " + args.get(1) : "enter " + args.get(0);
             case "leave" -> "leave";
             case "print" -> "print " + args.get(0);
             case "read" -> result == null ? "read" : result + " = read";

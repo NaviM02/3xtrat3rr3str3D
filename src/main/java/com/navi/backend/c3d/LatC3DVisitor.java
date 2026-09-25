@@ -83,7 +83,13 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
 
     @Override
     public String visit(Program node) {
-        if (node.getGlobalVariables() != null) node.getGlobalVariables().accept(this);
+        if (node.getGlobalVariables() != null) {
+            emitter.entryLabel("globals_init");
+            emitter.enterFrame("globals_init");
+            node.getGlobalVariables().accept(this);
+            emitter.returnVoid();
+            emitter.exitFrame();
+        }
         if (node.getFunctions() != null) for (FunctionDeclaration f : node.getFunctions()) f.accept(this);
         emitter.entryLabel("main");
         emitter.enterFrame("main");

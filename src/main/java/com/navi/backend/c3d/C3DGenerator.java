@@ -5,6 +5,8 @@ import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;
 import com.navi.backend.semantic.SemanticContext;
 
+import java.util.List;
+
 /**
  * Orquestador de la generación de C3D. Recorre los AST (empezando por los módulos
  * importados, en orden) y emite cuartetas vía un {@link C3DEmitter} compartido.
@@ -36,5 +38,10 @@ public class C3DGenerator {
     public String generate(ProgramZ z) {
         new ZC3DVisitor(context, emitter).generate(z);
         return emitter.render();
+    }
+
+    /** Cuartetas finales (etiquetas colapsadas, saltos explícitos) para traducir a C. */
+    public List<Quad> quads() {
+        return emitter.finalQuads();
     }
 }

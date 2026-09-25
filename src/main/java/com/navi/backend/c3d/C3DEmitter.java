@@ -40,6 +40,12 @@ import java.util.Set;
  * <h2>Código inalcanzable</h2>
  * Tras {@code return}/{@code goto}/{@code halt} se descartan las cuartetas
  * siguientes hasta la próxima etiqueta alcanzable.
+ *
+ * <h2>Estilo de saltos</h2>
+ * No se confía en la caída (fall-through): {@link #render()} garantiza que cada
+ * bloque de etiqueta termine en {@code goto}/{@code return}/{@code halt} (insertando
+ * el {@code goto} si hace falta) y colapsa las etiquetas vacías consecutivas,
+ * reubicando sus saltos en la etiqueta siguiente.
  */
 public class C3DEmitter {
 
@@ -48,6 +54,8 @@ public class C3DEmitter {
         final Map<String, Integer> slots = new LinkedHashMap<>();
         final Set<String> references = new HashSet<>(); // params por referencia (arreglos/structs de Y)
         int next = 0; // siguiente offset libre (0-based, params y luego locales)
+        String label;    // etiqueta del marco (para parchear enter con el tamaño)
+        int enterIndex = -1;
     }
 
     private final List<Quad> quads = new ArrayList<>();
@@ -69,15 +77,25 @@ public class C3DEmitter {
 
     // ---- marcos de ejecución ----
 
-    /** Abre un marco de activación y emite {@code enter}. */
+    /** Abre un marco de activación y emite {@code enter} (el tamaño se fija al cerrar). */
     public void enterFrame(String label) {
-        frames.push(new Frame());
+        Frame f = new Frame();
+        f.label = label;
+        frames.push(f);
         emit(new Quad("enter", null, label));
+        if (!quads.isEmpty() && "enter".equals(quads.get(quads.size() - 1).getOp())) {
+            f.enterIndex = quads.size() - 1;
+        }
     }
 
-    /** Cierra el marco actual (el {@code leave} se emite junto al return). */
+    /** Cierra el marco actual (el {@code leave} se emite junto al return) y fija el tamaño del {@code enter}. */
     public void exitFrame() {
-        if (!frames.isEmpty()) frames.pop();
+        if (!frames.isEmpty()) {
+            Frame f = frames.pop();
+            if (f.enterIndex >= 0) {
+                quads.set(f.enterIndex, new Quad("enter", null, f.label, String.valueOf(Math.max(f.next, 0))));
+            }
+        }
     }
 
     /** Declara un parámetro en el marco actual y devuelve su Pos_memory. */
@@ -258,12 +276,12 @@ public class C3DEmitter {
     /**
      * Materializa una comparación a un temporal 0/1 usando saltos (estilo apuntes):
      * <pre>
-     *   if l op r goto Ltrue
-     *   goto Lfalse
-     *   Ltrue: t = 1; goto Lend
-     *   Lfalse: t = 0
-     *   Lend:
-     * </pre>
+ *   if l op r goto Ltrue
+ *   goto Lfalse
+ *   Ltrue: t = 1; goto Lend
+ *   Lfalse: t = 0; goto Lend
+ *   Lend:
+ * </pre>
      */
     public String materializeComparison(String l, String op, String r) {
         String t = newTemp();
@@ -372,12 +390,92 @@ public class C3DEmitter {
         if (!frames.isEmpty()) emit(new Quad("leave", null));
     }
 
+    /**
+     * Renderiza el C3D final aplicando primero el estilo de saltos de la clase:
+     * colapsa etiquetas vacías y asegura que ningún bloque caiga en la etiqueta
+     * siguiente sin un {@code goto} explícito.
+     */
     public String render() {
         StringBuilder sb = new StringBuilder();
-        for (Quad q : quads) {
+        for (Quad q : finalQuads()) {
             sb.append(q).append('\n');
         }
         return sb.toString();
+    }
+
+    /** Cuartetas finales (etiquetas colapsadas y saltos explícitos) para render/consumo. */
+    public List<Quad> finalQuads() {
+        return insertExplicitJumps(collapseEmptyLabels(quads));
+    }
+
+    /**
+     * Colapsa etiquetas vacías: una {@code label} inmediatamente seguida de otra
+     * no aporta bloque propio, así que los saltos que apuntaban a ella se reubican
+     * en la etiqueta siguiente (resolviendo cadenas) y la cuarteta se descarta.
+     * Solo se usan como clave nombres generados ({@code L<n>}); nunca nombres de
+     * función.
+     */
+    private static List<Quad> collapseEmptyLabels(List<Quad> source) {
+        Map<String, String> alias = new LinkedHashMap<>();
+        for (int i = 0; i + 1 < source.size(); i++) {
+            Quad cur = source.get(i);
+            Quad next = source.get(i + 1);
+            if ("label".equals(cur.getOp()) && "label".equals(next.getOp())) {
+                String dead = cur.getArgs().get(0);
+                String kept = next.getArgs().get(0);
+                if (!dead.equals(kept)) alias.put(dead, kept);
+            }
+        }
+        if (alias.isEmpty()) return source;
+
+        List<Quad> out = new ArrayList<>(source.size());
+        for (Quad q : source) {
+            String op = q.getOp();
+            if ("label".equals(op)) {
+                if (alias.containsKey(q.getArgs().get(0))) continue; // etiqueta vacía
+                out.add(q);
+            } else if ("goto".equals(op)) {
+                String target = resolveAlias(alias, q.getArgs().get(0));
+                out.add(target.equals(q.getArgs().get(0)) ? q : new Quad("goto", null, target));
+            } else if ("if".equals(op)) {
+                String target = resolveAlias(alias, q.getArgs().get(3));
+                out.add(target.equals(q.getArgs().get(3)) ? q
+                        : new Quad("if", null, q.getArgs().get(0), q.getArgs().get(1),
+                                q.getArgs().get(2), target));
+            } else {
+                out.add(q);
+            }
+        }
+        return out;
+    }
+
+    /** Sigue la cadena de alias (los alias siempre apuntan hacia adelante: no hay ciclos). */
+    private static String resolveAlias(Map<String, String> alias, String name) {
+        String current = name;
+        while (alias.containsKey(current)) current = alias.get(current);
+        return current;
+    }
+
+    /**
+     * Invierte la confianza en el fall-through: antes de cada etiqueta, si el
+     * cuarteto anterior no cierra el bloque ({@code goto}/{@code return}/{@code halt}),
+     * inserta un {@code goto} hacia esa misma etiqueta. El salto apunta a la
+     * etiqueta que viene inmediatamente después, así que el comportamiento es
+     * idéntico a caer en ella.
+     */
+    private static List<Quad> insertExplicitJumps(List<Quad> source) {
+        List<Quad> out = new ArrayList<>(source.size());
+        for (int i = 0; i < source.size(); i++) {
+            Quad q = source.get(i);
+            if ("label".equals(q.getOp()) && i > 0) {
+                String prevOp = source.get(i - 1).getOp();
+                if (!"goto".equals(prevOp) && !"return".equals(prevOp) && !"halt".equals(prevOp)) {
+                    out.add(new Quad("goto", null, q.getArgs().get(0)));
+                }
+            }
+            out.add(q);
+        }
+        return out;
     }
 
     // ---- helpers estáticos de nombres ----

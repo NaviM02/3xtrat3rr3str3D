@@ -4,6 +4,7 @@ import com.navi.backend.ast.lat.global.Program;
 import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;
 import com.navi.backend.c3d.C3DGenerator;
+import com.navi.backend.c3d.CGenerator;
 import com.navi.backend.semantic.FileModuleLoader;
 import com.navi.backend.semantic.ModuleLoader;
 import com.navi.backend.semantic.SemanticAnalyzer;
@@ -80,6 +81,55 @@ public class Main {
         if (code != null) {
             System.out.println("==================== CÓDIGO DE TRES DIRECCIONES ====================");
             System.out.print(code);
+            emitC(name, c3d);
+        }
+    }
+
+    /**
+     * Traduce las cuartetas a un único archivo C en {@code output/} (limpiando la
+     * carpeta para no acumular artefactos de corridas anteriores) y lo compila
+     * con gcc.
+     */
+    private static void emitC(String fileName, C3DGenerator c3d) {
+        String base = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
+        try {
+            String cSource = new CGenerator(c3d.quads()).generate();
+            Path outDir = Path.of("output");
+            cleanOutput(outDir);
+            Files.createDirectories(outDir);
+            Path cFile = outDir.resolve(base + ".c");
+            Files.writeString(cFile, cSource, StandardCharsets.UTF_8);
+            System.out.println("\n==================== CÓDIGO GENERADO ====================");
+            System.out.println("Archivo C: " + cFile.toAbsolutePath());
+
+            Path exe = outDir.resolve(base);
+            Process gcc = new ProcessBuilder("gcc", "-O0", "-o", exe.toString(), cFile.toString())
+                    .redirectErrorStream(true).start();
+            String gccOut = new String(gcc.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            int status = gcc.waitFor();
+            if (status == 0) {
+                System.out.println("Compilado con gcc: " + exe.toAbsolutePath());
+            } else {
+                System.out.println("gcc terminó con código " + status + ":\n" + gccOut);
+            }
+        } catch (Exception e) {
+            System.err.println("No se pudo generar/compilar el C: " + e.getMessage());
+        }
+    }
+
+    /** Borra los archivos de {@code output/} para dejar solo el C de la corrida actual. */
+    private static void cleanOutput(Path outDir) {
+        if (!Files.isDirectory(outDir)) return;
+        try (var entries = Files.list(outDir)) {
+            entries.filter(Files::isRegularFile).forEach(p -> {
+                try {
+                    Files.deleteIfExists(p);
+                } catch (IOException ignored) {
+                    // best-effort
+                }
+            });
+        } catch (IOException ignored) {
+            // best-effort
         }
     }
 }
