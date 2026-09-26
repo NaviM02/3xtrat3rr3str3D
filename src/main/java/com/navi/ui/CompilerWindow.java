@@ -2,20 +2,28 @@ package com.navi.ui;
 
 import com.navi.backend.compiler.CompilationResult;
 import com.navi.backend.compiler.CompilerService;
-import com.navi.backend.semantic.*;
+import com.navi.backend.highlight.HighlightService;
+import com.navi.backend.highlight.HighlightSpan;
+import com.navi.backend.semantic.SemanticContext;
 import com.navi.ui.console.ConsolePanel;
 import com.navi.ui.editor.EditorPanel;
 import com.navi.ui.project.ProjectExplorerPanel;
 import com.navi.ui.symbols.SymbolTablePanel;
+import com.navi.ui.symbols.TypeTablePanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CompilerWindow extends JFrame {
 
@@ -26,14 +34,21 @@ public class CompilerWindow extends JFrame {
     private static final Color BACKGROUND = new Color(28, 28, 28);
     private static final Color ERROR = new Color(255, 82, 82);
 
+    private static final int HIGHLIGHT_DELAY_MS = 200;
+
     private EditorPanel editorPanel;
+    private JTabbedPane editorTabs;
     private ConsolePanel consolePanel;
     private ProjectExplorerPanel projectExplorerPanel;
 
     private final CompilerService compilerService;
+    private final HighlightService highlightService = new HighlightService();
     private SymbolTablePanel symbolTablePanel;
+    private TypeTablePanel typeTablePanel;
     private JTabbedPane bottomTabs;
-    private Consumer<Path> fileDeletedListener;
+
+    private Timer highlightTimer;
+    private int highlightGeneration;
 
     private JLabel lineLabel;
     private JLabel columnLabel;
@@ -60,14 +75,18 @@ public class CompilerWindow extends JFrame {
     }
 
     private void initComponents() {
-        editorPanel = new EditorPanel();
+        editorTabs = new JTabbedPane();
+        editorTabs.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+
         consolePanel = new ConsolePanel();
         projectExplorerPanel = new ProjectExplorerPanel();
         symbolTablePanel = new SymbolTablePanel();
+        typeTablePanel = new TypeTablePanel();
 
         bottomTabs = new JTabbedPane();
         bottomTabs.addTab("Consola", consolePanel);
         bottomTabs.addTab("Tabla de símbolos", symbolTablePanel);
+        bottomTabs.addTab("Tabla de tipos", typeTablePanel);
 
         compileButton = new JButton("Compilar");
 
@@ -89,7 +108,7 @@ public class CompilerWindow extends JFrame {
     }
 
     private Component createMainContent() {
-        JSplitPane editorResultsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorPanel, bottomTabs);
+        JSplitPane editorResultsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorTabs, bottomTabs);
         editorResultsSplit.setResizeWeight(0.72);
         editorResultsSplit.setDividerSize(8);
 
@@ -155,14 +174,181 @@ public class CompilerWindow extends JFrame {
     private void initListeners() {
         compileButton.addActionListener(e -> compile());
 
-        editorPanel.addCaretListener(e -> updateCaretPosition());
+        highlightTimer = new Timer(HIGHLIGHT_DELAY_MS, e -> requestHighlight());
+
+        highlightTimer.setRepeats(false);
+
+        editorTabs.addChangeListener(e -> onEditorTabChanged());
+
+        installEditorTabMouseHandling();
 
         projectExplorerPanel.setFileOpenListener(this::openFile);
 
         projectExplorerPanel.setFileDeletedListener(this::handleDeletedPath);
     }
 
+    // =========================================================
+    // PESTAÑAS DE EDITOR
+    // =========================================================
+
+    private void onEditorTabChanged() {
+        Component selected = editorTabs.getSelectedComponent();
+
+        if (selected instanceof EditorPanel editor) {
+            editorPanel = editor;
+            currentFile = editor.getCurrentFile();
+        } else {
+            editorPanel = null;
+            currentFile = null;
+        }
+
+        updateFileLabel();
+        updateCaretPosition();
+
+        if (editorPanel != null) {
+            requestHighlight();
+        }
+    }
+
+    private EditorPanel createEditor(Path path, String source) {
+        EditorPanel editor = new EditorPanel();
+
+        editor.setCurrentFile(path);
+        editor.setText(source);
+
+        editor.addCaretListener(e -> {
+            if (editor == editorPanel) {
+                updateCaretPosition();
+            }
+        });
+
+        editor.addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                onEditorChanged(editor);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                onEditorChanged(editor);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // Cambios de atributos (el propio resaltado), no del texto.
+            }
+        });
+
+        return editor;
+    }
+
+    private void onEditorChanged(EditorPanel editor) {
+        if (editor != editorPanel) return;
+
+        scheduleHighlight();
+    }
+
+    private EditorPanel findEditor(Path path) {
+        for (int i = 0; i < editorTabs.getTabCount(); i++) {
+            if (editorTabs.getComponentAt(i) instanceof EditorPanel editor && path.equals(editor.getCurrentFile())) {
+                return editor;
+            }
+        }
+
+        return null;
+    }
+
+    private void closeEditor(EditorPanel editor) {
+        int index = editorTabs.indexOfComponent(editor);
+
+        if (index >= 0) {
+            editorTabs.remove(index);
+        }
+    }
+
+    private void closeOthers(EditorPanel keep) {
+        List<EditorPanel> others = new ArrayList<>();
+
+        for (int i = 0; i < editorTabs.getTabCount(); i++) {
+            if (editorTabs.getComponentAt(i) instanceof EditorPanel editor && editor != keep) {
+                others.add(editor);
+            }
+        }
+
+        for (EditorPanel editor : others) {
+            closeEditor(editor);
+        }
+
+        editorTabs.setSelectedComponent(keep);
+    }
+
+    private void closeAllEditors() {
+        editorTabs.removeAll();
+    }
+
+    private void installEditorTabMouseHandling() {
+        editorTabs.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isMiddleMouseButton(e)) {
+                    int index = editorTabs.indexAtLocation(e.getX(), e.getY());
+
+                    if (index >= 0 && editorTabs.getComponentAt(index) instanceof EditorPanel editor) {
+                        closeEditor(editor);
+                    }
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                maybeShowEditorPopup(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                maybeShowEditorPopup(e);
+            }
+        });
+    }
+
+    private void maybeShowEditorPopup(MouseEvent event) {
+        if (!event.isPopupTrigger()) return;
+
+        int index = editorTabs.indexAtLocation(event.getX(), event.getY());
+
+        if (index < 0 || !(editorTabs.getComponentAt(index) instanceof EditorPanel editor)) return;
+
+        JPopupMenu menu = new JPopupMenu();
+
+        JMenuItem close = new JMenuItem("Cerrar");
+        close.addActionListener(e -> closeEditor(editor));
+        menu.add(close);
+
+        JMenuItem closeOthers = new JMenuItem("Cerrar las demás");
+        closeOthers.addActionListener(e -> closeOthers(editor));
+        menu.add(closeOthers);
+
+        JMenuItem closeAll = new JMenuItem("Cerrar todas");
+        closeAll.addActionListener(e -> closeAllEditors());
+        menu.add(closeAll);
+
+        menu.show(editorTabs, event.getX(), event.getY());
+    }
+
+    private void updateFileLabel() {
+        fileLabel.setText(currentFile == null ? "Sin archivo" : currentFile.getFileName().toString());
+    }
+
     private void updateCaretPosition() {
+        if (editorPanel == null) {
+            lineLabel.setText("Línea: 1");
+            columnLabel.setText("Columna: 1");
+
+            return;
+        }
+
         try {
             JTextPane editor = editorPanel.getEditor();
 
@@ -182,6 +368,57 @@ public class CompilerWindow extends JFrame {
 
         } catch (Exception ignored) {
         }
+    }
+
+    // =========================================================
+    // RESALTADO
+    // =========================================================
+
+    private void scheduleHighlight() {
+        if (editorPanel == null) return;
+
+        highlightGeneration++;
+
+        highlightTimer.restart();
+    }
+
+    private void requestHighlight() {
+        EditorPanel editor = editorPanel;
+        Path file = currentFile;
+
+        if (editor == null || file == null) return;
+
+        String extension = getExtension(file.getFileName().toString());
+
+        if (highlightService.isSupported(extension)) {
+            editor.clearHighlights();
+
+            return;
+        }
+
+        String source = editor.getText();
+
+        int generation = highlightGeneration;
+
+        SwingWorker<List<HighlightSpan>, Void> worker = new SwingWorker<>() {
+
+            @Override
+            protected List<HighlightSpan> doInBackground() {
+                return highlightService.highlight(source, extension);
+            }
+
+            @Override
+            protected void done() {
+                if (generation != highlightGeneration) return;
+
+                try {
+                    editor.applyHighlights(get());
+                } catch (Exception ignored) {
+                }
+            }
+        };
+
+        worker.execute();
     }
 
     // =========================================================
@@ -215,19 +452,27 @@ public class CompilerWindow extends JFrame {
     // =========================================================
 
     private void openFile(Path file) {
+        Path path = file.toAbsolutePath().normalize();
+
+        EditorPanel existing = findEditor(path);
+
+        if (existing != null) {
+            editorTabs.setSelectedComponent(existing);
+
+            return;
+        }
+
         try {
-            String source = Files.readString(file, StandardCharsets.UTF_8);
+            String source = Files.readString(path, StandardCharsets.UTF_8);
 
-            currentFile = file.toAbsolutePath().normalize();
+            EditorPanel editor = createEditor(path, source);
 
-            editorPanel.setCurrentFile(currentFile);
-            editorPanel.setText(source);
+            editorTabs.addTab(path.getFileName().toString(), editor);
+            editorTabs.setSelectedComponent(editor);
 
-            fileLabel.setText(currentFile.getFileName().toString());
+            consolePanel.appendLine("Archivo abierto: " + path);
 
             setSuccessStatus("Archivo abierto");
-
-            consolePanel.appendLine("Archivo abierto: " + currentFile);
 
         } catch (IOException e) {
             showError("No se pudo abrir el archivo.\n" + e.getMessage());
@@ -235,7 +480,7 @@ public class CompilerWindow extends JFrame {
     }
 
     private boolean saveCurrentFile() {
-        if (currentFile == null) {
+        if (editorPanel == null || currentFile == null) {
             showError("No hay ningún archivo seleccionado.");
 
             return false;
@@ -244,7 +489,7 @@ public class CompilerWindow extends JFrame {
         try {
             Files.writeString(currentFile, editorPanel.getText(), StandardCharsets.UTF_8);
 
-            fileLabel.setText(currentFile.getFileName().toString());
+            updateFileLabel();
 
             setSuccessStatus("Archivo guardado");
 
@@ -258,16 +503,29 @@ public class CompilerWindow extends JFrame {
     }
 
     private void handleDeletedPath(Path deletedPath) {
-        if (currentFile == null) return;
+        List<EditorPanel> affected = new ArrayList<>();
 
-        if (currentFile.startsWith(deletedPath)) {
-            currentFile = null;
-            editorPanel.clear();
-            symbolTablePanel.clear();
-            fileLabel.setText("Sin archivo");
-            setStatus("Archivo eliminado");
-            consolePanel.appendLine("Se cerró el archivo porque fue eliminado.");
+        for (int i = 0; i < editorTabs.getTabCount(); i++) {
+            if (editorTabs.getComponentAt(i) instanceof EditorPanel editor) {
+                Path file = editor.getCurrentFile();
+
+                if (file != null && file.startsWith(deletedPath)) {
+                    affected.add(editor);
+                }
+            }
         }
+
+        if (affected.isEmpty()) return;
+
+        for (EditorPanel editor : affected) {
+            closeEditor(editor);
+        }
+
+        symbolTablePanel.clear();
+        typeTablePanel.clear();
+
+        setStatus("Archivo eliminado");
+        consolePanel.appendLine("Se cerró el archivo porque fue eliminado.");
     }
 
     // =========================================================
@@ -275,7 +533,7 @@ public class CompilerWindow extends JFrame {
     // =========================================================
 
     private void compile() {
-        if (currentFile == null) {
+        if (editorPanel == null || currentFile == null) {
             showError("Selecciona un archivo del proyecto antes de compilar.");
             return;
         }
@@ -293,20 +551,18 @@ public class CompilerWindow extends JFrame {
             if (!result.isSuccessful()) {
                 consolePanel.appendErrorLine("La compilación contiene errores.");
 
-                if (result.getMessage() != null) {
-                    consolePanel.append(result.getMessage());
+                String errors = formatErrors(result.getSemanticContext());
+
+                if (!errors.isBlank()) {
+                    consolePanel.append(errors);
                 }
                 setErrorStatus("Errores de compilación");
 
                 return;
             }
 
-            if (result.getMessage() != null && !result.getMessage().isBlank()) {
-                consolePanel.append(result.getMessage());
-                consolePanel.append("\n");
-            }
-
             symbolTablePanel.setSymbolTable(result.getSemanticContext().getSymbolTable());
+            typeTablePanel.setTypeTable(result.getSemanticContext().getTypeTable());
             bottomTabs.setSelectedComponent(consolePanel);
 
             consolePanel.appendSuccessLine("Análisis semántico completado.");
@@ -337,6 +593,7 @@ public class CompilerWindow extends JFrame {
         JMenuItem exit = new JMenuItem("Salir");
         openProject.addActionListener(e -> openProject());
         save.addActionListener(e -> saveCurrentFile());
+        save.setAccelerator(KeyStroke.getKeyStroke("control S"));
         exit.addActionListener(e -> System.exit(0));
 
         fileMenu.add(openProject);
@@ -363,6 +620,20 @@ public class CompilerWindow extends JFrame {
         int dot = name.lastIndexOf('.');
         if (dot < 0) return "";
         return name.substring(dot + 1).toLowerCase();
+    }
+
+    private String formatErrors(SemanticContext context) {
+        List<String> errors = context.getErrors().getErrors();
+
+        if (errors.isEmpty()) return "";
+
+        StringBuilder builder = new StringBuilder();
+
+        for (String error : errors) {
+            builder.append(error).append("\n");
+        }
+
+        return builder.toString();
     }
 
     private void showError(String message) {

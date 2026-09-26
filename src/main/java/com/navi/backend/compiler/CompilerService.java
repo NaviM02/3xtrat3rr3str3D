@@ -37,7 +37,7 @@ public class CompilerService {
             return new CompilationResult(file, context, null, null, null, false, SemanticReporter.report(context));
         }
 
-        GeneratedC generatedC = generateC(fileName, c3d);
+        GeneratedC generatedC = generateC(file, c3d);
 
         return new CompilationResult(file, context, code, generatedC.cFile(), generatedC.executable(), true, SemanticReporter.report(context));
     }
@@ -66,10 +66,10 @@ public class CompilerService {
         };
     }
 
-    private GeneratedC generateC(String fileName, C3DGenerator c3d) throws Exception {
-        String base = getBaseName(fileName);
+    private GeneratedC generateC(Path sourceFile, C3DGenerator c3d) throws Exception {
+        String base = getBaseName(sourceFile.getFileName().toString());
         String cSource = new CGenerator(c3d.quads()).generate();
-        Path outputDirectory = Path.of("output");
+        Path outputDirectory = outputDirectoryFor(sourceFile);
         cleanOutput(outputDirectory);
 
         Files.createDirectories(outputDirectory);
@@ -85,6 +85,21 @@ public class CompilerService {
         if (status != 0) throw new IllegalStateException("gcc terminó con código " + status + ":\n" + gccOutput);
 
         return new GeneratedC(cFile.toAbsolutePath(), executable.toAbsolutePath());
+    }
+
+    /**
+     * Carpeta {@code output/} junto al archivo fuente (no en el directorio desde
+     * donde se ejecuta el programa). Si por alguna razón no tuviera carpeta padre,
+     * se usa {@code output/} relativo.
+     */
+    private Path outputDirectoryFor(Path sourceFile) {
+        Path parent = sourceFile.getParent();
+
+        if (parent == null) {
+            return Path.of("output");
+        }
+
+        return parent.resolve("output");
     }
 
     private void validateFile(Path file) {

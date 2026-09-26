@@ -15,7 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class ProjectExplorerPanel extends JPanel {
@@ -63,11 +65,54 @@ public class ProjectExplorerPanel extends JPanel {
             return;
         }
 
+        Set<String> expanded = collectExpandedPaths();
+
         DefaultMutableTreeNode rootNode = createNode(projectRoot);
 
         tree.setModel(new DefaultTreeModel(rootNode));
 
+        restoreExpandedPaths(rootNode, expanded);
+
         tree.expandRow(0);
+    }
+
+    /** Rutas (como clave de texto) de los nodos expandidos antes de refrescar. */
+    private Set<String> collectExpandedPaths() {
+        Set<String> expanded = new HashSet<>();
+
+        for (int row = 0; row < tree.getRowCount(); row++) {
+            TreePath path = tree.getPathForRow(row);
+
+            if (path != null && tree.isExpanded(path)) {
+                expanded.add(nodeKey(path));
+            }
+        }
+
+        return expanded;
+    }
+
+    private void restoreExpandedPaths(DefaultMutableTreeNode node, Set<String> expanded) {
+        TreePath path = new TreePath(node.getPath());
+
+        if (expanded.contains(nodeKey(path))) {
+            tree.expandPath(path);
+        }
+
+        for (int i = 0; i < node.getChildCount(); i++) {
+            restoreExpandedPaths((DefaultMutableTreeNode) node.getChildAt(i), expanded);
+        }
+    }
+
+    private String nodeKey(TreePath path) {
+        StringBuilder key = new StringBuilder();
+
+        for (Object component : path.getPath()) {
+            if (component instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof FileNode fileNode) {
+                key.append(fileNode.path().toAbsolutePath().normalize()).append('\u0000');
+            }
+        }
+
+        return key.toString();
     }
 
     private DefaultMutableTreeNode createNode(Path path) {
@@ -95,15 +140,32 @@ public class ProjectExplorerPanel extends JPanel {
     }
 
     private boolean shouldShow(Path path) {
-        if (Files.isDirectory(path)) {
-            String name = path.getFileName().toString();
+        String name = path.getFileName().toString();
 
-            return !name.equals(".git") && !name.equals(".idea") && !name.equals("target") && !name.equals("output");
+        if (Files.isDirectory(path)) {
+            return !name.equals(".git") && !name.equals(".idea") && !name.equals("target");
         }
 
-        String name = path.getFileName().toString().toLowerCase();
+        if (isInsideOutput(path)) {
+            return true;
+        }
 
-        return name.endsWith(".pig") || name.endsWith(".y") || name.endsWith(".z");
+        String lower = name.toLowerCase();
+
+        return lower.endsWith(".pig") || lower.endsWith(".y") || lower.endsWith(".z");
+    }
+
+    /** Contenido de la carpeta {@code output/} (el .c generado y el ejecutable). */
+    private boolean isInsideOutput(Path path) {
+        Path parent = path.getParent();
+
+        return parent != null && parent.getFileName() != null && parent.getFileName().toString().equals("output");
+    }
+
+    private boolean isOpenable(Path path) {
+        String lower = path.getFileName().toString().toLowerCase();
+
+        return lower.endsWith(".pig") || lower.endsWith(".y") || lower.endsWith(".z") || lower.endsWith(".c");
     }
 
     private void installListeners() {
@@ -144,7 +206,7 @@ public class ProjectExplorerPanel extends JPanel {
 
         Path path = node.path();
 
-        if (Files.isRegularFile(path) && fileOpenListener != null) {
+        if (Files.isRegularFile(path) && isOpenable(path) && fileOpenListener != null) {
 
             fileOpenListener.accept(path);
         }

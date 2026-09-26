@@ -334,6 +334,6 @@ CHAR    : '\'' . '\'' ;
 ID      : [a-zA-Z_][a-zA-Z0-9_]* ;
 
 // comments
-LINE_COMMENT  : '//' ~[\r\n]* -> skip ;
-BLOCK_COMMENT : '##' .*? '##' -> skip ;
+LINE_COMMENT  : '//' ~[\r\n]* -> channel(HIDDEN) ;
+BLOCK_COMMENT : '##' .*? '##' -> channel(HIDDEN) ;
 WS            : [ \t\r\n]+ -> skip ;
