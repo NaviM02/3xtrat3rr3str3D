@@ -1,5 +1,6 @@
 package com.navi;
 
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMaterialDarkerIJTheme;
 import com.navi.backend.ast.lat.global.Program;
 import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;
@@ -11,7 +12,9 @@ import com.navi.backend.semantic.SemanticAnalyzer;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.SemanticError;
 import com.navi.backend.semantic.SemanticReporter;
+import com.navi.ui.CompilerWindow;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -25,7 +28,7 @@ import java.nio.file.Path;
  */
 public class Main {
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         String filePath = args.length > 0 ? args[0] : "testfiles/matriz_lat/main.pig";
 
         Path file = Path.of(filePath).toAbsolutePath();
@@ -83,6 +86,18 @@ public class Main {
             System.out.print(code);
             emitC(name, c3d);
         }
+    }*/
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                FlatMaterialDarkerIJTheme.setup();
+            } catch (Exception ignored) {
+            }
+
+            CompilerWindow window = new CompilerWindow();
+            window.setVisible(true);
+        });
     }
 
     /**

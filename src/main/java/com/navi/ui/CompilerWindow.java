@@ -1,10 +1,7 @@
 package com.navi.ui;
 
-import com.navi.backend.ast.lat.global.Program;
-import com.navi.backend.ast.y.global.ProgramY;
-import com.navi.backend.ast.z.global.ProgramZ;
-import com.navi.backend.c3d.C3DGenerator;
-import com.navi.backend.c3d.CGenerator;
+import com.navi.backend.compiler.CompilationResult;
+import com.navi.backend.compiler.CompilerService;
 import com.navi.backend.semantic.*;
 import com.navi.ui.console.ConsolePanel;
 import com.navi.ui.editor.EditorPanel;
@@ -18,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 public class CompilerWindow extends JFrame {
 
@@ -32,8 +30,10 @@ public class CompilerWindow extends JFrame {
     private ConsolePanel consolePanel;
     private ProjectExplorerPanel projectExplorerPanel;
 
-    // Por ahora no se muestra.
+    private final CompilerService compilerService;
     private SymbolTablePanel symbolTablePanel;
+    private JTabbedPane bottomTabs;
+    private Consumer<Path> fileDeletedListener;
 
     private JLabel lineLabel;
     private JLabel columnLabel;
@@ -52,6 +52,8 @@ public class CompilerWindow extends JFrame {
         setSize(1400, 850);
         setLocationRelativeTo(null);
 
+        compilerService = new CompilerService();
+
         initComponents();
         initStyles();
         initListeners();
@@ -62,6 +64,10 @@ public class CompilerWindow extends JFrame {
         consolePanel = new ConsolePanel();
         projectExplorerPanel = new ProjectExplorerPanel();
         symbolTablePanel = new SymbolTablePanel();
+
+        bottomTabs = new JTabbedPane();
+        bottomTabs.addTab("Consola", consolePanel);
+        bottomTabs.addTab("Tabla de símbolos", symbolTablePanel);
 
         compileButton = new JButton("Compilar");
 
@@ -83,14 +89,11 @@ public class CompilerWindow extends JFrame {
     }
 
     private Component createMainContent() {
+        JSplitPane editorResultsSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorPanel, bottomTabs);
+        editorResultsSplit.setResizeWeight(0.72);
+        editorResultsSplit.setDividerSize(8);
 
-        JSplitPane editorConsoleSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorPanel, consolePanel);
-
-        editorConsoleSplit.setResizeWeight(0.75);
-        editorConsoleSplit.setDividerSize(8);
-
-        JSplitPane projectSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, projectExplorerPanel, editorConsoleSplit);
-
+        JSplitPane projectSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, projectExplorerPanel, editorResultsSplit);
         projectSplit.setResizeWeight(0.18);
         projectSplit.setDividerLocation(240);
         projectSplit.setDividerSize(8);
@@ -155,6 +158,8 @@ public class CompilerWindow extends JFrame {
         editorPanel.addCaretListener(e -> updateCaretPosition());
 
         projectExplorerPanel.setFileOpenListener(this::openFile);
+
+        projectExplorerPanel.setFileDeletedListener(this::handleDeletedPath);
     }
 
     private void updateCaretPosition() {
@@ -252,6 +257,19 @@ public class CompilerWindow extends JFrame {
         }
     }
 
+    private void handleDeletedPath(Path deletedPath) {
+        if (currentFile == null) return;
+
+        if (currentFile.startsWith(deletedPath)) {
+            currentFile = null;
+            editorPanel.clear();
+            symbolTablePanel.clear();
+            fileLabel.setText("Sin archivo");
+            setStatus("Archivo eliminado");
+            consolePanel.appendLine("Se cerró el archivo porque fue eliminado.");
+        }
+    }
+
     // =========================================================
     // COMPILACIÓN
     // =========================================================
@@ -259,223 +277,51 @@ public class CompilerWindow extends JFrame {
     private void compile() {
         if (currentFile == null) {
             showError("Selecciona un archivo del proyecto antes de compilar.");
-
             return;
         }
 
-        /*
-         * Muy importante:
-         *
-         * El editor NO es directamente la entrada del compilador.
-         *
-         * Primero guardamos el archivo y luego compilamos
-         * utilizando su ubicación real.
-         */
-        if (!saveCurrentFile()) {
-            return;
-        }
+        if (!saveCurrentFile()) return;
 
         consolePanel.clear();
-
         consolePanel.appendLine("Compilando: " + currentFile);
 
         setStatus("Compilando...");
 
         try {
-            compileFile(currentFile);
+            CompilationResult result = compilerService.compile(currentFile);
 
-        } catch (SemanticError e) {
-            consolePanel.appendErrorLine("Error semántico: " + e.getMessage());
+            if (!result.isSuccessful()) {
+                consolePanel.appendErrorLine("La compilación contiene errores.");
 
-            setErrorStatus("Error semántico");
-
-        } catch (Exception e) {
-            consolePanel.appendErrorLine("Error inesperado: " + e.getMessage());
-
-            setErrorStatus("Error");
-
-            e.printStackTrace();
-        }
-    }
-
-    private void compileFile(Path file) throws Exception {
-
-        String source = Files.readString(file, StandardCharsets.UTF_8);
-
-        String name = file.getFileName().toString();
-
-        String ext = getExtension(name);
-
-        SemanticContext ctx = new SemanticContext();
-
-        /*
-         * Los imports se resuelven respecto al directorio
-         * donde se encuentra el archivo actual.
-         */
-        ModuleLoader loader = new FileModuleLoader(file.getParent());
-
-        SemanticAnalyzer analyzer = new SemanticAnalyzer(ctx, loader);
-
-        C3DGenerator c3d = new C3DGenerator(ctx);
-
-        String code = null;
-
-        switch (ext) {
-
-            case "pig" -> {
-                Program program = FileModuleLoader.parseLat(source);
-
-                analyzer.analyze(program);
-
-                if (!ctx.getErrors().hasErrors()) {
-                    code = c3d.generate(program);
+                if (result.getMessage() != null) {
+                    consolePanel.append(result.getMessage());
                 }
-            }
-
-            case "y" -> {
-                ProgramY program = FileModuleLoader.parseY(source);
-
-                analyzer.analyze(program);
-
-                if (!ctx.getErrors().hasErrors()) {
-                    code = c3d.generate(program);
-                }
-            }
-
-            case "z" -> {
-                ProgramZ program = FileModuleLoader.parseZ(source);
-
-                analyzer.analyze(program);
-
-                if (!ctx.getErrors().hasErrors()) {
-                    code = c3d.generate(program);
-                }
-            }
-
-            default -> {
-                consolePanel.appendErrorLine("Extensión no soportada: ." + ext);
-
-                setErrorStatus("Extensión no soportada");
+                setErrorStatus("Errores de compilación");
 
                 return;
             }
-        }
 
-        // =====================================================
-        // REPORTE SEMÁNTICO
-        // =====================================================
-
-        String report = SemanticReporter.report(ctx);
-
-        if (report != null && !report.isBlank()) {
-            consolePanel.appendLine("");
-            consolePanel.append(report);
-
-            if (!report.endsWith("\n")) {
+            if (result.getMessage() != null && !result.getMessage().isBlank()) {
+                consolePanel.append(result.getMessage());
                 consolePanel.append("\n");
             }
-        }
 
-        if (ctx.getErrors().hasErrors()) {
-            consolePanel.appendErrorLine("\nLa compilación contiene errores.");
+            symbolTablePanel.setSymbolTable(result.getSemanticContext().getSymbolTable());
+            bottomTabs.setSelectedComponent(consolePanel);
 
-            setErrorStatus("Errores de compilación");
-
-            return;
-        }
-
-        // Más adelante:
-        //
-        // symbolTablePanel.setContext(ctx);
-        //
-        // o
-        //
-        // symbolTablePanel.setSymbolTable(...);
-
-        consolePanel.appendSuccessLine("\nAnálisis semántico completado.");
-
-        if (code != null) {
+            consolePanel.appendSuccessLine("Análisis semántico completado.");
             consolePanel.appendSuccessLine("Código de tres direcciones generado.");
+            consolePanel.appendLine("Archivo C: " + result.getCFile());
+            consolePanel.appendSuccessLine("Compilado con gcc: " + result.getExecutable());
+            consolePanel.appendSuccessLine("\nCOMPILACIÓN EXITOSA");
 
-            emitC(name, c3d);
-        }
-
-        consolePanel.appendSuccessLine("\nCOMPILACIÓN EXITOSA");
-
-        setSuccessStatus("Compilación exitosa");
-    }
-
-    // =========================================================
-    // C
-    // =========================================================
-
-    private void emitC(String fileName, C3DGenerator c3d) {
-
-        String base = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
-
-        try {
-            String cSource = new CGenerator(c3d.quads()).generate();
-
-            Path outDir;
-
-            /*
-             * Es mejor que output quede dentro del proyecto.
-             */
-            if (projectExplorerPanel.getProjectRoot() != null) {
-                outDir = projectExplorerPanel.getProjectRoot().resolve("output");
-            } else {
-                outDir = Path.of("output");
-            }
-
-            cleanOutput(outDir);
-
-            Files.createDirectories(outDir);
-
-            Path cFile = outDir.resolve(base + ".c");
-
-            Files.writeString(cFile, cSource, StandardCharsets.UTF_8);
-
-            consolePanel.appendLine("Archivo C: " + cFile.toAbsolutePath());
-
-            Path exe = outDir.resolve(base);
-
-            Process gcc = new ProcessBuilder("gcc", "-O0", "-o", exe.toString(), cFile.toString()).redirectErrorStream(true).start();
-
-            String gccOut = new String(gcc.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-
-            int status = gcc.waitFor();
-
-            if (status == 0) {
-                consolePanel.appendSuccessLine("Compilado con gcc: " + exe.toAbsolutePath());
-
-            } else {
-                consolePanel.appendErrorLine("gcc terminó con código " + status);
-
-                consolePanel.appendError(gccOut);
-            }
-
+            setSuccessStatus("Compilación exitosa");
             projectExplorerPanel.refresh();
 
         } catch (Exception e) {
-            consolePanel.appendErrorLine("No se pudo generar/compilar C: " + e.getMessage());
-        }
-    }
-
-    private void cleanOutput(Path outDir) {
-        if (!Files.isDirectory(outDir)) {
-            return;
-        }
-
-        try (var entries = Files.list(outDir)) {
-
-            entries.filter(Files::isRegularFile).forEach(path -> {
-                try {
-                    Files.deleteIfExists(path);
-                } catch (IOException ignored) {
-                }
-            });
-
-        } catch (IOException ignored) {
+            consolePanel.appendErrorLine("Error durante la compilación: " + e.getMessage());
+            setErrorStatus("Error");
+            e.printStackTrace();
         }
     }
 
