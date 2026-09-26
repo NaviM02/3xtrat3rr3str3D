@@ -44,4 +44,9 @@ public class C3DGenerator {
     public List<Quad> quads() {
         return emitter.finalQuads();
     }
+
+    /** Celdas reservadas en el área global (para fijar el inicio del stack en C). */
+    public int globalSize() {
+        return emitter.globalSize();
+    }
 }

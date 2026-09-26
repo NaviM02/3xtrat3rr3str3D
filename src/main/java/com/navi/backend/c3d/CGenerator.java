@@ -26,9 +26,15 @@ public class CGenerator {
     private final List<Quad> quads;
     private final Set<String> functionNames = new LinkedHashSet<>();
     private boolean intMode;
+    private int explicitGlobalSize = -1;
 
     public CGenerator(List<Quad> quads) {
         this.quads = quads;
+    }
+
+    public CGenerator(List<Quad> quads, int globalSize) {
+        this.quads = quads;
+        this.explicitGlobalSize = globalSize;
     }
 
     private static final class CFunc {
@@ -129,6 +135,7 @@ public class CGenerator {
     }
 
     private int globalSize() {
+        if (explicitGlobalSize >= 0) return explicitGlobalSize;
         int max = -1;
         for (Quad q : quads) {
             if ("+".equals(q.getOp()) && !q.getArgs().isEmpty() && "GP".equals(q.getArgs().get(0))) {
@@ -188,9 +195,13 @@ public class CGenerator {
             case "heap_load" -> sb.append("    ").append(q.getResult()).append(" = heap[").append(loadAddr(q)).append("];\n");
             case "heap_store" -> sb.append("    heap[").append(loadAddr(q)).append("] = ").append(value(q.getResult())).append(";\n");
             case "call" -> emitCall(sb, q);
-            case "print" -> sb.append("    ").append(intMode
-                    ? "printf(\"%lld\", " + expr(q.getArgs().get(0)) + ")"
-                    : "prn(" + val(q.getArgs().get(0)) + ")").append(";\n");
+            case "print" -> {
+                if (intMode) {
+                    sb.append("    printf(\"%lld\\n\", ").append(expr(q.getArgs().get(0))).append(");\n");
+                } else {
+                    sb.append("    prn(").append(val(q.getArgs().get(0))).append("); putchar('\\n');\n");
+                }
+            }
             case "read" -> {
                 if (q.getResult() != null) sb.append("    ").append(q.getResult()).append(" = rd();\n");
                 else sb.append("    rd();\n");

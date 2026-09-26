@@ -49,8 +49,10 @@ import com.navi.backend.ast.y.statements.SwitchStatement;
 import com.navi.backend.ast.y.statements.WhileStatement;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
 import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.Field;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.Symbol;
+import com.navi.backend.semantic.SymbolKind;
 import com.navi.backend.semantic.Type;
 
 import java.util.ArrayDeque;
@@ -108,23 +110,24 @@ public class YC3DVisitor implements AstYVisitor<String> {
 
     @Override
     public String visit(VariableDeclaration node) {
-        setPos(node, emitter.declareLocal(node.getName()));
         if (node.getArrayDeclaration() != null) {
-            emitter.reserve(arrayCells(node.getArrayDeclaration().getDimensions()) - 1);
+            int cells = arrayCells(node.getArrayDeclaration().getDimensions());
+            List<Integer> dims = constantDims(node.getArrayDeclaration().getDimensions());
+            setPos(node, emitter.declareLocalArray(node.getName(), cells, dims));
+        } else {
+            setPos(node, emitter.declareLocal(node.getName()));
+            Symbol symbol = context.symbolOf(node);
+            if (symbol != null && symbol.getType() != null && symbol.getType().isStruct()) {
+                int extra = structSize(symbol.getType().getName()) - 1;
+                if (extra > 0) emitter.reserve(extra);
+            }
         }
         if (node.getInitializer() != null) {
             if (node.getInitializer() instanceof ExpressionInitializer ei) {
                 emitter.storeVar(node.getName(), ei.getExpression().accept(this));
             } else if (node.getInitializer() instanceof ArrayInitializer ai) {
                 String base = emitter.varAddr(node.getName());
-                int i = 0;
-                for (AstYNode el : ai.getElements()) {
-                    if (el instanceof Expression e) {
-                        String addr = emitter.binary("+", base, String.valueOf(i));
-                        emitter.stackStoreAt(addr, e.accept(this));
-                    }
-                    i++;
-                }
+                storeArrayInitializer(base, ai.getElements(), 0);
             }
         }
         return null;
@@ -367,23 +370,23 @@ public class YC3DVisitor implements AstYVisitor<String> {
 
     @Override
     public String visit(ArrayAccessExpression node) {
-        String base = arrayBase(node.getArray());
-        String idx = node.getIndex().accept(this);
-        return emitter.stackLoadAt(emitter.binary("+", base, idx));
+        return emitter.stackLoadAt(arrayElementAddr(node));
     }
 
     @Override
     public String visit(MemberAccessExpression node) {
-        String base = structAddr(node.getObject());
-        int off = fieldIndex(context.typeOf(node.getObject()), node.getMember());
-        return emitter.stackLoadAt(emitter.binary("+", base, String.valueOf(off)));
+        int off = fieldOffset(context.typeOf(node.getObject()), node.getMember());
+        return emitter.stackLoadAt(emitter.binary("+", structAddr(node.getObject()), String.valueOf(off)));
     }
 
     @Override
     public String visit(FunctionCallExpression node) {
-        List<String> args = new ArrayList<>();
-        if (node.getArguments() != null) for (Expression a : node.getArguments()) args.add(a.accept(this));
         if (node.getFunction() instanceof VariableExpression ve) {
+            List<Type> argTypes = argTypes(node.getArguments());
+            Symbol fn = resolveFunction(ve.getName(), argTypes);
+            boolean byRef = fn != null && fn.isReference();
+            List<Type> params = fn == null ? null : fn.getSignature().getParameters();
+            List<String> args = evalArgs(node.getArguments(), params, byRef);
             Type t = context.typeOf(node);
             if (t != null && t.isVoid()) {
                 emitter.callVoid(ve.getName(), args);
@@ -473,14 +476,65 @@ public class YC3DVisitor implements AstYVisitor<String> {
         if (target instanceof VariableExpression v) {
             emitter.storeVar(v.getName(), value);
         } else if (target instanceof ArrayAccessExpression a) {
-            String base = arrayBase(a.getArray());
-            String idx = a.getIndex().accept(this);
-            emitter.stackStoreAt(emitter.binary("+", base, idx), value);
+            emitter.stackStoreAt(arrayElementAddr(a), value);
         } else if (target instanceof MemberAccessExpression m) {
-            String base = structAddr(m.getObject());
-            int off = fieldIndex(context.typeOf(m.getObject()), m.getMember());
-            emitter.stackStoreAt(emitter.binary("+", base, String.valueOf(off)), value);
+            int off = fieldOffset(context.typeOf(m.getObject()), m.getMember());
+            emitter.stackStoreAt(emitter.binary("+", structAddr(m.getObject()), String.valueOf(off)), value);
         }
+    }
+
+    /** Evalúa argumentos enviando la dirección cuando el parámetro de Y es arreglo/struct. */
+    private List<String> evalArgs(List<Expression> args, List<Type> params, boolean byRef) {
+        List<String> places = new ArrayList<>();
+        if (args == null) return places;
+        for (int i = 0; i < args.size(); i++) {
+            Expression a = args.get(i);
+            Type p = params != null && i < params.size() ? params.get(i) : null;
+            if (byRef && p != null && (p.isArray() || p.isStruct())) places.add(addressOf(a));
+            else places.add(a.accept(this));
+        }
+        return places;
+    }
+
+    private String addressOf(Expression e) {
+        if (e instanceof VariableExpression v) {
+            return emitter.isReference(v.getName()) ? emitter.loadVar(v.getName()) : emitter.varAddr(v.getName());
+        }
+        if (e instanceof ArrayAccessExpression a) return arrayElementAddr(a);
+        if (e instanceof MemberAccessExpression m) return structAddr(m);
+        return e.accept(this);
+    }
+
+    private List<Type> argTypes(List<Expression> args) {
+        List<Type> types = new ArrayList<>();
+        if (args != null) for (Expression a : args) {
+            Type t = context.typeOf(a);
+            types.add(t == null ? Type.ERROR : t);
+        }
+        return types;
+    }
+
+    private Symbol resolveFunction(String name, List<Type> args) {
+        List<Symbol> overloads = context.getSymbolTable().resolveCallable(name);
+        if (overloads != null) {
+            for (Symbol fn : overloads) {
+                if (fn.getKind() == SymbolKind.FUNCTION && fn.getSignature().matches(args)) {
+                    return fn;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Dirección del elemento de un arreglo, aplanando índices multidimensionales. */
+    private String arrayElementAddr(ArrayAccessExpression node) {
+        List<String> indices = new ArrayList<>();
+        Expression current = node;
+        while (current instanceof ArrayAccessExpression access) {
+            indices.add(0, access.getIndex().accept(this));
+            current = access.getArray();
+        }
+        return emitter.addressOffset(arrayBase(current), arrayDimsOf(current), indices);
     }
 
     /** Dirección base de un arreglo: los locales son por valor; los params por referencia guardan la dirección. */
@@ -488,7 +542,23 @@ public class YC3DVisitor implements AstYVisitor<String> {
         if (array instanceof VariableExpression v) {
             return emitter.isReference(v.getName()) ? emitter.loadVar(v.getName()) : emitter.varAddr(v.getName());
         }
+        if (array instanceof MemberAccessExpression m) return structAddr(m);
         return array.accept(this);
+    }
+
+    private List<Integer> arrayDimsOf(Expression array) {
+        if (array instanceof VariableExpression v) return emitter.arrayDims(v.getName());
+        if (array instanceof MemberAccessExpression m) {
+            Type owner = context.typeOf(m.getObject());
+            if (owner != null) {
+                AggregateType agg = context.getTypeTable().resolve(owner.getName());
+                if (agg != null) {
+                    Field field = agg.findField(m.getMember());
+                    if (field != null) return field.getArrayDims();
+                }
+            }
+        }
+        return null;
     }
 
     /** Dirección de un struct en el stack (encadenando offsets para miembros anidados). */
@@ -498,20 +568,22 @@ public class YC3DVisitor implements AstYVisitor<String> {
         }
         if (obj instanceof MemberAccessExpression m) {
             String parent = structAddr(m.getObject());
-            int off = fieldIndex(context.typeOf(m.getObject()), m.getMember());
+            int off = fieldOffset(context.typeOf(m.getObject()), m.getMember());
             return emitter.binary("+", parent, String.valueOf(off));
         }
         return obj.accept(this);
     }
 
-    private int fieldIndex(Type owner, String member) {
+    private int fieldOffset(Type owner, String member) {
         if (owner == null) return 0;
         AggregateType agg = context.getTypeTable().resolve(owner.getName());
         if (agg == null) return 0;
-        for (int i = 0; i < agg.getFields().size(); i++) {
-            if (agg.getFields().get(i).getName().equals(member)) return i;
-        }
-        return 0;
+        return agg.fieldOffset(member);
+    }
+
+    private int structSize(String name) {
+        AggregateType agg = context.getTypeTable().resolve(name);
+        return agg == null ? 1 : agg.size();
     }
 
     private void setPos(Object node, int offset) {
@@ -528,6 +600,32 @@ public class YC3DVisitor implements AstYVisitor<String> {
             else return 1;
         }
         return total;
+    }
+
+    /** Dimensiones constantes de un arreglo, o {@code null} si no se pueden calcular. */
+    private List<Integer> constantDims(List<Expression> dims) {
+        if (dims == null || dims.isEmpty()) return null;
+        List<Integer> out = new ArrayList<>();
+        for (Expression e : dims) {
+            if (e instanceof LiteralExpression le && le.getValue() instanceof Integer n && n > 0) out.add(n);
+            else return null;
+        }
+        return out;
+    }
+
+    /** Aplana y almacena un inicializador de arreglo (soporta anidados). */
+    private int storeArrayInitializer(String base, List<AstYNode> elements, int start) {
+        if (elements == null) return start;
+        int i = start;
+        for (AstYNode element : elements) {
+            if (element instanceof ArrayInitializer nested) {
+                i = storeArrayInitializer(base, nested.getElements(), i);
+            } else if (element instanceof Expression expression) {
+                emitter.stackStoreAt(emitter.binary("+", base, String.valueOf(i)), expression.accept(this));
+                i++;
+            }
+        }
+        return i;
     }
 
     private String relop(BinaryOperator op) {

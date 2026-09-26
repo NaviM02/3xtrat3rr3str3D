@@ -224,10 +224,24 @@ public class ZStatementChecker {
                 rules.error(line, col, "No se puede inicializar " + expected + " con " + actual);
             }
         } else if (init instanceof ArrayInitializer ai) {
-            Type base = expected.isArray() ? expected.getElementType() : Type.ERROR;
-            for (AstZNode el : ai.getElements()) {
-                Type actual = el instanceof Expression e ? e.accept(visitor) : Type.ERROR;
-                rules.checkElement(base, actual, line, col);
+            checkArrayInitializer(ai, expected, line, col);
+        }
+    }
+
+    /**
+     * Valida un inicializador de arreglo descendiendo en los literales anidados:
+     * cada nivel consume una dimensión ({@code int[][]} -> {@code int[]} -> {@code int}).
+     */
+    private void checkArrayInitializer(ArrayInitializer ai, Type expected, int line, int col) {
+        Type element = rules.arrayElementType(expected);
+        for (AstZNode el : ai.getElements()) {
+            if (el instanceof ArrayInitializer nested) {
+                checkArrayInitializer(nested, element, el.getLine(), el.getColumn());
+            } else if (el instanceof Expression e) {
+                Type actual = e.accept(visitor);
+                rules.checkElement(element, actual, el.getLine(), el.getColumn());
+            } else {
+                rules.checkElement(element, Type.ERROR, el.getLine(), el.getColumn());
             }
         }
     }

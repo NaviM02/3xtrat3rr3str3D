@@ -53,6 +53,7 @@ public class C3DEmitter {
     private static final class Frame {
         final Map<String, Integer> slots = new LinkedHashMap<>();
         final Set<String> references = new HashSet<>(); // params por referencia (arreglos/structs de Y)
+        final Map<String, List<Integer>> arrayDims = new LinkedHashMap<>(); // tamaños de arreglos locales/globales
         int next = 0; // siguiente offset libre (0-based, params y luego locales)
         String label;    // etiqueta del marco (para parchear enter con el tamaño)
         int enterIndex = -1;
@@ -125,6 +126,19 @@ public class C3DEmitter {
         return offset;
     }
 
+    /**
+     * Declara un arreglo local reservando {@code cells} celdas contiguas y guarda
+     * sus dimensiones para poder aplanar accesos {@code a[i][j]}.
+     */
+    public int declareLocalArray(String name, int cells, List<Integer> dims) {
+        Frame f = frames.peek();
+        int offset = f.next++;
+        f.slots.put(name, offset);
+        if (dims != null) f.arrayDims.put(name, dims);
+        if (cells > 1) f.next += cells - 1;
+        return offset;
+    }
+
     /** Declara una variable global y devuelve su Pos_memory. */
     public int declareGlobal(String name) {
         int offset = globalFrame.next++;
@@ -132,9 +146,37 @@ public class C3DEmitter {
         return offset;
     }
 
-    /** Reserva {@code count} celdas adicionales en el marco actual (arreglos en stack). */
+    /** Declara un arreglo global reservando {@code cells} celdas contiguas. */
+    public int declareGlobalArray(String name, int cells, List<Integer> dims) {
+        int offset = globalFrame.next++;
+        globalFrame.slots.put(name, offset);
+        if (dims != null) globalFrame.arrayDims.put(name, dims);
+        if (cells > 1) globalFrame.next += cells - 1;
+        return offset;
+    }
+
+    /** Reserva {@code count} celdas adicionales en el marco actual (arreglos/structs en stack). */
     public void reserve(int count) {
         if (count > 0 && !frames.isEmpty()) frames.peek().next += count;
+    }
+
+    /** Reserva {@code count} celdas adicionales en el área global (arreglos/structs globales). */
+    public void reserveGlobal(int count) {
+        if (count > 0) globalFrame.next += count;
+    }
+
+    /** Dimensiones conocidas de un arreglo (local o global) para aplanar índices. */
+    public List<Integer> arrayDims(String name) {
+        if (!frames.isEmpty()) {
+            List<Integer> local = frames.peek().arrayDims.get(name);
+            if (local != null) return local;
+        }
+        return globalFrame.arrayDims.get(name);
+    }
+
+    /** Celdas totales del área global (asignadas antes de abrir cualquier marco). */
+    public int globalSize() {
+        return globalFrame.next;
     }
 
     public Integer localOffset(String name) {
@@ -150,6 +192,23 @@ public class C3DEmitter {
     /** Dirección de stack: {@code t = base + offset}. */
     public String stackAddr(String base, int offset) {
         return binary("+", base, String.valueOf(offset));
+    }
+
+    /**
+     * Dirección de un elemento de arreglo con índice aplanado en row-major:
+     * {@code base + ((i0*d1 + i1)*d2 + i2)...}. Si no se conocen las dimensiones
+     * (p. ej. un parámetro arreglo de Y) se usa solo el primer índice.
+     */
+    public String addressOffset(String base, List<Integer> dims, List<String> indices) {
+        if (indices == null || indices.isEmpty()) return base;
+        if (dims == null || dims.size() != indices.size()) {
+            return binary("+", base, indices.get(0));
+        }
+        String acc = indices.get(0);
+        for (int k = 1; k < indices.size(); k++) {
+            acc = binary("+", binary("*", acc, String.valueOf(dims.get(k))), indices.get(k));
+        }
+        return binary("+", base, acc);
     }
 
     public String stackLoad(String base, int offset) {

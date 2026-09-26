@@ -107,7 +107,7 @@ public class YDeclarationVisitor implements AstYVisitor<Void> {
         AggregateType agg = context.getTypeTable().resolve(node.getName());
         if (agg == null || node.getFields() == null) return;
         for (StructureField field : node.getFields()) {
-            agg.addField(new Field(field.getName(), resolveFieldType(field)));
+            agg.addField(new Field(field.getName(), resolveFieldType(field), fieldArrayDims(field)));
         }
     }
 
@@ -124,7 +124,7 @@ public class YDeclarationVisitor implements AstYVisitor<Void> {
             for (Parameter p : node.getParameters()) paramTypes.add(paramType(p));
         }
         Symbol fn = new Symbol(node.getName(), SymbolKind.FUNCTION, returnType,
-                new FunctionSignature(paramTypes, returnType), false,
+                new FunctionSignature(paramTypes, returnType), true,
                 context.getSymbolTable().getGlobalScope(), null, node.getLine(), node.getColumn());
         defs.callable(fn);
         return null;
@@ -135,6 +135,12 @@ public class YDeclarationVisitor implements AstYVisitor<Void> {
         ArrayDimensions dims = field.getArrayDimensions();
         if (dims == null || dims.getDimensions() == null || dims.getDimensions().isEmpty()) return base;
         return Type.array(base, dims.getDimensions().size());
+    }
+
+    private List<Integer> fieldArrayDims(StructureField field) {
+        ArrayDimensions dims = field.getArrayDimensions();
+        if (dims == null || dims.getDimensions() == null || dims.getDimensions().isEmpty()) return List.of();
+        return dims.getDimensions();
     }
 
     private Type paramType(Parameter p) {

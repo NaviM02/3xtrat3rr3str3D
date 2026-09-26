@@ -97,6 +97,7 @@ public class YSemanticVisitor implements AstYVisitor<Type> {
     @Override public Type visit(ReturnStatement node) { return statements.returnStatement(node); }
     @Override public Type visit(PrintStatement node) { return statements.print(node); }
     @Override public Type visit(ExpressionStatement node) { return statements.expressionStatement(node); }
+    @Override public Type visit(StructureDeclaration node) { return statements.structureDeclaration(node); }
 
     @Override public Type visit(BinaryExpression node) { return expressions.binary(node); }
     @Override public Type visit(UnaryExpression node) { return expressions.unary(node); }
@@ -112,7 +113,6 @@ public class YSemanticVisitor implements AstYVisitor<Type> {
     @Override public Type visit(ReadStatement node) { return null; }
     @Override public Type visit(BreakStatement node) { return null; }
     @Override public Type visit(ContinueStatement node) { return null; }
-    @Override public Type visit(StructureDeclaration node) { return null; }
     @Override public Type visit(StructureField node) { return null; }
     @Override public Type visit(ArrayDeclaration node) { return null; }
     @Override public Type visit(ArrayDimensions node) { return null; }

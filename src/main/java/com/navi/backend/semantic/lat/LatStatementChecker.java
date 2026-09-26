@@ -2,6 +2,7 @@ package com.navi.backend.semantic.lat;
 
 import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.declarations.ArrayDeclaration;
+import com.navi.backend.ast.lat.declarations.ArrayInitializer;
 import com.navi.backend.ast.lat.declarations.Declaration;
 import com.navi.backend.ast.lat.declarations.VariableDeclaration;
 import com.navi.backend.ast.lat.expressions.Expression;
@@ -102,14 +103,30 @@ public class LatStatementChecker {
     Type arrayDeclaration(ArrayDeclaration node) {
         Type base = types.resolve(node.getType(), node.getLine(), node.getColumn());
         int rank = node.getSizes() == null ? 0 : node.getSizes().size();
-        defs.variable(node, node.getName(), Type.array(base, rank), node.getLine(), node.getColumn());
+        Type arrayType = rank > 0 ? Type.array(base, rank) : base;
+        defs.variable(node, node.getName(), arrayType, node.getLine(), node.getColumn());
         if (node.getInitializer() != null) {
-            for (AstLatNode el : node.getInitializer().getElements()) {
-                Type actual = el instanceof Expression e ? e.accept(visitor) : Type.ERROR;
-                rules.checkElement(base, actual, el.getLine(), el.getColumn());
-            }
+            checkArrayInitializer(node.getInitializer(), arrayType, node.getLine(), node.getColumn());
         }
         return null;
+    }
+
+    /**
+     * Valida un inicializador de arreglo descendiendo en los literales anidados:
+     * cada nivel consume una dimensión ({@code int[][]} -> {@code int[]} -> {@code int}).
+     */
+    void checkArrayInitializer(ArrayInitializer init, Type expected, int line, int col) {
+        Type element = rules.arrayElementType(expected);
+        for (AstLatNode el : init.getElements()) {
+            if (el instanceof ArrayInitializer nested) {
+                checkArrayInitializer(nested, element, el.getLine(), el.getColumn());
+            } else if (el instanceof Expression e) {
+                Type actual = e.accept(visitor);
+                rules.checkElement(element, actual, el.getLine(), el.getColumn());
+            } else {
+                rules.checkElement(element, Type.ERROR, el.getLine(), el.getColumn());
+            }
+        }
     }
 
     // ---------------------------------------------------------------- statements

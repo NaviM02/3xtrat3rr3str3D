@@ -417,9 +417,7 @@ public class ZC3DVisitor implements AstZVisitor<String> {
 
     @Override
     public String visit(ArrayAccessExpression node) {
-        String base = node.getArray().accept(this);
-        String idx = node.getIndex().accept(this);
-        return emitter.heapLoadAt(emitter.binary("+", base, idx));
+        return emitter.heapLoadAt(arrayElementAddr(node));
     }
 
     @Override
@@ -486,14 +484,19 @@ public class ZC3DVisitor implements AstZVisitor<String> {
 
     @Override
     public String visit(ArrayCreationExpression node) {
-        String size = null;
+        List<String> dims = new ArrayList<>();
         if (node.getDimensions() != null) {
-            for (Expression d : node.getDimensions()) {
-                String v = d.accept(this);
-                size = size == null ? v : emitter.binary("*", size, v);
-            }
+            for (Expression d : node.getDimensions()) dims.add(d.accept(this));
         }
-        return emitter.heapAlloc(size == null ? "0" : size);
+        String product = "1";
+        for (String d : dims) product = emitter.binary("*", product, d);
+        // Cabecera: [rank][d0][d1]... y luego los datos, todo en el mismo bloque del heap.
+        String total = emitter.binary("+", String.valueOf(dims.size()), product);
+        String base = emitter.heapAlloc(total);
+        for (int k = 0; k < dims.size(); k++) {
+            emitter.heapStore(base, String.valueOf(k), dims.get(k));
+        }
+        return base;
     }
 
     @Override
@@ -593,9 +596,7 @@ public class ZC3DVisitor implements AstZVisitor<String> {
             if (idx >= 0) emitter.heapStore(thisPlace(), String.valueOf(idx), value);
             else emitter.storeVar(v.getName(), value);
         } else if (target instanceof ArrayAccessExpression a) {
-            String base = a.getArray().accept(this);
-            String idx = a.getIndex().accept(this);
-            emitter.heapStoreAt(emitter.binary("+", base, idx), value);
+            emitter.heapStoreAt(arrayElementAddr(a), value);
         } else if (target instanceof MemberAccessExpression m) {
             String base = m.getObject().accept(this);
             int off = fieldIndex(context.typeOf(m.getObject()), m.getMember());
@@ -609,6 +610,35 @@ public class ZC3DVisitor implements AstZVisitor<String> {
         int idx = currentClass == null ? -1 : fieldIndex(currentClass, name);
         if (idx >= 0) return emitter.heapLoad(thisPlace(), String.valueOf(idx));
         return emitter.loadVar(name);
+    }
+
+    /**
+     * Dirección de un elemento de arreglo de Z en el heap. El bloque del heap
+     * guarda una cabecera con las dimensiones ({@code heap[base + k] = dk}) y luego
+     * los datos; así se pueden aplanar en row-major arreglos de cualquier rank.
+     */
+    private String arrayElementAddr(ArrayAccessExpression node) {
+        List<String> indices = new ArrayList<>();
+        Expression current = node;
+        while (current instanceof ArrayAccessExpression access) {
+            indices.add(0, access.getIndex().accept(this));
+            current = access.getArray();
+        }
+        String base = current.accept(this);
+        int rank = arrayRank(current, indices.size());
+        String flat = indices.get(0);
+        for (int k = 1; k < indices.size(); k++) {
+            String dim = emitter.heapLoad(base, String.valueOf(k));
+            flat = emitter.binary("+", emitter.binary("*", flat, dim), indices.get(k));
+        }
+        return emitter.binary("+", base, emitter.binary("+", String.valueOf(rank), flat));
+    }
+
+    /** Rank declarado del arreglo (número de dimensiones), o {@code fallback} si no se conoce. */
+    private int arrayRank(Expression array, int fallback) {
+        Type t = context.typeOf(array);
+        if (t != null && t.isArray() && t.getDimensions() > 0) return t.getDimensions();
+        return fallback;
     }
 
     /** Receptor del método actual: parámetro 0 del marco. */

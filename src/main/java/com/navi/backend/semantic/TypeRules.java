@@ -135,12 +135,23 @@ public final class TypeRules {
 
     // ---------------------------------------------------------------- accesos
 
+    /**
+     * Tipo del elemento de un arreglo tras un único indexado. Conserva el rank:
+     * {@code int[][]} -> {@code int[]} -> {@code int}. Devuelve {@link Type#ERROR}
+     * si no es un arreglo.
+     */
+    public Type arrayElementType(Type arr) {
+        if (arr == null || !arr.isArray()) return Type.ERROR;
+        if (arr.getDimensions() > 1) return Type.array(arr.getElementType(), arr.getDimensions() - 1);
+        return arr.getElementType();
+    }
+
     /** Índice de arreglo: idx numérico y arr efectivamente un arreglo. Devuelve el tipo elemento. */
     public Type arrayElement(Type arr, Type idx, int line, int col) {
         if (!TypeCompat.isNumeric(idx)) {
             error(line, col, "El índice de un arreglo debe ser numérico");
         }
-        if (arr.isArray()) return arr.getElementType();
+        if (arr.isArray()) return arrayElementType(arr);
         error(line, col, "Acceso por índice a un no-arreglo: " + arr);
         return Type.ERROR;
     }

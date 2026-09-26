@@ -43,6 +43,40 @@ public class AggregateType {
         return null;
     }
 
+    /**
+     * Offset (en celdas) del campo dentro del agregado: suma de los tamaños de los
+     * campos anteriores. Cada campo escalar ocupa una celda y cada campo arreglo
+     * tantas como celdas tenga (p. ej. {@code datos[4]} ocupa 4).
+     */
+    public int fieldOffset(String name) {
+        int offset = 0;
+        for (Field field : fields) {
+            if (field.getName().equals(name)) return offset;
+            offset += cellSize(field);
+        }
+        return 0;
+    }
+
+    /** Tamaño total del agregado en celdas (mínimo 1). */
+    public int size() {
+        int total = 0;
+        for (Field field : fields) total += cellSize(field);
+        return Math.max(total, 1);
+    }
+
+    private static int cellSize(Field field) {
+        if (field.getType() != null && field.getType().isArray()) {
+            int count = 1;
+            int dims = field.getArrayDims().isEmpty() ? 1 : field.getArrayDims().size();
+            for (int i = 0; i < dims; i++) {
+                int d = i < field.getArrayDims().size() ? field.getArrayDims().get(i) : 1;
+                count *= Math.max(d, 1);
+            }
+            return count;
+        }
+        return 1;
+    }
+
     public Symbol findMethod(String name, List<Type> argTypes) {
         return resolveCallable(memberScope, name, argTypes);
     }

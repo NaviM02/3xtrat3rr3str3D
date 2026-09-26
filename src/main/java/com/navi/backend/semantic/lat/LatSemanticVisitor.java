@@ -1,13 +1,11 @@
 package com.navi.backend.semantic.lat;
 
-import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.declarations.ArrayDeclaration;
 import com.navi.backend.ast.lat.declarations.ArrayInitializer;
 import com.navi.backend.ast.lat.declarations.Declaration;
 import com.navi.backend.ast.lat.declarations.VariableDeclaration;
 import com.navi.backend.ast.lat.expressions.ArrayAccessExpression;
 import com.navi.backend.ast.lat.expressions.BinaryExpression;
-import com.navi.backend.ast.lat.expressions.Expression;
 import com.navi.backend.ast.lat.expressions.FunctionCallExpression;
 import com.navi.backend.ast.lat.expressions.MemberAccessExpression;
 import com.navi.backend.ast.lat.expressions.ObjectCreationExpression;
@@ -105,11 +103,10 @@ public class LatSemanticVisitor implements AstLatVisitor<Type> {
             }
         } else if (d instanceof ArrayDeclaration a) {
             Type base = types.resolve(a.getType(), a.getLine(), a.getColumn());
+            int rank = a.getSizes() == null ? 0 : a.getSizes().size();
             if (a.getInitializer() != null) {
-                for (AstLatNode el : a.getInitializer().getElements()) {
-                    Type actual = el instanceof Expression e ? e.accept(this) : Type.ERROR;
-                    rules.checkElement(base, actual, el.getLine(), el.getColumn());
-                }
+                statements.checkArrayInitializer(a.getInitializer(), Type.array(base, rank),
+                        a.getLine(), a.getColumn());
             }
         }
     }

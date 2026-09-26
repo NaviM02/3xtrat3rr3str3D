@@ -26,7 +26,7 @@ import java.nio.file.Path;
 public class Main {
 
     public static void main(String[] args) {
-        String filePath = args.length > 0 ? args[0] : "testfiles/prueba/main.pig";
+        String filePath = args.length > 0 ? args[0] : "testfiles/matriz_lat/main.pig";
 
         Path file = Path.of(filePath).toAbsolutePath();
         String source;
@@ -93,7 +93,7 @@ public class Main {
     private static void emitC(String fileName, C3DGenerator c3d) {
         String base = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
         try {
-            String cSource = new CGenerator(c3d.quads()).generate();
+            String cSource = new CGenerator(c3d.quads(), c3d.globalSize()).generate();
             Path outDir = Path.of("output");
             cleanOutput(outDir);
             Files.createDirectories(outDir);

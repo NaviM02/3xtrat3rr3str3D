@@ -7,6 +7,8 @@ import com.navi.backend.ast.y.declarations.FunctionDeclaration;
 import com.navi.backend.ast.y.declarations.Initializer;
 import com.navi.backend.ast.y.declarations.NormalParameter;
 import com.navi.backend.ast.y.declarations.Parameter;
+import com.navi.backend.ast.y.declarations.StructureDeclaration;
+import com.navi.backend.ast.y.declarations.StructureField;
 import com.navi.backend.ast.y.declarations.StructureInitializer;
 import com.navi.backend.ast.y.declarations.StructureParameter;
 import com.navi.backend.ast.y.declarations.VariableDeclaration;
@@ -118,6 +120,43 @@ public class YStatementChecker {
             checkInitializer(node.getInitializer(), type, node.getLine(), node.getColumn());
         }
         return null;
+    }
+
+    /**
+     * Estructura declarada localmente (dentro de una función): se registra en el
+     * {@link com.navi.backend.semantic.TypeTable} plano para que el resto del
+     * cuerpo pueda usarla por nombre simple.
+     */
+    Type structureDeclaration(StructureDeclaration node) {
+        AggregateType agg = new AggregateType(node.getName(), false,
+                context.getSymbolTable().getCurrentScope());
+        if (!context.getTypeTable().register(agg)) {
+            rules.error(node.getLine(), node.getColumn(), "Estructura duplicada: " + node.getName());
+            return null;
+        }
+        if (node.getFields() != null) {
+            for (StructureField field : node.getFields()) {
+                agg.addField(new Field(field.getName(), resolveFieldType(field), fieldArrayDims(field)));
+            }
+        }
+        return null;
+    }
+
+    private List<Integer> fieldArrayDims(StructureField field) {
+        if (field.getArrayDimensions() == null || field.getArrayDimensions().getDimensions() == null
+                || field.getArrayDimensions().getDimensions().isEmpty()) {
+            return List.of();
+        }
+        return field.getArrayDimensions().getDimensions();
+    }
+
+    private Type resolveFieldType(StructureField field) {
+        Type base = types.resolve(field.getType());
+        if (field.getArrayDimensions() == null || field.getArrayDimensions().getDimensions() == null
+                || field.getArrayDimensions().getDimensions().isEmpty()) {
+            return base;
+        }
+        return Type.array(base, field.getArrayDimensions().getDimensions().size());
     }
 
     // ---------------------------------------------------------------- statements
@@ -241,13 +280,27 @@ public class YStatementChecker {
                 rules.error(line, col, "No se puede inicializar " + expected + " con " + actual);
             }
         } else if (init instanceof ArrayInitializer ai) {
-            Type base = expected.isArray() ? expected.getElementType() : Type.ERROR;
-            for (var el : ai.getElements()) {
-                Type actual = el instanceof Expression e ? e.accept(visitor) : Type.ERROR;
-                rules.checkElement(base, actual, line, col);
-            }
+            checkArrayInitializer(ai, expected, line, col);
         } else if (init instanceof StructureInitializer si) {
             checkStructureLiteral(si.getExpressions(), expected, line, col);
+        }
+    }
+
+    /**
+     * Valida un inicializador de arreglo descendiendo en los literales anidados:
+     * cada nivel consume una dimensión ({@code int[][]} -> {@code int[]} -> {@code int}).
+     */
+    private void checkArrayInitializer(ArrayInitializer ai, Type expected, int line, int col) {
+        Type element = rules.arrayElementType(expected);
+        for (var el : ai.getElements()) {
+            if (el instanceof ArrayInitializer nested) {
+                checkArrayInitializer(nested, element, el.getLine(), el.getColumn());
+            } else if (el instanceof Expression e) {
+                Type actual = e.accept(visitor);
+                rules.checkElement(element, actual, el.getLine(), el.getColumn());
+            } else {
+                rules.checkElement(element, Type.ERROR, el.getLine(), el.getColumn());
+            }
         }
     }
 

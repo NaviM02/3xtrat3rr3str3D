@@ -48,8 +48,10 @@ import com.navi.backend.ast.lat.statements.Statement;
 import com.navi.backend.ast.lat.statements.WhileStatement;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.Field;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.Symbol;
+import com.navi.backend.semantic.SymbolKind;
 import com.navi.backend.semantic.Type;
 
 import java.util.ArrayDeque;
@@ -119,6 +121,14 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
     @Override
     public String visit(VariableDeclaration node) {
         setPos(node, declare(node.getName()));
+        Symbol symbol = context.symbolOf(node);
+        if (symbol != null && symbol.getType() != null && symbol.getType().isStruct()) {
+            int extra = structSize(symbol.getType().getName()) - 1;
+            if (extra > 0) {
+                if (globalSection) emitter.reserveGlobal(extra);
+                else emitter.reserve(extra);
+            }
+        }
         if (node.getInitializer() != null) {
             String value = initializerValue(node.getInitializer());
             if (value != null) emitter.storeVar(node.getName(), value);
@@ -128,19 +138,15 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
 
     @Override
     public String visit(ArrayDeclaration node) {
-        setPos(node, declare(node.getName()));
-        emitter.reserve(arrayCells(node.getSizes()) - 1);
+        int cells = arrayCells(node.getSizes());
+        List<Integer> dims = constantDims(node.getSizes());
+        int offset = globalSection
+                ? emitter.declareGlobalArray(node.getName(), cells, dims)
+                : emitter.declareLocalArray(node.getName(), cells, dims);
+        setPos(node, offset);
         if (node.getInitializer() != null) {
             String base = emitter.varAddr(node.getName());
-            int i = 0;
-            for (AstLatNode el : node.getInitializer().getElements()) {
-                String value = el instanceof Expression e ? e.accept(this) : null;
-                if (value != null) {
-                    String addr = emitter.binary("+", base, String.valueOf(i));
-                    emitter.stackStoreAt(addr, value);
-                }
-                i++;
-            }
+            storeArrayInitializer(base, node.getInitializer().getElements(), 0);
         }
         return null;
     }
@@ -371,20 +377,18 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
 
     @Override
     public String visit(ArrayAccessExpression node) {
-        String base = emitter.varAddr(node.getArray() instanceof VariableExpression v ? v.getName() : null);
-        if (base == null) base = node.getArray().accept(this);
-        String idx = node.getIndex().accept(this);
-        return emitter.stackLoadAt(emitter.binary("+", base, idx));
+        return emitter.stackLoadAt(arrayElementAddr(node));
     }
 
     @Override
     public String visit(MemberAccessExpression node) {
-        String obj = node.getObject().accept(this);
         Type owner = context.typeOf(node.getObject());
-        int off = fieldIndex(owner, node.getMember());
         if (owner != null && owner.isStruct()) {
+            int off = fieldOffset(owner, node.getMember());
             return emitter.stackLoadAt(emitter.binary("+", structAddr(node.getObject()), String.valueOf(off)));
         }
+        String obj = node.getObject().accept(this);
+        int off = fieldIndex(owner, node.getMember());
         return emitter.heapLoad(obj, String.valueOf(off));
     }
 
@@ -396,7 +400,7 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
 
     @Override
     public String visit(ObjectCreationExpression node) {
-        List<String> args = evalArgs(node.getArguments());
+        List<String> args = evalArgs(node.getArguments(), null, false);
         AggregateType agg = context.getTypeTable().resolve(node.getType());
         List<Type> argTypes = argTypes(node.getArguments());
         String ctor = agg != null && agg.findConstructor(argTypes) != null
@@ -487,8 +491,11 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
     // ---------------------------------------------------------------- helpers
 
     private String emitCall(Expression callee, List<Expression> args, boolean isVoid) {
-        List<String> argPlaces = evalArgs(args);
         if (callee instanceof VariableExpression ve) {
+            Symbol fn = resolveFunction(ve.getName(), argTypes(args));
+            boolean byRef = fn != null && fn.isReference();
+            List<Type> params = fn == null ? null : fn.getSignature().getParameters();
+            List<String> argPlaces = evalArgs(args, params, byRef);
             if (isVoid) {
                 emitter.callVoid(ve.getName(), argPlaces);
                 return null;
@@ -496,6 +503,7 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
             return emitter.call(ve.getName(), argPlaces);
         }
         if (callee instanceof MemberAccessExpression ma) {
+            List<String> argPlaces = evalArgs(args, null, false);
             String objPlace = ma.getObject().accept(this);
             Type objType = context.typeOf(ma.getObject());
             String label = methodLabel(objType, ma.getMember(), argTypes(args));
@@ -511,6 +519,43 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
         return emitter.literal("0");
     }
 
+    /**
+     * Evalúa los argumentos. Si el callee es una función de Y (parámetros por
+     * referencia), los argumentos arreglo/struct se pasan como dirección; para el
+     * resto (primitivos, funciones de Lat, objetos de Z) se pasa el valor.
+     */
+    private List<String> evalArgs(List<Expression> args, List<Type> params, boolean byRef) {
+        List<String> places = new ArrayList<>();
+        if (args == null) return places;
+        for (int i = 0; i < args.size(); i++) {
+            Expression a = args.get(i);
+            Type p = params != null && i < params.size() ? params.get(i) : null;
+            if (byRef && p != null && (p.isArray() || p.isStruct())) places.add(addressOf(a));
+            else places.add(a.accept(this));
+        }
+        return places;
+    }
+
+    /** Dirección (no valor) de una expresión que ocupa celdas contiguas. */
+    private String addressOf(Expression e) {
+        if (e instanceof VariableExpression v) return emitter.varAddr(v.getName());
+        if (e instanceof ArrayAccessExpression a) return arrayElementAddr(a);
+        if (e instanceof MemberAccessExpression m) return memberAddr(m);
+        return e.accept(this);
+    }
+
+    private Symbol resolveFunction(String name, List<Type> argTypes) {
+        List<Symbol> overloads = context.getSymbolTable().resolveCallable(name);
+        if (overloads != null) {
+            for (Symbol fn : overloads) {
+                if (fn.getKind() == SymbolKind.FUNCTION && fn.getSignature().matches(argTypes)) {
+                    return fn;
+                }
+            }
+        }
+        return null;
+    }
+
     private String methodLabel(Type objType, String name, List<Type> argTypes) {
         if (objType == null || !objType.isClass()) return "unknown_" + name;
         AggregateType agg = context.getTypeTable().resolve(objType.getName());
@@ -518,12 +563,6 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
         Symbol m = agg.findMethod(name, argTypes);
         if (m == null) return objType.getName() + "_" + name;
         return C3DEmitter.methodLabel(objType.getName(), name, m.getSignature().getParameters());
-    }
-
-    private List<String> evalArgs(List<Expression> args) {
-        List<String> places = new ArrayList<>();
-        if (args != null) for (Expression a : args) places.add(a.accept(this));
-        return places;
     }
 
     private List<Type> argTypes(List<Expression> args) {
@@ -544,24 +583,65 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
         if (target instanceof VariableExpression v) {
             emitter.storeVar(v.getName(), value);
         } else if (target instanceof ArrayAccessExpression a) {
-            String base = a.getArray() instanceof VariableExpression v ? emitter.varAddr(v.getName()) : a.getArray().accept(this);
-            String idx = a.getIndex().accept(this);
-            emitter.stackStoreAt(emitter.binary("+", base, idx), value);
+            emitter.stackStoreAt(arrayElementAddr(a), value);
         } else if (target instanceof MemberAccessExpression m) {
             Type owner = context.typeOf(m.getObject());
-            int off = fieldIndex(owner, m.getMember());
             if (owner != null && owner.isStruct()) {
+                int off = fieldOffset(owner, m.getMember());
                 emitter.stackStoreAt(emitter.binary("+", structAddr(m.getObject()), String.valueOf(off)), value);
             } else {
+                int off = fieldIndex(owner, m.getMember());
                 emitter.heapStore(m.getObject().accept(this), String.valueOf(off), value);
             }
         }
     }
 
+    /** Dirección del elemento de un arreglo, aplanando índices multidimensionales. */
+    private String arrayElementAddr(ArrayAccessExpression node) {
+        List<String> indices = new ArrayList<>();
+        Expression current = node;
+        while (current instanceof ArrayAccessExpression access) {
+            indices.add(0, access.getIndex().accept(this));
+            current = access.getArray();
+        }
+        String base = arrayBaseAddr(current);
+        return emitter.addressOffset(base, arrayDimsOf(current), indices);
+    }
+
+    private String arrayBaseAddr(Expression array) {
+        if (array instanceof VariableExpression v) return emitter.varAddr(v.getName());
+        if (array instanceof MemberAccessExpression m) return memberAddr(m);
+        return array.accept(this);
+    }
+
+    private String memberAddr(MemberAccessExpression m) {
+        Type owner = context.typeOf(m.getObject());
+        if (owner != null && owner.isStruct()) {
+            return emitter.binary("+", structAddr(m.getObject()), String.valueOf(fieldOffset(owner, m.getMember())));
+        }
+        return emitter.heapAddr(m.getObject().accept(this), String.valueOf(fieldIndex(owner, m.getMember())));
+    }
+
+    /** Dimensiones de un arreglo (variable local/global o campo de struct). */
+    private List<Integer> arrayDimsOf(Expression array) {
+        if (array instanceof VariableExpression v) return emitter.arrayDims(v.getName());
+        if (array instanceof MemberAccessExpression m) {
+            Type owner = context.typeOf(m.getObject());
+            if (owner != null) {
+                AggregateType agg = context.getTypeTable().resolve(owner.getName());
+                if (agg != null) {
+                    Field field = agg.findField(m.getMember());
+                    if (field != null) return field.getArrayDims();
+                }
+            }
+        }
+        return null;
+    }
+
     private String structAddr(Expression obj) {
         if (obj instanceof VariableExpression v) return emitter.varAddr(v.getName());
         if (obj instanceof MemberAccessExpression m) {
-            int off = fieldIndex(context.typeOf(m.getObject()), m.getMember());
+            int off = fieldOffset(context.typeOf(m.getObject()), m.getMember());
             return emitter.binary("+", structAddr(m.getObject()), String.valueOf(off));
         }
         return obj.accept(this);
@@ -582,6 +662,33 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
         return total;
     }
 
+    /** Dimensiones constantes de un arreglo, o {@code null} si no se pueden calcular. */
+    private List<Integer> constantDims(List<Expression> sizes) {
+        if (sizes == null || sizes.isEmpty()) return null;
+        List<Integer> dims = new ArrayList<>();
+        for (Expression e : sizes) {
+            if (e instanceof NumberLiteral n && n.getValue() > 0) dims.add(n.getValue());
+            else return null;
+        }
+        return dims;
+    }
+
+    /** Aplana y almacena un inicializador de arreglo (soporta anidados). */
+    private int storeArrayInitializer(String base, List<AstLatNode> elements, int start) {
+        if (elements == null) return start;
+        int i = start;
+        for (AstLatNode element : elements) {
+            if (element instanceof ArrayInitializer nested) {
+                i = storeArrayInitializer(base, nested.getElements(), i);
+            } else if (element instanceof Expression expression) {
+                String value = expression.accept(this);
+                emitter.stackStoreAt(emitter.binary("+", base, String.valueOf(i)), value);
+                i++;
+            }
+        }
+        return i;
+    }
+
     private int fieldIndex(Type owner, String member) {
         if (owner == null) return 0;
         AggregateType agg = context.getTypeTable().resolve(owner.getName());
@@ -590,6 +697,20 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
             if (agg.getFields().get(i).getName().equals(member)) return i;
         }
         return 0;
+    }
+
+    /** Offset (en celdas) de un campo; a diferencia de {@link #fieldIndex}, los campos arreglo ocupan varias celdas. */
+    private int fieldOffset(Type owner, String member) {
+        if (owner == null) return 0;
+        AggregateType agg = context.getTypeTable().resolve(owner.getName());
+        if (agg == null) return 0;
+        return agg.fieldOffset(member);
+    }
+
+    /** Tamaño en celdas de un struct (o 1 si no se conoce). */
+    private int structSize(String name) {
+        AggregateType agg = context.getTypeTable().resolve(name);
+        return agg == null ? 1 : agg.size();
     }
 
     private int objectSize(String className) {
