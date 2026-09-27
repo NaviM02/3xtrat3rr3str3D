@@ -5,6 +5,7 @@ import com.navi.backend.compiler.CompilerService;
 import com.navi.backend.highlight.HighlightService;
 import com.navi.backend.highlight.HighlightSpan;
 import com.navi.backend.semantic.SemanticContext;
+import com.navi.ui.c3d.C3DPanel;
 import com.navi.ui.console.ConsolePanel;
 import com.navi.ui.editor.EditorPanel;
 import com.navi.ui.project.ProjectExplorerPanel;
@@ -45,6 +46,7 @@ public class CompilerWindow extends JFrame {
     private final HighlightService highlightService = new HighlightService();
     private SymbolTablePanel symbolTablePanel;
     private TypeTablePanel typeTablePanel;
+    private C3DPanel c3dPanel;
     private JTabbedPane bottomTabs;
 
     private Timer highlightTimer;
@@ -82,11 +84,13 @@ public class CompilerWindow extends JFrame {
         projectExplorerPanel = new ProjectExplorerPanel();
         symbolTablePanel = new SymbolTablePanel();
         typeTablePanel = new TypeTablePanel();
+        c3dPanel = new C3DPanel();
 
         bottomTabs = new JTabbedPane();
         bottomTabs.addTab("Consola", consolePanel);
         bottomTabs.addTab("Tabla de símbolos", symbolTablePanel);
         bottomTabs.addTab("Tabla de tipos", typeTablePanel);
+        bottomTabs.addTab("C3D", c3dPanel);
 
         compileButton = new JButton("Compilar");
 
@@ -523,6 +527,7 @@ public class CompilerWindow extends JFrame {
 
         symbolTablePanel.clear();
         typeTablePanel.clear();
+        c3dPanel.clear();
 
         setStatus("Archivo eliminado");
         consolePanel.appendLine("Se cerró el archivo porque fue eliminado.");
@@ -563,6 +568,7 @@ public class CompilerWindow extends JFrame {
 
             symbolTablePanel.setSymbolTable(result.getSemanticContext().getSymbolTable());
             typeTablePanel.setTypeTable(result.getSemanticContext().getTypeTable());
+            c3dPanel.setCode(result.getC3d());
             bottomTabs.setSelectedComponent(consolePanel);
 
             consolePanel.appendSuccessLine("Análisis semántico completado.");

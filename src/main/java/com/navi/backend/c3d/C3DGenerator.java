@@ -3,6 +3,9 @@ package com.navi.backend.c3d;
 import com.navi.backend.ast.lat.global.Program;
 import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;
+import com.navi.backend.c3d.lat.LatC3DVisitor;
+import com.navi.backend.c3d.y.YC3DVisitor;
+import com.navi.backend.c3d.z.ZC3DVisitor;
 import com.navi.backend.semantic.SemanticContext;
 
 import java.util.List;

@@ -28,7 +28,7 @@ import java.nio.file.Path;
  */
 public class Main {
 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         String filePath = args.length > 0 ? args[0] : "testfiles/matriz_lat/main.pig";
 
         Path file = Path.of(filePath).toAbsolutePath();
@@ -86,9 +86,9 @@ public class Main {
             System.out.print(code);
             emitC(name, c3d);
         }
-    }*/
+    }
 
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
                 FlatMaterialDarkerIJTheme.setup();
@@ -98,7 +98,7 @@ public class Main {
             CompilerWindow window = new CompilerWindow();
             window.setVisible(true);
         });
-    }
+    }*/
 
     /**
      * Traduce las cuartetas a un único archivo C en {@code output/} (limpiando la
