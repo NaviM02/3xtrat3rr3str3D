@@ -5,10 +5,8 @@ import lombok.Getter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Registro de tipos agregados (struct de Y y class de Z) por nombre canónico.
- * Namespace único y plano: una struct y una class con el mismo nombre colisionan.
- */
+// registro de tipos agregados (struct de Y, class de Z) por nombre
+// namespace plano: struct y class con el mismo nombre colisionan
 @Getter
 public class TypeTable {
     private final Map<String, AggregateType> types = new LinkedHashMap<>();

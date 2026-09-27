@@ -2,14 +2,8 @@ package com.navi.backend.semantic.rules;
 
 import com.navi.backend.semantic.model.Type;
 
-/**
- * Reglas de compatibilidad/promoción de tipos (la "tabla de compatibilidad"
- * que exige el enunciado). Los tres checkers comparten esta única utilidad.
- *
- * <p>Regla básica implementada: ensanchamiento numérico {@code CHAR -> INT -> DOUBLE}.
- * El resto de reglas (concatenación con string, etc.) se agregan aquí según el
- * enunciado.</p>
- */
+// reglas de compatibilidad/promocion de tipos, compartidas por los tres checkers
+// ensanchamiento numerico CHAR -> INT -> DOUBLE
 public final class TypeCompat {
 
     private TypeCompat() {
@@ -23,7 +17,7 @@ public final class TypeCompat {
         return type != null && type.isBoolean();
     }
 
-    /** Tipo común de una operación numérica binaria, o null si no es compatible. */
+    // tipo comun de una operacion numerica; null si no son compatibles
     public static Type promoteNumeric(Type a, Type b) {
         if (a == null || b == null) return null;
         if (!isNumeric(a) || !isNumeric(b)) return null;
@@ -32,7 +26,7 @@ public final class TypeCompat {
         return Type.CHAR;
     }
 
-    /** ¿Se puede asignar {@code value} a una variable de tipo {@code target}? */
+    // se puede asignar value a target?
     public static boolean canAssign(Type target, Type value) {
         if (target == null || value == null) return false;
         if (target.equals(value)) return true;
@@ -44,7 +38,7 @@ public final class TypeCompat {
         return false;
     }
 
-    /** ¿Se pueden comparar (==, !=, <, >, ...) estos dos tipos? */
+    // se pueden comparar estos dos tipos?
     public static boolean comparable(Type a, Type b) {
         if (a == null || b == null) return false;
         if (a.equals(b)) return true;

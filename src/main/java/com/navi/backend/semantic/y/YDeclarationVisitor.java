@@ -54,10 +54,8 @@ import com.navi.backend.semantic.model.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pasada de declaraciones de Y. Registra estructuras (TypeTable) y funciones
- * (scope global) en tres sub-fases para soportar referencias entre structs.
- */
+// declaraciones de Y: registra structs y funciones en tres sub-fases para
+// permitir referencias entre structs
 public class YDeclarationVisitor implements AstYVisitor<Void> {
 
     private final SemanticContext context;

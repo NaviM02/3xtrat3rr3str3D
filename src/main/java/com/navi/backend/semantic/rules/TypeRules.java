@@ -6,15 +6,8 @@ import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.model.Field;
 import com.navi.backend.semantic.model.Type;
 
-/**
- * Reglas de tipo compartidas por los tres checkers semánticos (Lat/Y/Z).
- * Centraliza la validación de operadores/condiciones/retornos y la redacción de
- * los mensajes de error, de modo que los tres lenguajes se comporten igual.
- *
- * <p>No conoce ASTs: solo opera sobre {@link Type} ya resueltos y reporta a
- * {@link SemanticErrors}. Las reglas de compatibilidad en sí viven en
- * {@link TypeCompat}.</p>
- */
+// reglas de tipo compartidas por Lat/Y/Z (operadores, condiciones, retornos)
+// no conoce ASTs, solo tipos ya resueltos; la compatibilidad vive en TypeCompat
 public final class TypeRules {
 
     private final SemanticContext context;
@@ -27,7 +20,7 @@ public final class TypeRules {
         context.getErrors().report(line, col, msg);
     }
 
-    /** Reporta {@code msg} y devuelve {@link Type#ERROR} (para usar en expresiones). */
+    // reporta el error y devuelve ERROR (para expresiones)
     public Type fail(int line, int col, String msg) {
         error(line, col, msg);
         return Type.ERROR;
@@ -35,30 +28,30 @@ public final class TypeRules {
 
     // ---------------------------------------------------------------- operadores
 
-    /** Condición de si/dientras/para: debe ser booleana. */
+    // condicion de si/dientras/para: debe ser booleana
     public void requireBool(Type t, int line, int col) {
         if (!t.isBoolean()) error(line, col, "La condición debe ser booleana, se obtuvo " + t);
     }
 
-    /** {@code &&} / {@code ||}: ambos operandos booleanos. */
+    // && / || : ambos operandos booleanos
     public Type boolOperands(Type l, Type r, int line, int col) {
         if (l.isBoolean() && r.isBoolean()) return Type.BOOLEAN;
         return fail(line, col, "El operador lógico requiere booleanos: " + l + " y " + r);
     }
 
-    /** {@code ==} / {@code !=}. */
+    // == / !=
     public Type equality(Type l, Type r, int line, int col) {
         if (TypeCompat.comparable(l, r)) return Type.BOOLEAN;
         return fail(line, col, "Tipos no comparables: " + l + " y " + r);
     }
 
-    /** {@code <} {@code <=} {@code >} {@code >=}: operandos numéricos. */
+    // < <= > >= : operandos numericos
     public Type relational(Type l, Type r, int line, int col) {
         if (TypeCompat.isNumeric(l) && TypeCompat.isNumeric(r)) return Type.BOOLEAN;
         return fail(line, col, "La comparación requiere operandos numéricos");
     }
 
-    /** {@code -} {@code *} {@code /} {@code %}. */
+    // - * / %
     public Type arithmetic(Type l, Type r, int line, int col) {
         Type promoted = TypeCompat.promoteNumeric(l, r);
         if (promoted == null) {
@@ -67,25 +60,25 @@ public final class TypeRules {
         return promoted;
     }
 
-    /** {@code +}: concatena si alguno es string, si no aritmética. */
+    // + : concatena si hay string, si no aritmetica
     public Type addition(Type l, Type r, int line, int col) {
         if (l.isString() || r.isString()) return Type.STRING;
         return arithmetic(l, r, line, col);
     }
 
-    /** {@code !}: requiere booleano. */
+    // ! : requiere booleano
     public Type negation(Type t, int line, int col) {
         if (t.isBoolean()) return Type.BOOLEAN;
         return fail(line, col, "La negación ! requiere un booleano");
     }
 
-    /** {@code -} / {@code +} unarios: requieren numérico. */
+    // - / + unarios: requieren numerico
     public Type unaryNumeric(Type t, int line, int col) {
         if (TypeCompat.isNumeric(t)) return t;
         return fail(line, col, "El operador unario requiere un operando numérico");
     }
 
-    /** {@code ++} / {@code --} (como expresión o sentencia): requieren numérico. */
+    // ++ / -- : requieren numerico
     public Type incrementOperand(Type t, int line, int col) {
         if (TypeCompat.isNumeric(t)) return t;
         return fail(line, col, "++/-- requiere un operando numérico");
@@ -93,21 +86,21 @@ public final class TypeRules {
 
     // ---------------------------------------------------------------- asignaciones
 
-    /** Asignación simple. Devuelve true si es válida; si no, reporta el error. */
+    // asignacion simple; true si es valida
     public boolean assign(Type target, Type value, int line, int col) {
         if (TypeCompat.canAssign(target, value)) return true;
         error(line, col, "No se puede asignar " + value + " a " + target);
         return false;
     }
 
-    /** Asignación compuesta ({@code +=}, {@code -=}, ...): operandos numéricos. */
+    // asignacion compuesta (+=, -=, ...): operandos numericos
     public boolean compoundAssign(Type target, Type value, int line, int col) {
         if (TypeCompat.isNumeric(target) && TypeCompat.isNumeric(value)) return true; // todo: ver si puede usarse string
         error(line, col, "La asignación compuesta requiere operandos numéricos");
         return false;
     }
 
-    /** Elemento de un inicializador de arreglo contra el tipo base. */
+    // elemento de un inicializador de arreglo contra el tipo base
     public void checkElement(Type base, Type actual, int line, int col) {
         if (!TypeCompat.canAssign(base, actual)) {
             error(line, col, "Elemento de arreglo " + actual + " no asignable a " + base);
@@ -116,15 +109,8 @@ public final class TypeRules {
 
     // ---------------------------------------------------------------- sentencias
 
-    /**
-     * Sentencia de retorno ({@code reddere}/{@code retornar}/{@code return}).
-     *
-     * @param declared     tipo de retorno de la función actual (null fuera de ella)
-     * @param hasValue     la sentencia trae expresión
-     * @param actual       tipo de esa expresión (si {@code hasValue})
-     * @param voidReturnMsg mensaje cuando no se puede retornar valor
-     *                       ("La función no retorna valor" / "El método no retorna valor")
-     */
+    // sentencia de retorno (reddere/retornar/return)
+    // declared: tipo de retorno actual (null fuera de funcion); voidReturnMsg: mensaje si no admite valor
     public void checkReturn(Type declared, boolean hasValue, Type actual, int line, int col, String voidReturnMsg) {
         if (!hasValue) {
             if (declared != null && !declared.isVoid()) {
@@ -141,18 +127,14 @@ public final class TypeRules {
 
     // ---------------------------------------------------------------- accesos
 
-    /**
-     * Tipo del elemento de un arreglo tras un único indexado. Conserva el rank:
-     * {@code int[][]} -> {@code int[]} -> {@code int}. Devuelve {@link Type#ERROR}
-     * si no es un arreglo.
-     */
+    // tipo tras un indexado, conserva el rank (int[][] -> int[] -> int); ERROR si no es arreglo
     public Type arrayElementType(Type arr) {
         if (arr == null || !arr.isArray()) return Type.ERROR;
         if (arr.getDimensions() > 1) return Type.array(arr.getElementType(), arr.getDimensions() - 1);
         return arr.getElementType();
     }
 
-    /** Índice de arreglo: idx numérico y arr efectivamente un arreglo. Devuelve el tipo elemento. */
+    // indice de arreglo: idx numerico y arr arreglo; devuelve el tipo elemento
     public Type arrayElement(Type arr, Type idx, int line, int col) {
         if (!TypeCompat.isNumeric(idx)) {
             error(line, col, "El índice de un arreglo debe ser numérico");
@@ -162,18 +144,14 @@ public final class TypeRules {
         return Type.ERROR;
     }
 
-    /**
-     * Índice constante contra una dimensión conocida (validación en compilación).
-     * Solo aplica cuando el índice y el tamaño son constantes; los índices
-     * variables no pueden validarse estáticamente.
-     */
+    // indice constante contra dimension conocida; solo aplica si ambos son constantes
     public void checkIndex(int dim, int index, int line, int col) {
         if (index < 0 || index >= dim) {
             error(line, col, "Índice " + index + " fuera de rango (dimensión " + dim + ")");
         }
     }
 
-    /** Campo de struct/clase. */
+    // campo de struct/clase
     public Type memberOf(Type owner, String member, int line, int col) {
         if (owner.isStruct() || owner.isClass()) {
             AggregateType agg = context.getTypeTable().resolve(owner.getName());
@@ -188,7 +166,7 @@ public final class TypeRules {
         return Type.ERROR;
     }
 
-    /** Tipo de un literal de valor crudo (Y/Z). */
+    // tipo de un literal crudo (Y/Z)
     public Type literalType(Object value) {
         if (value instanceof Integer) return Type.INT;
         if (value instanceof Double || value instanceof Float) return Type.DOUBLE;

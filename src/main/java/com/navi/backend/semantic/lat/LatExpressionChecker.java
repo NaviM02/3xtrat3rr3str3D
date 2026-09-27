@@ -28,12 +28,7 @@ import com.navi.backend.semantic.rules.TypeRules;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Chequeo de expresiones de Lat: resuelve el tipo de cada expresión, lo anota en
- * {@link SemanticContext} para el C3D y reporta errores vía {@link TypeRules}.
- * El recorrido de los hijos lo hace el visitante (dispatcher) que la instancia,
- * porque es el único que implementa {@link AstLatVisitor}.
- */
+// chequea expresiones de Lat, anota su tipo y reporta errores; los hijos los recorre el visitor
 public class LatExpressionChecker {
 
     private final SemanticContext context;
@@ -94,7 +89,7 @@ public class LatExpressionChecker {
         return result;
     }
 
-    /** Valida en compilación el índice si es constante y se conocen los tamaños del arreglo. */
+    // valida el indice si es constante y se conocen los tamaños del arreglo
     private void checkArrayBounds(ArrayAccessExpression node) {
         List<Integer> sizes = sizesOf(node.getArray());
 
@@ -107,7 +102,7 @@ public class LatExpressionChecker {
         rules.checkIndex(sizes.get(0), index, node.getLine(), node.getColumn());
     }
 
-    /** Tamaños conocidos del arreglo (variable o miembro de struct); null si se desconocen. */
+    // tamaños conocidos del arreglo (variable o miembro); null si no se saben
     private List<Integer> sizesOf(Expression array) {
         if (array instanceof VariableExpression v) {
             Symbol s = context.getSymbolTable().resolve(v.getName());
@@ -176,7 +171,7 @@ public class LatExpressionChecker {
         return result;
     }
 
-    /** Literal de tipo fijo: anota y devuelve el tipo. */
+    // literal de tipo fijo: lo anota y devuelve el tipo
     Type constant(AstLatNode node, Type type) {
         context.annotate(node, type);
         return type;
@@ -238,17 +233,19 @@ public class LatExpressionChecker {
     }
 
     void checkInitializer(Initializer init, Type expected, int line, int col) {
-        // Literal de struct: soporte parcial en C3D (campos escalares). Mientras
-        // no esté completo, se acepta cuando el tipo esperado es struct para no
-        // bloquear la compilación; la emisión omite los campos no soportados.
+        // literal de struct: soporte parcial en C3D (solo campos escalares);
+        // se acepta si el tipo esperado es struct para no bloquear la compilacion
         if (init instanceof StructInitializer si) {
-            if (expected.isStruct()) {
-                for (StructFieldInitializer f : si.getFields()) {
-                    if (f.getValue() instanceof ExpressionInitializer ei) ei.getExpression().accept(visitor);
-                }
+            if (!expected.isStruct()) {
+                rules.error(line, col, "No se puede inicializar " + expected + " con un literal de estructura");
                 return;
             }
-            rules.error(line, col, "No se puede inicializar " + expected + " con un literal de estructura");
+            AggregateType agg = context.getTypeTable().resolve(expected.getName());
+            if (agg == null) {
+                rules.error(line, col, "Estructura no definida: " + expected.getName());
+                return;
+            }
+            checkStructLiteral(si, expected, agg, line, col);
             return;
         }
 
@@ -258,8 +255,53 @@ public class LatExpressionChecker {
         }
     }
 
+    // valida un literal de struct campo a campo; el campo puede venir por
+    // nombre (campo: valor) o por posicion (segun orden de declaracion)
+    private void checkStructLiteral(StructInitializer si, Type expected, AggregateType agg, int line, int col) {
+        if (si.getFields().size() > agg.getFields().size()) {
+            rules.error(line, col, "El literal de " + expected.getName() + " tiene demasiados campos ("
+                    + si.getFields().size() + " para " + agg.getFields().size() + ")");
+        }
+
+        int index = 0;
+        for (StructFieldInitializer f : si.getFields()) {
+            Field declared;
+            if (f.getName() != null) {
+                declared = agg.findField(f.getName());
+                if (declared == null) {
+                    rules.error(f.getLine(), f.getColumn(), "El campo '" + f.getName()
+                            + "' no existe en " + expected.getName());
+                }
+            } else {
+                declared = index < agg.getFields().size() ? agg.getFields().get(index) : null;
+            }
+            index++;
+
+            Initializer value = f.getValue();
+            if (value instanceof StructInitializer nested) {
+                Type nestedType = declared == null ? null : declared.getType();
+                if (nestedType != null && nestedType.isStruct()) {
+                    AggregateType nestedAgg = context.getTypeTable().resolve(nestedType.getName());
+                    if (nestedAgg != null) {
+                        checkStructLiteral(nested, nestedType, nestedAgg, f.getLine(), f.getColumn());
+                    }
+                }
+                continue;
+            }
+            if (value instanceof ExpressionInitializer ei) {
+                Type actual = ei.getExpression().accept(visitor);
+                Type fieldType = declared == null ? null : declared.getType();
+                if (fieldType != null && !fieldType.isArray() && !fieldType.isAggregate()
+                        && !TypeCompat.canAssign(fieldType, actual)) {
+                    rules.error(f.getLine(), f.getColumn(), "No se puede inicializar el campo '" + declared.getName()
+                            + "' (" + fieldType + ") con " + actual);
+                }
+            }
+        }
+    }
+
     private Type structLiteralType(StructInitializer si) {
-        // Sin tipo explícito no podemos resolver el struct; se valida por campos contra el tipo esperado.
+        // sin tipo explicito no se resuelve el struct; se valida contra el tipo esperado
         for (StructFieldInitializer f : si.getFields()) {
             if (f.getValue() instanceof ExpressionInitializer ei) ei.getExpression().accept(visitor);
         }

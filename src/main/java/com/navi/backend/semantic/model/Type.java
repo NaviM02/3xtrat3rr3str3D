@@ -5,18 +5,9 @@ import lombok.Getter;
 
 import java.util.Objects;
 
-/**
- * Tipo canónico (independiente del lenguaje). Los tres lenguajes (Lat/Y/Z)
- * mapean sus palabras reservadas de tipos a estas mismas instancias, de modo
- * que el generador de C3D solo maneja un sistema de tipos.
- *
- * <ul>
- *   <li>{@code INT/DOUBLE/CHAR/STRING/BOOLEAN/VOID} son singletons compartidos.</li>
- *   <li>{@code ARRAY} lleva {@link #elementType} (tipo base) y {@link #dimensions} (rank).</li>
- *   <li>{@code STRUCT}/{@code CLASS} llevan el {@link #name} canónico del agregado.</li>
- *   <li>{@code ERROR} se usa para continuar el chequeo ante un tipo no resuelto.</li>
- * </ul>
- */
+// tipo canonico, igual para Lat/Y/Z: C3D solo maneja un sistema de tipos
+// INT/DOUBLE/CHAR/STRING/BOOLEAN/VOID son singletons; ARRAY lleva elementType y dimensions
+// STRUCT/CLASS llevan name; ERROR sirve para seguir chequeando tras un tipo no resuelto
 @Getter
 public final class Type {
 
@@ -30,9 +21,9 @@ public final class Type {
     public static final Type STRING = new Type(TypeKind.STRING, null, null, 0);
 
     private final TypeKind kind;
-    private final String name;       // nombre canónico de struct/class; null en el resto
-    private final Type elementType;  // tipo base de un arreglo; null en el resto
-    private final int dimensions;    // rank de un arreglo; 0 en el resto
+    private final String name;       // nombre de struct/class, null en el resto
+    private final Type elementType;  // tipo base de un arreglo, null en el resto
+    private final int dimensions;    // rank de un arreglo, 0 en el resto
 
     private Type(TypeKind kind, String name, Type elementType, int dimensions) {
         this.kind = kind;
@@ -97,13 +88,13 @@ public final class Type {
         return kind == TypeKind.CLASS;
     }
 
-    /** Primitivos simples (sin void/error/arreglo/agregado). */
+    // primitivos simples (sin void/error/arreglo/agregado)
     public boolean isPrimitive() {
         return kind == TypeKind.BOOLEAN || kind == TypeKind.INT || kind == TypeKind.DOUBLE
                 || kind == TypeKind.CHAR || kind == TypeKind.STRING;
     }
 
-    /** Struct o class: tipo con layout (campos/miembros). */
+    // struct o class: tipo con layout (campos/miembros)
     public boolean isAggregate() {
         return kind == TypeKind.STRUCT || kind == TypeKind.CLASS;
     }
@@ -119,7 +110,7 @@ public final class Type {
         if (kind == TypeKind.STRUCT || kind == TypeKind.CLASS) {
             return Objects.equals(name, other.name);
         }
-        return true; // primitivos y void/error se distinguen solo por kind
+        return true; // primitivos y void/error se distinguen por kind
     }
 
     @Override

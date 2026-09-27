@@ -12,50 +12,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Emisor de C3D alineado con los apuntes de clase. Acumula cuartetas y asigna
- * temporales ({@code t0, t1, ...}) y etiquetas ({@code L0, L1, ...}).
- *
- * <h2>Stack</h2>
- * Cada función/método/constructor abre un marco con {@code enter} y lo cierra
- * con {@code leave} (emitido junto a cada {@code return}). Los parámetros y
- * locales viven en el stack y se acceden con el Base Pointer:
- * <pre>
- *   t = BP + offset      # offset secuencial 0-based (params y luego locales)
- *   t2 = stack[t]        # lectura
- *   stack[t] = v         # escritura
- * </pre>
- * Las variables globales usan un área global direccionada por {@code GP}:
- * {@code t = GP + offset; t2 = stack[t]}.
- *
- * <h2>Heap</h2>
- * El heap se modela con el puntero {@code HP}: {@code new} reserva celdas
- * ({@code t = HP; HP = HP + size}) y los miembros/elementos se leen y escriben
- * con {@code t = base + off; ... heap[t]}.
- *
- * <h2>Booleanos y control</h2>
- * Las comparaciones/lógicos se materializan a 0/1 con saltos y las bifurcaciones
- * usan {@code if a op b goto L} (nunca un "if_not").
- *
- * <h2>Código inalcanzable</h2>
- * Tras {@code return}/{@code goto}/{@code halt} se descartan las cuartetas
- * siguientes hasta la próxima etiqueta alcanzable.
- *
- * <h2>Estilo de saltos</h2>
- * No se confía en la caída (fall-through): {@link #render()} garantiza que cada
- * bloque de etiqueta termine en {@code goto}/{@code return}/{@code halt} (insertando
- * el {@code goto} si hace falta) y colapsa las etiquetas vacías consecutivas,
- * reubicando sus saltos en la etiqueta siguiente.
- */
+// emisor de cuartetas: crea temporales t0.. y etiquetas L0..
+// stack: cada funcion abre marco con enter y lo cierra con leave (junto al return)
+// params y locales en stack[BP + off], offsets 0-based; globales en stack[GP + off]
+// heap: HP reserva celdas (t = HP; HP = HP + size) y se accede con heap[base + off]
+// comparaciones/logicos se materializan a 0/1 con saltos; ramas: if a op b goto L
+// tras return/goto/halt se descartan cuartetas hasta la proxima etiqueta alcanzable
+// render() asegura goto explicito al final de cada bloque y colapsa etiquetas vacias
 public class C3DEmitter {
 
-    /** Marco de activación: nombres de parámetros/locales a su offset. */
+    // marco de activacion: nombres de params/locales a su offset
     private static final class Frame {
         final Map<String, Integer> slots = new LinkedHashMap<>();
-        final Set<String> references = new HashSet<>(); // params por referencia (arreglos/structs de Y)
-        final Map<String, List<Integer>> arrayDims = new LinkedHashMap<>(); // tamaños de arreglos locales/globales
-        int next = 0; // siguiente offset libre (0-based, params y luego locales)
-        String label;    // etiqueta del marco (para parchear enter con el tamaño)
+        final Set<String> references = new HashSet<>(); // parametros por referencia (Y)
+        final Map<String, List<Integer>> arrayDims = new LinkedHashMap<>(); // tamanos de arreglos locales/globales
+        int next = 0; // siguiente offset libre (0-based)
+        String label;    // etiqueta del marco (para parchear el enter)
         int enterIndex = -1;
     }
 
@@ -76,9 +48,9 @@ public class C3DEmitter {
         return "L" + labelCount++;
     }
 
-    // ---- marcos de ejecución ----
+    // ---- marcos ----
 
-    /** Abre un marco de activación y emite {@code enter} (el tamaño se fija al cerrar). */
+    // abre el marco y emite enter (el tamano se fija al cerrar)
     public void enterFrame(String label) {
         Frame f = new Frame();
         f.label = label;
@@ -89,7 +61,7 @@ public class C3DEmitter {
         }
     }
 
-    /** Cierra el marco actual (el {@code leave} se emite junto al return) y fija el tamaño del {@code enter}. */
+    // cierra el marco y fija el tamano del enter (el leave va junto al return)
     public void exitFrame() {
         if (!frames.isEmpty()) {
             Frame f = frames.pop();
@@ -99,12 +71,12 @@ public class C3DEmitter {
         }
     }
 
-    /** Declara un parámetro en el marco actual y devuelve su Pos_memory. */
+    // declara un parametro y devuelve su Pos_memory
     public int declareParam(String name) {
         return declareParam(name, false);
     }
 
-    /** Declara un parámetro; {@code reference} indica que el slot guarda una dirección (Y). */
+    // declara un parametro; reference = el slot guarda una direccion (Y)
     public int declareParam(String name, boolean reference) {
         Frame f = frames.peek();
         int offset = f.next++;
@@ -113,12 +85,12 @@ public class C3DEmitter {
         return offset;
     }
 
-    /** True si el parámetro del marco actual se pasa por referencia. */
+    // true si el parametro se pasa por referencia
     public boolean isReference(String name) {
         return !frames.isEmpty() && frames.peek().references.contains(name);
     }
 
-    /** Declara un local en el marco actual y devuelve su Pos_memory. */
+    // declara un local y devuelve su Pos_memory
     public int declareLocal(String name) {
         Frame f = frames.peek();
         int offset = f.next++;
@@ -126,10 +98,7 @@ public class C3DEmitter {
         return offset;
     }
 
-    /**
-     * Declara un arreglo local reservando {@code cells} celdas contiguas y guarda
-     * sus dimensiones para poder aplanar accesos {@code a[i][j]}.
-     */
+    // declara un arreglo local reservando celdas contiguas y guarda sus dimensiones
     public int declareLocalArray(String name, int cells, List<Integer> dims) {
         Frame f = frames.peek();
         int offset = f.next++;
@@ -139,14 +108,14 @@ public class C3DEmitter {
         return offset;
     }
 
-    /** Declara una variable global y devuelve su Pos_memory. */
+    // declara una global y devuelve su Pos_memory
     public int declareGlobal(String name) {
         int offset = globalFrame.next++;
         globalFrame.slots.put(name, offset);
         return offset;
     }
 
-    /** Declara un arreglo global reservando {@code cells} celdas contiguas. */
+    // declara un arreglo global reservando celdas contiguas
     public int declareGlobalArray(String name, int cells, List<Integer> dims) {
         int offset = globalFrame.next++;
         globalFrame.slots.put(name, offset);
@@ -155,17 +124,17 @@ public class C3DEmitter {
         return offset;
     }
 
-    /** Reserva {@code count} celdas adicionales en el marco actual (arreglos/structs en stack). */
+    // reserva celdas extra en el marco (arreglos/structs en stack)
     public void reserve(int count) {
         if (count > 0 && !frames.isEmpty()) frames.peek().next += count;
     }
 
-    /** Reserva {@code count} celdas adicionales en el área global (arreglos/structs globales). */
+    // reserva celdas extra en el area global
     public void reserveGlobal(int count) {
         if (count > 0) globalFrame.next += count;
     }
 
-    /** Dimensiones conocidas de un arreglo (local o global) para aplanar índices. */
+    // dimensiones conocidas de un arreglo para aplanar indices
     public List<Integer> arrayDims(String name) {
         if (!frames.isEmpty()) {
             List<Integer> local = frames.peek().arrayDims.get(name);
@@ -174,7 +143,7 @@ public class C3DEmitter {
         return globalFrame.arrayDims.get(name);
     }
 
-    /** Celdas totales del área global (asignadas antes de abrir cualquier marco). */
+    // celdas totales del area global
     public int globalSize() {
         return globalFrame.next;
     }
@@ -189,16 +158,13 @@ public class C3DEmitter {
 
     // ---- stack ----
 
-    /** Dirección de stack: {@code t = base + offset}. */
+    // direccion de stack: t = base + offset
     public String stackAddr(String base, int offset) {
         return binary("+", base, String.valueOf(offset));
     }
 
-    /**
-     * Dirección de un elemento de arreglo con índice aplanado en row-major:
-     * {@code base + ((i0*d1 + i1)*d2 + i2)...}. Si no se conocen las dimensiones
-     * (p. ej. un parámetro arreglo de Y) se usa solo el primer índice.
-     */
+    // direccion de un elemento de arreglo con indices aplanados (row-major)
+    // si no se conocen dimensiones (param arreglo de Y) se usa solo el primer indice
     public String addressOffset(String base, List<Integer> dims, List<String> indices) {
         if (indices == null || indices.isEmpty()) return base;
         if (dims == null || dims.size() != indices.size()) {
@@ -233,7 +199,7 @@ public class C3DEmitter {
         emit(new Quad("stack_store", value, addr));
     }
 
-    /** Lee una variable (local/param en {@code BP} o global en {@code GP}). */
+    // lee una variable (local en BP o global en GP)
     public String loadVar(String name) {
         Integer local = localOffset(name);
         if (local != null) return stackLoad("BP", local);
@@ -242,7 +208,7 @@ public class C3DEmitter {
         return name;
     }
 
-    /** Escribe una variable (local/param en {@code BP} o global en {@code GP}). */
+    // escribe una variable (local en BP o global en GP)
     public void storeVar(String name, String value) {
         Integer local = localOffset(name);
         if (local != null) {
@@ -257,7 +223,7 @@ public class C3DEmitter {
         assign(name, value);
     }
 
-    /** Dirección de la variable (para structs por valor): {@code t = base + offset}. */
+    // direccion de la variable (para structs por valor)
     public String varAddr(String name) {
         Integer local = localOffset(name);
         if (local != null) return stackAddr("BP", local);
@@ -268,7 +234,7 @@ public class C3DEmitter {
 
     // ---- heap ----
 
-    /** Reserva {@code size} celdas: {@code t = HP; HP = HP + size}. Devuelve la dirección base. */
+    // reserva size celdas: t = HP; HP = HP + size. devuelve la direccion base
     public String heapAlloc(String size) {
         String t = newTemp();
         emit(new Quad("=", t, "HP"));
@@ -276,7 +242,7 @@ public class C3DEmitter {
         return t;
     }
 
-    /** Dirección de heap: {@code t = base + offset}. */
+    // direccion de heap: t = base + offset
     public String heapAddr(String base, String offset) {
         return binary("+", base, offset);
     }
@@ -303,7 +269,7 @@ public class C3DEmitter {
         emit(new Quad("heap_store", value, addr));
     }
 
-    // ---- expresiones (producen un lugar) ----
+    // ---- expresiones (devuelven un lugar) ----
 
     public String literal(String formatted) {
         String t = newTemp();
@@ -332,16 +298,8 @@ public class C3DEmitter {
         return t;
     }
 
-    /**
-     * Materializa una comparación a un temporal 0/1 usando saltos (estilo apuntes):
-     * <pre>
- *   if l op r goto Ltrue
- *   goto Lfalse
- *   Ltrue: t = 1; goto Lend
- *   Lfalse: t = 0; goto Lend
- *   Lend:
- * </pre>
-     */
+    // materializa una comparacion a un temporal 0/1 con saltos
+    // if l op r goto Ltrue; goto Lfalse; Ltrue: t=1; goto Lend; Lfalse: t=0; Lend:
     public String materializeComparison(String l, String op, String r) {
         String t = newTemp();
         String lTrue = newLabel();
@@ -358,7 +316,7 @@ public class C3DEmitter {
         return t;
     }
 
-    // ---- statements (emiten sin producir lugar) ----
+    // ---- statements (no devuelven lugar) ----
 
     public void assign(String target, String value) {
         emit(new Quad("=", target, value));
@@ -375,13 +333,13 @@ public class C3DEmitter {
         emit(new Quad("label", null, name));
     }
 
-    /** Etiqueta de entrada (función/método/main): alcanzable aunque ningún salto la referencie. */
+    // etiqueta de entrada; alcanzable aunque ningun salto la referencie
     public void entryLabel(String name) {
         targetedLabels.add(name);
         label(name);
     }
 
-    /** Salto condicional {@code if left op right goto label}. */
+    // salto condicional: if left op right goto label
     public void ifGoto(String left, String op, String right, String label) {
         emit(new Quad("if", null, left, op, right, label));
     }
@@ -418,7 +376,7 @@ public class C3DEmitter {
         emit(new Quad("halt", null));
     }
 
-    /** Vuelve a habilitar la emisión tras un corte de flujo (nueva sección alcanzable). */
+    // rehabilita la emision tras un corte de flujo
     public void resume() {
         unreachable = false;
     }
@@ -449,11 +407,7 @@ public class C3DEmitter {
         if (!frames.isEmpty()) emit(new Quad("leave", null));
     }
 
-    /**
-     * Renderiza el C3D final aplicando primero el estilo de saltos de la clase:
-     * colapsa etiquetas vacías y asegura que ningún bloque caiga en la etiqueta
-     * siguiente sin un {@code goto} explícito.
-     */
+    // renderiza el C3D final: colapsa etiquetas vacias y asegura goto explicito
     public String render() {
         StringBuilder sb = new StringBuilder();
         for (Quad q : finalQuads()) {
@@ -462,18 +416,13 @@ public class C3DEmitter {
         return sb.toString();
     }
 
-    /** Cuartetas finales (etiquetas colapsadas y saltos explícitos) para render/consumo. */
+    // cuartetas finales (etiquetas colapsadas, saltos explicitos)
     public List<Quad> finalQuads() {
         return insertExplicitJumps(collapseEmptyLabels(quads));
     }
 
-    /**
-     * Colapsa etiquetas vacías: una {@code label} inmediatamente seguida de otra
-     * no aporta bloque propio, así que los saltos que apuntaban a ella se reubican
-     * en la etiqueta siguiente (resolviendo cadenas) y la cuarteta se descarta.
-     * Solo se usan como clave nombres generados ({@code L<n>}); nunca nombres de
-     * función.
-     */
+    // colapsa etiquetas vacias: si una label sigue a otra, los saltos se reubican
+    // en la siguiente y la cuarteta se descarta (solo labels generadas L<n>)
     private static List<Quad> collapseEmptyLabels(List<Quad> source) {
         Map<String, String> alias = new LinkedHashMap<>();
         for (int i = 0; i + 1 < source.size(); i++) {
@@ -508,20 +457,15 @@ public class C3DEmitter {
         return out;
     }
 
-    /** Sigue la cadena de alias (los alias siempre apuntan hacia adelante: no hay ciclos). */
+    // sigue la cadena de alias (siempre hacia adelante, sin ciclos)
     private static String resolveAlias(Map<String, String> alias, String name) {
         String current = name;
         while (alias.containsKey(current)) current = alias.get(current);
         return current;
     }
 
-    /**
-     * Invierte la confianza en el fall-through: antes de cada etiqueta, si el
-     * cuarteto anterior no cierra el bloque ({@code goto}/{@code return}/{@code halt}),
-     * inserta un {@code goto} hacia esa misma etiqueta. El salto apunta a la
-     * etiqueta que viene inmediatamente después, así que el comportamiento es
-     * idéntico a caer en ella.
-     */
+    // no confia en el fall-through: si el bloque anterior no cierra con
+    // goto/return/halt, inserta un goto a la etiqueta siguiente
     private static List<Quad> insertExplicitJumps(List<Quad> source) {
         List<Quad> out = new ArrayList<>(source.size());
         for (int i = 0; i < source.size(); i++) {
@@ -537,9 +481,9 @@ public class C3DEmitter {
         return out;
     }
 
-    // ---- helpers estáticos de nombres ----
+    // helpers de nombres
 
-    /** Formatea un literal de Y/Z a texto C3D. Los string/char de Z ya vienen entrecomillados. */
+    // formatea un literal de Y/Z a texto C3D (los string/char de Z ya vienen entre comillas)
     public static String formatLiteral(Object value) {
         if (value instanceof String s) {
             boolean quoted = s.length() >= 2
@@ -551,7 +495,7 @@ public class C3DEmitter {
         return String.valueOf(value);
     }
 
-    /** Nombre C3D de un tipo semántico (para desambiguar sobrecarga). */
+    // nombre C3D de un tipo (para desambiguar sobrecarga)
     public static String typeName(Type t) {
         if (t == null) return "void";
         TypeKind kind = t.getKind();

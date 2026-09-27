@@ -154,9 +154,10 @@ public class DeclarationVisitor extends StatementVisitor {
 
     @Override
     public AstLatNode visitStructFieldInitializer(PigLatinParser.StructFieldInitializerContext ctx) {
+        String name = ctx.ID() != null ? ctx.ID().getText() : null;
         return new StructFieldInitializer(
             ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
-            ctx.ID().getText(),
+            name,
             (Initializer) visit(ctx.initializer())
         );
     }

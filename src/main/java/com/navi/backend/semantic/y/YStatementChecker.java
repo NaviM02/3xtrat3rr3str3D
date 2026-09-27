@@ -44,11 +44,8 @@ import com.navi.backend.semantic.rules.TypeRules;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Chequeo de sentencias de Y: ámbitos, símbolos y control de flujo.
- * Mantiene el estado de la función actual ({@code currentReturnType});
- * el recorrido de los hijos lo hace el visitante (dispatcher) que la instancia.
- */
+// chequea sentencias de Y: ambitos, simbolos y control de flujo; guarda el
+// tipo de retorno actual y deja que el visitor recorra los hijos
 public class YStatementChecker {
 
     private final SemanticContext context;
@@ -128,7 +125,7 @@ public class YStatementChecker {
         return null;
     }
 
-    /** Tamaños constantes de una declaración Y, o lista vacía si algún tamaño no es literal. */
+    // tamaños constantes de una declaracion Y; vacio si alguno no es literal
     private static List<Integer> constantSizes(List<Expression> dims) {
         if (dims == null || dims.isEmpty()) return List.of();
 
@@ -142,11 +139,8 @@ public class YStatementChecker {
         return sizes;
     }
 
-    /**
-     * Estructura declarada localmente (dentro de una función): se registra en el
-     * {@link com.navi.backend.semantic.model.TypeTable} plano para que el resto del
-     * cuerpo pueda usarla por nombre simple.
-     */
+    // struct declarado dentro de una funcion: se registra en la TypeTable plana
+    // para poder usarlo por nombre simple en el resto del cuerpo
     Type structureDeclaration(StructureDeclaration node) {
         AggregateType agg = new AggregateType(node.getName(), false,
                 context.getSymbolTable().getCurrentScope());
@@ -306,10 +300,8 @@ public class YStatementChecker {
         }
     }
 
-    /**
-     * Valida un inicializador de arreglo descendiendo en los literales anidados:
-     * cada nivel consume una dimensión ({@code int[][]} -> {@code int[]} -> {@code int}).
-     */
+    // valida un inicializador de arreglo bajando por los literales anidados;
+    // cada nivel consume una dimension (int[][] -> int[] -> int)
     private void checkArrayInitializer(ArrayInitializer ai, Type expected, int line, int col) {
         Type element = rules.arrayElementType(expected);
         for (var el : ai.getElements()) {

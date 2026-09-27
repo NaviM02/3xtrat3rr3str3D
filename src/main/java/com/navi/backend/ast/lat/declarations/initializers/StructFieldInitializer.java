@@ -24,7 +24,7 @@ public class StructFieldInitializer extends AstLatNode {
 
     @Override
     public String getNodeLabel() {
-        return "StructFieldInitializer: " + name;
+        return "StructFieldInitializer: " + (name == null ? "(posicional)" : name);
     }
 
     @Override

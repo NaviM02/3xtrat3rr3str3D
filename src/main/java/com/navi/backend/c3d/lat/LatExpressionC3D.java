@@ -25,11 +25,8 @@ import com.navi.backend.semantic.model.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Emisión C3D de expresiones de Lat: aritmética, booleanos materializados con
- * saltos, llamadas y acceso a miembros. El recorrido de los hijos lo hace el
- * dispatcher ({@link LatC3DVisitor}).
- */
+// emision C3D de expresiones de Lat: aritmetica, booleanos con saltos,
+// llamadas y acceso a miembros
 class LatExpressionC3D {
 
     private final SemanticContext context;
@@ -154,11 +151,8 @@ class LatExpressionC3D {
         return emitter.literal("0");
     }
 
-    /**
-     * Evalúa los argumentos. Si el callee es una función de Y (parámetros por
-     * referencia), los argumentos arreglo/struct se pasan como dirección; para el
-     * resto (primitivos, funciones de Lat, objetos de Z) se pasa el valor.
-     */
+    // evalua argumentos: si la funcion es de Y (param por referencia) los
+    // arreglos/structs se pasan por direccion; el resto por valor
     private List<String> evalArgs(List<Expression> args, List<Type> params, boolean byRef) {
         List<String> places = new ArrayList<>();
         if (args == null) return places;

@@ -22,11 +22,8 @@ import com.navi.backend.semantic.rules.TypeRules;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Chequeo de expresiones de Y: resuelve el tipo de cada expresión, lo anota en
- * {@link SemanticContext} para el C3D y reporta errores vía {@link TypeRules}.
- * El recorrido de los hijos lo hace el visitante (dispatcher) que la instancia.
- */
+// chequea expresiones de Y, anota su tipo y reporta errores; los hijos los
+// recorre el visitor
 public class YExpressionChecker {
 
     private final SemanticContext context;
@@ -85,7 +82,7 @@ public class YExpressionChecker {
         return result;
     }
 
-    /** Valida en compilación el índice si es constante y se conocen los tamaños del arreglo. */
+    // valida el indice si es constante y se conocen los tamaños del arreglo
     private void checkArrayBounds(ArrayAccessExpression node) {
         List<Integer> sizes = sizesOf(node.getArray());
 
@@ -98,7 +95,7 @@ public class YExpressionChecker {
         rules.checkIndex(sizes.get(0), index, node.getLine(), node.getColumn());
     }
 
-    /** Tamaños conocidos del arreglo (variable o miembro de struct); null si se desconocen. */
+    // tamaños conocidos del arreglo (variable o miembro); null si no se saben
     private List<Integer> sizesOf(Expression array) {
         if (array instanceof VariableExpression v) {
             Symbol s = context.getSymbolTable().resolve(v.getName());
@@ -169,8 +166,10 @@ public class YExpressionChecker {
     }
 
     Type read(ReadExpression node) {
-        context.annotate(node, Type.STRING);
-        return Type.STRING;
+        // `leer()` es de entrada; se tipa como entero para que ensanche a
+        // decimales (int -> double) y también sirva en contextos enteros.
+        context.annotate(node, Type.INT);
+        return Type.INT;
     }
 
     Type literal(LiteralExpression node) {

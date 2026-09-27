@@ -3,16 +3,13 @@ package com.navi.backend.semantic.loading;
 import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;
 
-/**
- * Carga y parsea los módulos importados. La implementación real (mapeo de path a
- * archivo + lexer/parser correspondiente) depende de la infraestructura de
- * archivos de la app; se deja como interfaz para desacoplarla del orquestador.
- */
+// carga y parsea los modulos importados
+// la implementacion real depende de la infra de archivos, por eso es interfaz
 public interface ModuleLoader {
 
-    /** Carga un archivo .y y devuelve su AST (ProgramY). */
+    // carga un .y y devuelve su AST
     ProgramY loadY(String importPath);
 
-    /** Carga un archivo .z y devuelve su AST (ProgramZ). */
+    // carga un .z y devuelve su AST
     ProgramZ loadZ(String importPath);
 }

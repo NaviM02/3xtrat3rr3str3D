@@ -87,11 +87,7 @@ public class CompilerService {
         return new GeneratedC(cFile.toAbsolutePath(), executable.toAbsolutePath());
     }
 
-    /**
-     * Carpeta {@code output/} junto al archivo fuente (no en el directorio desde
-     * donde se ejecuta el programa). Si por alguna razón no tuviera carpeta padre,
-     * se usa {@code output/} relativo.
-     */
+    // carpeta output/ junto al fuente; si no tiene padre, output/ relativo
     private Path outputDirectoryFor(Path sourceFile) {
         Path parent = sourceFile.getParent();
 

@@ -51,10 +51,7 @@ import com.navi.backend.semantic.model.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pasada de declaraciones de Lat. Registra variables globales y signatures de
- * funciones en el scope global. Los imports ya fueron procesados por el orquestador.
- */
+// pasada de declaraciones de Lat: variables globales y firmas de funciones
 public class LatDeclarationVisitor implements AstLatVisitor<Void> {
 
     private final SemanticContext context;

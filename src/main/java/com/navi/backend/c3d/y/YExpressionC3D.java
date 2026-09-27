@@ -21,11 +21,8 @@ import com.navi.backend.semantic.model.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Emisión C3D de expresiones de Y: aritmética, booleanos materializados con
- * saltos, llamadas (con paso por referencia de arreglos/structs) y acceso a
- * miembros. El recorrido de los hijos lo hace el dispatcher ({@link YC3DVisitor}).
- */
+// emision C3D de expresiones de Y: aritmetica, booleanos con saltos,
+// llamadas (arreglos/structs por referencia) y acceso a miembros
 class YExpressionC3D {
 
     private final SemanticContext context;
@@ -110,7 +107,7 @@ class YExpressionC3D {
 
     // ---------------------------------------------------------------- argumentos
 
-    /** Evalúa argumentos enviando la dirección cuando el parámetro de Y es arreglo/struct. */
+    // evalua argumentos: param de Y arreglo/struct se envia por direccion
     private List<String> evalArgs(List<Expression> args, List<Type> params, boolean byRef) {
         List<String> places = new ArrayList<>();
         if (args == null) return places;

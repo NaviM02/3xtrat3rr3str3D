@@ -43,16 +43,9 @@ import com.navi.backend.ast.y.visitors.AstYVisitor;
 import com.navi.backend.c3d.C3DEmitter;
 import com.navi.backend.semantic.SemanticContext;
 
-/**
- * Genera C3D para Y siguiendo los apuntes de clase: variables y structs en el
- * stack ({@code stack[BP + off]}), booleanos materializados con saltos y
- * bifurcaciones con {@code if a op b goto L}. Los arreglos/structs por
- * referencia guardan una dirección en su slot.
- *
- * <p>Dispatcher delgado: la lógica vive en {@link YDeclarationC3D},
- * {@link YStatementC3D} y {@link YExpressionC3D}; {@link YResolverC3D}
- * centraliza direcciones, layout y asignación.</p>
- */
+// genera C3D para Y: variables y structs en stack[BP + off]
+// los arreglos/structs por referencia guardan una direccion en su slot
+// dispatcher delgado: la logica esta en YDeclaration/Statement/ExpressionC3D
 public class YC3DVisitor implements AstYVisitor<String> {
 
     private final YResolverC3D resolver;

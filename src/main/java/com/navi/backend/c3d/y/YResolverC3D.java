@@ -18,10 +18,8 @@ import com.navi.backend.semantic.model.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Direcciones, layout y asignación de Y para C3D. Los arreglos/structs por
- * referencia guardan una dirección en su slot; el resto vive en el stack.
- */
+// direcciones, layout y asignacion de Y para C3D; los arreglos/structs
+// por referencia guardan una direccion en su slot, el resto vive en el stack
 class YResolverC3D {
 
     private final SemanticContext context;
@@ -45,7 +43,7 @@ class YResolverC3D {
         }
     }
 
-    /** Dirección del elemento de un arreglo, aplanando índices multidimensionales. */
+    // direccion del elemento de un arreglo, aplanando indices
     String arrayElementAddr(ArrayAccessExpression node) {
         List<String> indices = new ArrayList<>();
         Expression current = node;
@@ -56,7 +54,7 @@ class YResolverC3D {
         return emitter.addressOffset(arrayBase(current), arrayDimsOf(current), indices);
     }
 
-    /** Dirección base de un arreglo: los locales son por valor; los params por referencia guardan la dirección. */
+    // base de un arreglo: local por valor, param por referencia guarda la direccion
     private String arrayBase(Expression array) {
         if (array instanceof VariableExpression v) {
             return emitter.isReference(v.getName()) ? emitter.loadVar(v.getName()) : emitter.varAddr(v.getName());
@@ -80,7 +78,7 @@ class YResolverC3D {
         return null;
     }
 
-    /** Dirección de un struct en el stack (encadenando offsets para miembros anidados). */
+    // direccion de un struct en el stack (encadena offsets de miembros anidados)
     String structAddr(Expression obj) {
         if (obj instanceof VariableExpression v) {
             return emitter.isReference(v.getName()) ? emitter.loadVar(v.getName()) : emitter.varAddr(v.getName());
@@ -110,7 +108,7 @@ class YResolverC3D {
         if (s != null) s.setPosMemory(offset);
     }
 
-    /** Celdas de un arreglo de tamaño constante (1 si el tamaño es dinámico/desconocido). */
+    // celdas de un arreglo de tamano constante (1 si es dinamico/desconocido)
     int arrayCells(List<Expression> dims) {
         if (dims == null || dims.isEmpty()) return 1;
         int total = 1;
@@ -121,7 +119,7 @@ class YResolverC3D {
         return total;
     }
 
-    /** Dimensiones constantes de un arreglo, o {@code null} si no se pueden calcular. */
+    // dimensiones constantes de un arreglo, o null si no se pueden calcular
     List<Integer> constantDims(List<Expression> dims) {
         if (dims == null || dims.isEmpty()) return null;
         List<Integer> out = new ArrayList<>();
@@ -132,7 +130,7 @@ class YResolverC3D {
         return out;
     }
 
-    /** Aplana y almacena un inicializador de arreglo (soporta anidados). */
+    // aplana y almacena un inicializador de arreglo (soporta anidados)
     int storeArrayInitializer(String base, List<AstYNode> elements, int start) {
         if (elements == null) return start;
         int i = start;

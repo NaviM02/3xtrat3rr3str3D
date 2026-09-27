@@ -1,9 +1,6 @@
 package com.navi.backend.highlight;
 
-/**
- * Categoría léxica de un fragmento de código, independiente del lenguaje.
- * La UI decide el color de cada categoría.
- */
+// categoria lexica, independiente del lenguaje; la UI le pone el color
 public enum HighlightKind {
     KEYWORD,
     TYPE,

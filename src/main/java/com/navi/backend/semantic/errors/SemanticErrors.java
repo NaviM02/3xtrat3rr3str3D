@@ -3,11 +3,8 @@ package com.navi.backend.semantic.errors;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Recolector de errores semánticos. Es parte del {@link SemanticContext} (no
- * estado estático), así cada corrida tiene su lista propia y se acumulan todos
- * los errores antes de abortar.
- */
+// junta los errores semanticos de una corrida
+// va dentro del SemanticContext, no es estatico
 public class SemanticErrors {
     private final List<String> errors = new ArrayList<>();
 

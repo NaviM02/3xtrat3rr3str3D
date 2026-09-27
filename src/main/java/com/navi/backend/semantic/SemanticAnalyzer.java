@@ -13,20 +13,8 @@ import com.navi.backend.semantic.y.YSemanticVisitor;
 import com.navi.backend.semantic.z.ZDeclarationVisitor;
 import com.navi.backend.semantic.z.ZSemanticVisitor;
 
-/**
- * Orquestador de la semántica. Entrada: el {@link Program} de Lat (único que
- * importa). Estrategia simple (imports son {@code import *}, profundidad máxima 2):
- *
- * <pre>
- *   1) imports primero, en orden, eager y self-contenidos (Y/Z no importan):
- *        parsear -> pasada de declaraciones -> pasada semántica
- *   2) declarar globales de Lat (signatures, para recursión/llamadas a imports)
- *   3) checar/annotar cuerpos de Lat
- * </pre>
- *
- * Y y Z no tienen imports, por lo que no hay dependencias transitivas ni ciclos
- * reales; {@code loadedModules} es solo una guarda de re-carga.
- */
+// orquesta la semantica, entra el Program de Lat
+// 1) imports primero, 2) declarar globales, 3) checar cuerpos
 public class SemanticAnalyzer {
 
     private final SemanticContext context;
@@ -48,13 +36,13 @@ public class SemanticAnalyzer {
         new LatSemanticVisitor(context).build(program);
     }
 
-    /** Análisis standalone de un módulo Y (para pruebas). */
+    // analisis suelto de un modulo Y (para probar)
     public void analyze(ProgramY program) {
         new YDeclarationVisitor(context).build(program);
         new YSemanticVisitor(context).build(program);
     }
 
-    /** Análisis standalone de un módulo Z (para pruebas). */
+    // analisis suelto de un modulo Z (para probar)
     public void analyze(ProgramZ program) {
         new ZDeclarationVisitor(context).build(program);
         new ZSemanticVisitor(context).build(program);

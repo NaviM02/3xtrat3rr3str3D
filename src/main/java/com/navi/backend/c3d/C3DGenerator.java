@@ -10,10 +10,8 @@ import com.navi.backend.semantic.SemanticContext;
 
 import java.util.List;
 
-/**
- * Orquestador de la generación de C3D. Recorre los AST (empezando por los módulos
- * importados, en orden) y emite cuartetas vía un {@link C3DEmitter} compartido.
- */
+// orquestador de C3D: recorre los AST (primero los modulos importados)
+// y emite cuartetas con un emitter compartido
 public class C3DGenerator {
 
     private final SemanticContext context;
@@ -23,7 +21,7 @@ public class C3DGenerator {
         this.context = context;
     }
 
-    /** Entrada Lat: emite primero los módulos importados y luego Lat (funciones + main). */
+    // entrada Lat: primero los modulos importados y luego Lat (funciones + main)
     public String generate(Program lat) {
         for (Object ast : context.getLoadedAsts().values()) {
             if (ast instanceof ProgramY y) new YC3DVisitor(context, emitter).generate(y);
@@ -43,12 +41,12 @@ public class C3DGenerator {
         return emitter.render();
     }
 
-    /** Cuartetas finales (etiquetas colapsadas, saltos explícitos) para traducir a C. */
+    // cuartetas finales (listas para traducir a C)
     public List<Quad> quads() {
         return emitter.finalQuads();
     }
 
-    /** Celdas reservadas en el área global (para fijar el inicio del stack en C). */
+    // celdas del area global (fijan el inicio del stack en C)
     public int globalSize() {
         return emitter.globalSize();
     }

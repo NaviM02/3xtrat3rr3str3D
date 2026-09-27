@@ -7,11 +7,8 @@ import com.navi.backend.semantic.model.Type;
 
 import java.util.Locale;
 
-/**
- * Resuelve los tipos de Y: keywords primitivas ({@code entero}, {@code cadena}, ...)
- * y nombres de struct contra la {@link com.navi.backend.semantic.model.TypeTable}.
- * Compartido por la pasada de declaraciones y la semántica.
- */
+// resuelve tipos de Y: primitivas (entero, cadena, ...) y nombres de struct
+// contra la TypeTable; lo comparten declaraciones y semantica
 public final class YTypeResolver {
 
     private final SemanticContext context;

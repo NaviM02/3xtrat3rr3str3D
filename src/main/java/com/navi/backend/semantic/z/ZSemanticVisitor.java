@@ -52,13 +52,8 @@ import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Type;
 import com.navi.backend.semantic.rules.TypeRules;
 
-/**
- * Pasada semántica de Z. Valida tipos y anota expresiones con su {@link Type}.
- * Dispatcher delgado: la lógica vive en {@link ZStatementChecker} (sentencias
- * y miembros) y {@link ZExpressionChecker} (expresiones, incluye la clase actual
- * para resolver miembros sin calificar); este visitante conserva el programa,
- * la clase actual y el no-op de los nodos pasivos.
- */
+// pasada semantica de Z: valida tipos y anota expresiones; delega sentencias y
+// miembros en los checkers y mantiene la clase actual y los nodos pasivos
 public class ZSemanticVisitor implements AstZVisitor<Type> {
 
     private final SemanticContext context;

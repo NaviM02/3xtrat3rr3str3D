@@ -5,10 +5,7 @@ import lombok.Getter;
 
 import java.util.List;
 
-/**
- * Tabla de símbolos: un árbol de {@link Scope} con un {@code currentScope}
- * mutable que los visitors empujan/popean con {@link #enterScope}/{@link #exitScope}.
- */
+// tabla de simbolos: arbol de Scope con currentScope que se entra/sale con enter/exitScope
 @Getter
 public class SymbolTable {
     private final Scope globalScope;
@@ -27,7 +24,7 @@ public class SymbolTable {
         return currentScope.defineUnique(symbol);
     }
 
-    /** Define un callable validando que no exista un duplicado con la misma firma. */
+    // define un callable validando que no haya duplicado con la misma firma
     public void defineCallable(Symbol callable) {
         List<Symbol> existing = currentScope.resolveOverloads(callable.getName());
         if (existing != null) {
@@ -40,7 +37,7 @@ public class SymbolTable {
         currentScope.define(callable);
     }
 
-    /** Define un callable en un scope arbitrario (útil para memberScope de una clase). */
+    // define un callable en un scope cualquiera (util para memberScope de una clase)
     public void defineCallableIn(Scope scope, Symbol callable) {
         List<Symbol> existing = scope.resolveOverloads(callable.getName());
         if (existing != null) {

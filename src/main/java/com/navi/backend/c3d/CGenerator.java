@@ -6,21 +6,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * Traduce la lista final de {@link Quad cuartetas} a un único archivo C
- * autocontenido y compilable, con el patrón del ejemplo de clase: cuartetas →
- * sentencias C directas, temporales como variables C y runtime mínimo.
- *
- * <p>Si el programa solo maneja enteros/booleanos (sin cadenas, decimales,
- * caracteres, {@code null} ni {@code read}), se emite en <b>modo int</b> con
- * {@code long long} y operadores C nativos, idéntico en espíritu al ejemplo. En
- * caso contrario se usa un valor etiquetado {@code Val} y solo las ayudas que
- * las cuartetas realmente usan.
- *
- * <p>Convención de llamadas: el llamador coloca los argumentos en
- * {@code stack[SP + i]}; el {@code enter} fija {@code BP = SP} y reserva el
- * marco; el retorno viaja por {@code RET}.
- */
+// traduce las cuartetas finales a un archivo C autocontenido y compilable
+// modo int: si todo es entero/booleano usa long long y operadores nativos
+// modo Val: si hay string/char/decimal/null/read usa un valor etiquetado Val
+// llamado: args en stack[SP + i]; enter fija BP = SP; el retorno viaja en RET
 public class CGenerator {
 
     private final List<Quad> quads;
@@ -81,7 +70,7 @@ public class CGenerator {
 
     // ---------------------------------------------------------------- modo
 
-    /** El programa es "solo enteros" si ninguna cuarteta usa cadenas/char/decimal/null/read. */
+    // true si ninguna cuarteta usa string/char/decimal/null/read
     private boolean detectIntMode() {
         for (Quad q : quads) {
             if ("read".equals(q.getOp())) return false;
@@ -98,7 +87,7 @@ public class CGenerator {
         return s.startsWith("\"") || s.startsWith("'") || "null".equals(s) || s.contains(".");
     }
 
-    // ---------------------------------------------------------------- partición
+    // ---------------------------------------------------------------- particion
 
     private List<CFunc> splitFunctions() {
         List<CFunc> funcs = new ArrayList<>();
@@ -146,7 +135,7 @@ public class CGenerator {
         return max + 1;
     }
 
-    // ---------------------------------------------------------------- función
+    // ---------------------------------------------------------------- funcion
 
     private void emitFunction(StringBuilder sb, CFunc f) {
         sb.append("static void ").append(fn(f.name)).append("(void) {\n");
@@ -269,12 +258,12 @@ public class CGenerator {
         }
     }
 
-    /** Dirección de un acceso a memoria: en modo int es un valor, en modo Val hay que desenvolverlo. */
+    // direccion de un acceso a memoria (en modo Val hay que desenvolver)
     private String loadAddr(Quad q) {
         return intMode ? expr(q.getArgs().get(0)) : "as_index(" + val(q.getArgs().get(0)) + ")";
     }
 
-    /** Valor almacenado: en modo int es directo; en modo Val usa el valor. */
+    // valor a almacenar: directo en modo int, Val en modo Val
     private String value(String operand) {
         return intMode ? expr(operand) : val(operand);
     }
@@ -297,13 +286,13 @@ public class CGenerator {
         return true;
     }
 
-    /** Modo int: todo operando es una expresión entera C. */
+    // modo int: el operando ya es una expresion entera C
     private static String expr(String operand) {
         if (isReg(operand) || isTemp(operand)) return operand;
-        return operand; // literal numérico
+        return operand; // literal numerico
     }
 
-    /** Modo Val: operando como {@code Val}. */
+    // modo Val: el operando como Val
     private static String val(String operand) {
         if (isReg(operand)) return "mk_int(" + operand + ")";
         if (isTemp(operand)) return operand;
@@ -314,7 +303,7 @@ public class CGenerator {
         return "mk_int(" + operand + ")";
     }
 
-    /** Modo Val: operando como entero C (para direcciones/registros). */
+    // modo Val: el operando como entero C (para direcciones/registros)
     private static String intExpr(String operand) {
         if (isReg(operand)) return operand;
         if (isTemp(operand)) return "as_index(" + operand + ")";

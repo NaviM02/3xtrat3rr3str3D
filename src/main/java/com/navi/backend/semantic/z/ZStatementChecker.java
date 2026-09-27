@@ -37,11 +37,8 @@ import com.navi.backend.semantic.rules.TypeRules;
 
 import java.util.List;
 
-/**
- * Chequeo de sentencias y miembros de Z: ámbitos, símbolos y control de flujo.
- * Mantiene el estado de la función actual ({@code currentReturnType});
- * el recorrido de los hijos lo hace el visitante (dispatcher) que la instancia.
- */
+// chequea sentencias y miembros de Z: ambitos, simbolos y control de flujo;
+// guarda el tipo de retorno actual y deja que el visitor recorra los hijos
 public class ZStatementChecker {
 
     private final SemanticContext context;
@@ -228,10 +225,8 @@ public class ZStatementChecker {
         }
     }
 
-    /**
-     * Valida un inicializador de arreglo descendiendo en los literales anidados:
-     * cada nivel consume una dimensión ({@code int[][]} -> {@code int[]} -> {@code int}).
-     */
+    // valida un inicializador de arreglo bajando por los literales anidados;
+    // cada nivel consume una dimension (int[][] -> int[] -> int)
     private void checkArrayInitializer(ArrayInitializer ai, Type expected, int line, int col) {
         Type element = rules.arrayElementType(expected);
         for (AstZNode el : ai.getElements()) {

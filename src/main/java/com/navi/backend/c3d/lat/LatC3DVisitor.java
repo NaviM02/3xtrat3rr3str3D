@@ -44,17 +44,9 @@ import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import com.navi.backend.c3d.C3DEmitter;
 import com.navi.backend.semantic.SemanticContext;
 
-/**
- * Genera C3D para Lat siguiendo los apuntes de clase. Locales/parámetros usan
- * {@code stack[BP + off]} y las variables globales {@code stack[GP + off]};
- * los objetos (clases importadas de Z) viven en el heap. Booleanos
- * materializados con saltos y bifurcaciones con {@code if a op b goto L}.
- *
- * <p>Dispatcher delgado: la lógica vive en {@link LatDeclarationC3D},
- * {@link LatStatementC3D} y {@link LatExpressionC3D}; {@link LatC3DResolver}
- * centraliza direcciones, layout y asignación. Este visitante conserva el
- * programa y delega el accept de los hijos a través de {@code this}.</p>
- */
+// genera C3D para Lat: locales/params en stack[BP + off], globales en stack[GP + off]
+// los objetos (clases importadas de Z) viven en el heap
+// dispatcher delgado: la logica esta en LatDeclaration/Statement/ExpressionC3D
 public class LatC3DVisitor implements AstLatVisitor<String> {
 
     private final C3DEmitter emitter;

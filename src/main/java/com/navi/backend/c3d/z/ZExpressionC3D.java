@@ -27,12 +27,8 @@ import com.navi.backend.semantic.model.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Emisión C3D de expresiones de Z: aritmética, booleanos materializados con
- * saltos, llamadas a métodos (con {@code this} implícito), {@code new} y
- * creación de arreglos en el heap. El recorrido de los hijos lo hace el
- * dispatcher ({@link ZC3DVisitor}).
- */
+// emision C3D de expresiones de Z: aritmetica, booleanos con saltos,
+// metodos (this implicito), new y creacion de arreglos en el heap
 class ZExpressionC3D {
 
     private final SemanticContext context;
@@ -184,7 +180,7 @@ class ZExpressionC3D {
         }
         String product = "1";
         for (String d : dims) product = emitter.binary("*", product, d);
-        // Cabecera: [rank][d0][d1]... y luego los datos, todo en el mismo bloque del heap.
+        // cabecera: [rank][d0][d1]... y luego los datos, en el mismo bloque del heap
         String total = emitter.binary("+", String.valueOf(dims.size()), product);
         String base = emitter.heapAlloc(total);
         for (int k = 0; k < dims.size(); k++) {

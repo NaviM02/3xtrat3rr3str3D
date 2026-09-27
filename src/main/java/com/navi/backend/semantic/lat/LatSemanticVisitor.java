@@ -47,12 +47,8 @@ import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Type;
 import com.navi.backend.semantic.rules.TypeRules;
 
-/**
- * Pasada semántica de Lat: valida tipos y anota cada expresión con su {@link Type}.
- * Dispatcher delgado: la lógica vive en {@link LatStatementChecker} (sentencias)
- * y {@link LatExpressionChecker} (expresiones); este visitante conserva el
- * programa, las secciones globales y el no-op de los nodos pasivos.
- */
+// pasada semantica de Lat: valida tipos y anota expresiones; delega sentencias
+// y expresiones en los checkers y mantiene los nodos pasivos
 public class LatSemanticVisitor implements AstLatVisitor<Type> {
 
     private final SemanticContext context;

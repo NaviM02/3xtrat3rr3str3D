@@ -23,13 +23,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/**
- * Carga los módulos importados desde el sistema de archivos, resolviendo rutas
- * relativas al directorio del archivo .pig de entrada.
- *
- * <p>Ejemplo: {@code import utils.utils.y} con el .pig en {@code prueba/} resuelve
- * a {@code prueba/utils/utils.y} (los '.' del path se mapean a '/').</p>
- */
+// carga los modulos importados desde archivos, rutas relativas al .pig
+// ej: import utils.utils.y con el .pig en prueba/ -> prueba/utils/utils.y
 public class FileModuleLoader implements ModuleLoader {
 
     private final Path baseDir;

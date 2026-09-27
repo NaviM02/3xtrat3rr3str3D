@@ -75,6 +75,7 @@ structInitializer
 
 structFieldInitializer
     : ID ':' initializer
+    | initializer
     ;
 
 arrayConstructor

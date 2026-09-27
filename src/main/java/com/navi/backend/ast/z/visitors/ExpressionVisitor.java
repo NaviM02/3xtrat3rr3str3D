@@ -233,7 +233,8 @@ public class ExpressionVisitor extends ZBaseVisitor<AstZNode> {
 
     @Override
     public AstZNode visitCharLiteralExpr(ZParser.CharLiteralExprContext ctx) {
-        return literal(ctx, ctx.getText());
+        String text = ctx.getText();
+        return literal(ctx, text.substring(1, text.length() - 1).charAt(0));
     }
 
     @Override

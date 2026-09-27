@@ -4,27 +4,15 @@ import lombok.Getter;
 
 import java.util.List;
 
-/**
- * Cuarteta de código de tres direcciones: (operador, operando 1, operando 2,
- * resultado). {@code op} es la operación, {@code result} el destino y
- * {@code args} los operandos; el significado depende de {@code op}
- * (ver {@link #toString()}).
- *
- * <p>Vocabulario alineado con los apuntes de clase:
- * <ul>
- *   <li>{@code t = a op b} binarias aritméticas</li>
- *   <li>{@code t = BP + off} dirección de stack; {@code t = base + off} dirección de heap</li>
- *   <li>{@code t = stack[addr]} / {@code stack[addr] = t}</li>
- *   <li>{@code t = heap[addr]} / {@code heap[addr] = t}</li>
- *   <li>{@code if a op b goto L} salto condicional</li>
- *   <li>{@code goto L}, {@code L:}, {@code call}, {@code return}, {@code halt}</li>
- * </ul>
- */
+// cuarteta de tres direcciones: (op, operandos, resultado)
+// el significado depende de op; ver toString()
+// ops: aritmeticas (t = a op b), direcciones (t = BP+off / base+off)
+// stack_load/store, heap_load/store, if a op b goto L, goto, label, call, return, halt
 @Getter
 public class Quad {
 
     private final String op;
-    private final String result;   // puede ser null (p.ej. goto, label, print)
+    private final String result;   // puede ser null (goto, label, print, ...)
     private final List<String> args;
 
     public Quad(String op, String result, String... args) {

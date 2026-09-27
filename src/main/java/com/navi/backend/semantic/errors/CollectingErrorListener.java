@@ -7,13 +7,10 @@ import org.antlr.v4.runtime.Recognizer;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Listener de errores de parseo que acumula mensajes en vez de imprimirlos.
- * Lo usan Main y {@link FileModuleLoader} para Lat, Y y Z.
- */
+// listener de errores de parseo que junta los mensajes en una lista
 public class CollectingErrorListener extends BaseErrorListener {
 
-    /** Tope de errores reportados para que un archivo muy roto no llene la consola. */
+    // tope de errores para no llenar la consola
     private static final int MAX_ERRORS = 50;
 
     private final List<String> errors = new ArrayList<>();
@@ -25,7 +22,7 @@ public class CollectingErrorListener extends BaseErrorListener {
 
         String entry = "[" + line + ":" + charPositionInLine + "] " + msg;
 
-        // La estrategia de recuperación puede re-reportar el mismo token: evitar ruido.
+        // a veces se re-reporta el mismo token, no lo repetimos
         if (!errors.isEmpty() && errors.get(errors.size() - 1).equals(entry)) return;
 
         errors.add(entry);

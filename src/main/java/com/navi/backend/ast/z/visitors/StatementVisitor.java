@@ -105,7 +105,7 @@ public class StatementVisitor extends ExpressionVisitor {
         Expression condition = ctx.expression() != null ? (Expression) visit(ctx.expression()) : null;
         ExpressionList update = ctx.forUpdate() != null ? (ExpressionList) visit(ctx.forUpdate()) : null;
 
-        BlockStatement block = (BlockStatement) visit(ctx.block());
+        BlockStatement block = asBlock(ctx.statementOrBlock());
 
         return new ForStatement(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), initializer, condition, update, block);
     }
@@ -132,7 +132,15 @@ public class StatementVisitor extends ExpressionVisitor {
     @Override
     public AstZNode visitWhileStatement(ZParser.WhileStatementContext ctx) {
         return new WhileStatement(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
-                (Expression) visit(ctx.expression()), visit(ctx.block()));
+                (Expression) visit(ctx.expression()), asBlock(ctx.statementOrBlock()));
+    }
+
+    // cuerpo de un ciclo: el bloque o una sola sentencia envuelta en bloque
+    private BlockStatement asBlock(ZParser.StatementOrBlockContext ctx) {
+        AstZNode body = visit(ctx);
+        if (body instanceof BlockStatement block) return block;
+        Statement statement = (Statement) body;
+        return new BlockStatement(statement.getLine(), statement.getColumn(), new ArrayList<>(List.of(statement)));
     }
 
     @Override

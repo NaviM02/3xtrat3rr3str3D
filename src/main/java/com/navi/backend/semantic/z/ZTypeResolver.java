@@ -5,12 +5,8 @@ import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Type;
 
-/**
- * Resuelve los tipos de Z: primitivas ({@code int}, {@code String}, ...) y nombres de
- * clase contra la {@link com.navi.backend.semantic.model.TypeTable}, aplicando las
- * dimensiones de arreglo si el {@link ZType} las declara.
- * Compartido por la pasada de declaraciones y la semántica.
- */
+// resuelve tipos de Z: primitivas (int, String, ...) y nombres de clase contra
+// la TypeTable, aplicando las dimensiones de arreglo si las trae el ZType
 public final class ZTypeResolver {
 
     private final SemanticContext context;

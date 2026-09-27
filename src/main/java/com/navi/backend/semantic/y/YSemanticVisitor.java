@@ -45,12 +45,8 @@ import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Type;
 import com.navi.backend.semantic.rules.TypeRules;
 
-/**
- * Pasada semántica de Y. Valida tipos y anota expresiones con su {@link Type}.
- * Dispatcher delgado: la lógica vive en {@link YStatementChecker} (sentencias)
- * y {@link YExpressionChecker} (expresiones); este visitante conserva el
- * programa y el no-op de los nodos pasivos.
- */
+// pasada semantica de Y: valida tipos y anota expresiones; delega sentencias y
+// expresiones en los checkers y mantiene los nodos pasivos
 public class YSemanticVisitor implements AstYVisitor<Type> {
 
     private final YStatementChecker statements;

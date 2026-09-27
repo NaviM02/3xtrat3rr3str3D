@@ -2,21 +2,14 @@ package com.navi.backend.c3d;
 
 import java.util.List;
 
-/**
- * Runtime C para el <b>modo Val</b>: como la memoria (stack/heap) guarda valores
- * de distinto tipo en celdas sin tipo, cada celda es un valor etiquetado
- * ({@code Val}: un número, carácter, cadena o null junto con su tag). Se emiten
- * solo las ayudas que las cuartetas realmente usan.
- *
- * <p>Cada función/macro lleva un comentario corto explicando qué hace, incluidas
- * las funciones de la librería estándar de C que aparecen (malloc, strlen, ...).
- */
+// runtime C para el modo Val: la memoria guarda valores etiquetados (Val)
+// se emiten solo las ayudas que las cuartetas realmente usan
 final class ValRuntime {
 
     private ValRuntime() {
     }
 
-    /** Arma el preludio del runtime según las operaciones que aparezcan en las cuartetas. */
+    // arma el preludio segun las operaciones que aparezcan en las cuartetas
     static String build(List<Quad> quads) {
         boolean useAdd = false, useOp = false, useCmp = false, usePrint = false, useRead = false;
 
@@ -162,7 +155,9 @@ final class ValRuntime {
                 if (e != b && *e == '\\0') return mk_int(i);
                 double d = strtod(b, &e);                       /* strtod = intenta decimal */
                 if (e != b && *e == '\\0') return mk_dbl(d);
-                return mk_str(b);                                    /* si no, es cadena */
+                char *copy = (char *) malloc(n + 1);            /* malloc = aparta memoria (+1 por el '\\0') */
+                memcpy(copy, b, n + 1);                         /* copia: b se reusa en cada lectura */
+                return mk_str(copy);                                 /* si no, es cadena */
             }
 
             """;

@@ -60,11 +60,8 @@ import com.navi.backend.semantic.model.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pasada de declaraciones de Z. Un archivo Z es una sola clase: registra su
- * layout ({@code AggregateType}) y sus miembros (campos, métodos y constructores,
- * con sobrecarga).
- */
+// declaraciones de Z: el archivo es una sola clase; registra su layout y sus
+// miembros (campos, metodos y constructores, con sobrecarga)
 public class ZDeclarationVisitor implements AstZVisitor<Void> {
 
     private final SemanticContext context;

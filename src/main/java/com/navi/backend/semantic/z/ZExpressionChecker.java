@@ -28,13 +28,8 @@ import com.navi.backend.semantic.rules.TypeRules;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Chequeo de expresiones de Z: resuelve el tipo de cada expresión, lo anota en
- * {@link SemanticContext} para el C3D y reporta errores vía {@link TypeRules}.
- * Mantiene la clase actual ({@code currentClass}) para resolver campos y
- * métodos sin calificar dentro de los cuerpos. El recorrido de los hijos lo
- * hace el visitante (dispatcher) que la instancia.
- */
+// chequea expresiones de Z, anota su tipo y reporta errores; guarda la clase
+// actual para resolver campos y metodos sin calificar. Los hijos los recorre el visitor
 public class ZExpressionChecker {
 
     private final SemanticContext context;

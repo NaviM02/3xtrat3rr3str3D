@@ -13,18 +13,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Contexto semántico compartido por los tres lenguajes. Estado de una corrida:
- *
- * <ul>
- *   <li>{@link #symbolTable}: árbol de ámbitos con todos los símbolos (globales de
- *       Lat + símbolos importados de Y/Z).</li>
- *   <li>{@link #typeTable}: layouts de struct/class por nombre.</li>
- *   <li>{@link #loadedModules}: paths ya cargados (evita re-cargar / ciclos).</li>
- *   <li>{@link #annotations}: tipo resuelto de cada nodo de expresión (para C3D).</li>
- *   <li>{@link #errors}: recolector de errores de esta corrida.</li>
- * </ul>
- */
+// contexto compartido por los 3 lenguajes durante una corrida
+// guarda symbolTable, typeTable, modulos cargados, anotaciones y errores
 @Getter
 public class SemanticContext {
     private final SymbolTable symbolTable = new SymbolTable();
@@ -35,7 +25,7 @@ public class SemanticContext {
     private final Map<Object, Symbol> symbolBindings = new IdentityHashMap<>();
     private final SemanticErrors errors = new SemanticErrors();
 
-    /** Guarda el AST de un módulo importado para que la generación de C3D lo emita. */
+    // guarda el AST de un import para que C3D lo emita
     public void recordAst(String importPath, Object ast) {
         loadedAsts.put(importPath, ast);
     }
@@ -48,7 +38,7 @@ public class SemanticContext {
         loadedModules.add(importPath);
     }
 
-    /** Anota el tipo resuelto de un nodo AST (expresión) para que el emisor C3D lo lea. */
+    // anota el tipo de un nodo de expresion para que lo lea C3D
     public void annotate(Object node, Type type) {
         annotations.put(node, type);
     }
@@ -57,7 +47,7 @@ public class SemanticContext {
         return annotations.get(node);
     }
 
-    /** Liga un nodo de declaración (variable/parámetro) con su {@link Symbol} para que C3D fije su Pos_memory. */
+    // liga una declaracion con su simbolo para que C3D le ponga Pos_memory
     public void bindSymbol(Object node, Symbol symbol) {
         symbolBindings.put(node, symbol);
     }

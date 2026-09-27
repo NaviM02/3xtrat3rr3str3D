@@ -24,11 +24,8 @@ import com.navi.backend.c3d.C3DEmitter;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-/**
- * Emisión C3D de sentencias de Y: control de flujo (con pilas de break/continue),
- * switch, asignaciones e incrementos. El recorrido de los hijos lo hace el
- * dispatcher ({@link YC3DVisitor}).
- */
+// emision C3D de sentencias de Y: control de flujo (pilas de break/continue),
+// switch, asignaciones e incrementos
 class YStatementC3D {
 
     private final C3DEmitter emitter;

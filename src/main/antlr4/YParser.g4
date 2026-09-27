@@ -134,7 +134,7 @@ variableDeclarationWithoutNewline
 forUpdate : expression;
 
 // WHILE
-whileStatement : WHILE LPAREN expression RPAREN DO COLON NEWLINE INDENT statement* DEDENT;
+whileStatement : WHILE LPAREN expression RPAREN DO COLON? NEWLINE INDENT statement* DEDENT;
 
 // DO-WHILE
 doWhileStatement : DO COLON NEWLINE INDENT statement* DEDENT WHILE LPAREN expression RPAREN NEWLINE;

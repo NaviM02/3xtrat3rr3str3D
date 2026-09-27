@@ -16,26 +16,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.IntFunction;
 
-/**
- * Calcula las posiciones a colorear a partir del flujo de tokens del lexer
- * correspondiente al lenguaje.
- *
- * <p>Se hace a nivel léxico (no del AST) por dos razones: el AST solo guarda
- * línea/columna de inicio y no conserva palabras reservadas, signos ni
- * comentarios; y el lexer no falla aunque el código esté incompleto, así el
- * resaltado sigue funcionando mientras se escribe. No usa expresiones regulares
- * ni librerías externas: reutiliza los lexers de ANTLR del proyecto.</p>
- */
+// saca los rangos a colorear usando el lexer de cada lenguaje
+// va a nivel lexico y no del AST: el AST pierde palabras reservadas y el lexer aguanta codigo incompleto
 public class HighlightService {
 
-    /** Extensiones soportadas: .pig (Lat), .y (Y) y .z (Z). */
+    // extensiones soportadas: .pig, .y, .z
     public boolean isSupported(String extension) {
         if (extension == null) return true;
         String ext = extension.toLowerCase(Locale.ROOT);
         return !ext.equals("pig") && !ext.equals("y") && !ext.equals("z");
     }
 
-    /** Analiza un archivo y devuelve sus rangos a colorear (vacío si no aplica). */
+    // analiza un archivo y devuelve sus rangos (vacio si no aplica)
     public List<HighlightSpan> highlight(Path sourceFile) throws IOException {
         if (sourceFile == null) return List.of();
 
@@ -48,7 +40,7 @@ public class HighlightService {
         return highlight(source, extension);
     }
 
-    /** Analiza un texto y devuelve sus rangos a colorear según la extensión. */
+    // igual pero desde un string
     public List<HighlightSpan> highlight(String source, String extension) {
         if (source == null || extension == null) return List.of();
 

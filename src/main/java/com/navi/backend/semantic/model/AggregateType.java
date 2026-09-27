@@ -6,16 +6,8 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Tipo agregado: estructura (Y) o clase (Z). Es la unidad de layout que usa el
- * generador de C3D para acceso a miembros, literales de struct y {@code new}.
- *
- * <ul>
- *   <li>{@link #fields}: lista ordenada de campos (da offsets por índice).</li>
- *   <li>{@link #memberScope}: scope de miembros; en una clase guarda métodos y
- *       constructores (soportando sobrecarga). En una struct queda vacío.</li>
- * </ul>
- */
+// tipo agregado: estructura (Y) o clase (Z), base del layout para C3D
+// fields: campos en orden (dan offsets); memberScope: metodos/constructores en clase, vacio en struct
 @Getter
 public class AggregateType {
     private final String name;
@@ -44,11 +36,8 @@ public class AggregateType {
         return null;
     }
 
-    /**
-     * Offset (en celdas) del campo dentro del agregado: suma de los tamaños de los
-     * campos anteriores. Cada campo escalar ocupa una celda y cada campo arreglo
-     * tantas como celdas tenga (p. ej. {@code datos[4]} ocupa 4).
-     */
+    // offset en celdas del campo: suma los tamaños de los anteriores
+    // escalar = 1 celda; arreglo tipo datos[4] = 4
     public int fieldOffset(String name) {
         int offset = 0;
         for (Field field : fields) {
@@ -58,7 +47,7 @@ public class AggregateType {
         return 0;
     }
 
-    /** Tamaño total del agregado en celdas (mínimo 1). */
+    // tamaño total en celdas (minimo 1)
     public int size() {
         int total = 0;
         for (Field field : fields) total += cellSize(field);

@@ -31,11 +31,8 @@ import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.model.Type;
 import com.navi.backend.semantic.rules.TypeRules;
 
-/**
- * Chequeo de sentencias de Lat: ámbitos, símbolos y control de flujo.
- * Mantiene el estado de la función actual ({@code currentReturnType});
- * el recorrido de los hijos lo hace el visitante (dispatcher) que la instancia.
- */
+// chequea sentencias de Lat: ambitos, simbolos y control de flujo; guarda el
+// tipo de retorno actual y deja que el visitor recorra los hijos
 public class LatStatementChecker {
 
     private final SemanticContext context;
@@ -113,10 +110,8 @@ public class LatStatementChecker {
         return null;
     }
 
-    /**
-     * Valida un inicializador de arreglo descendiendo en los literales anidados:
-     * cada nivel consume una dimensión ({@code int[][]} -> {@code int[]} -> {@code int}).
-     */
+    // valida un inicializador de arreglo bajando por los literales anidados;
+    // cada nivel consume una dimension (int[][] -> int[] -> int)
     void checkArrayInitializer(ArrayInitializer init, Type expected, int line, int col) {
         Type element = rules.arrayElementType(expected);
         for (AstLatNode el : init.getElements()) {

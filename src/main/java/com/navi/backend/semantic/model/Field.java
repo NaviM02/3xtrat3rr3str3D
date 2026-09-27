@@ -4,15 +4,8 @@ import lombok.Getter;
 
 import java.util.List;
 
-/**
- * Campo de una estructura (Y) o de una clase (Z). La lista ordenada de campos
- * en {@link AggregateType} define el layout (offsets) para la generación de C3D.
- *
- * <p>{@link #arrayDims} guarda los tamaños de un campo arreglo (p. ej. {@code [4]}
- * para {@code entero datos[4]}); es vacío en campos escalares. Se usa para calcular
- * el tamaño de la estructura y el offset de cada campo (un arreglo ocupa varias
- * celdas, no una).
- */
+// campo de una estructura (Y) o clase (Z); su orden define los offsets en C3D
+// arrayDims guarda tamaños si el campo es arreglo (ej. [4] para entero datos[4]); vacio si escalar
 @Getter
 public class Field {
     private final String name;

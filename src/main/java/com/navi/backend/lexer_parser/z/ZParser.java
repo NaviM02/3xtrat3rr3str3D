@@ -1,16 +1,12 @@
 package com.navi.backend.lexer_parser.z;// Generated from Z.g4 by ANTLR 4.13.2
-
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNDeserializer;
-import org.antlr.v4.runtime.atn.ParserATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
+import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
-import org.antlr.v4.runtime.tree.ParseTreeVisitor;
-import org.antlr.v4.runtime.tree.TerminalNode;
-
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.*;
+import org.antlr.v4.runtime.tree.*;
 import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue", "this-escape"})
 public class ZParser extends Parser {
@@ -161,15 +157,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_program; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterProgram(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterProgram(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitProgram(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitProgram(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitProgram(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitProgram(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -216,15 +212,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_classDeclaration; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterClassDeclaration(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterClassDeclaration(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitClassDeclaration(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitClassDeclaration(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitClassDeclaration(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitClassDeclaration(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -293,15 +289,15 @@ public class ZParser extends Parser {
 		public ConstructorMemberContext(ClassMemberContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterConstructorMember(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterConstructorMember(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitConstructorMember(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitConstructorMember(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitConstructorMember(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitConstructorMember(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -313,15 +309,15 @@ public class ZParser extends Parser {
 		public FieldMemberContext(ClassMemberContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterFieldMember(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterFieldMember(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitFieldMember(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitFieldMember(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitFieldMember(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitFieldMember(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -333,15 +329,15 @@ public class ZParser extends Parser {
 		public MethodMemberContext(ClassMemberContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterMethodMember(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterMethodMember(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitMethodMember(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitMethodMember(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitMethodMember(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitMethodMember(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -406,15 +402,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_fieldDeclaration; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterFieldDeclaration(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterFieldDeclaration(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitFieldDeclaration(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitFieldDeclaration(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitFieldDeclaration(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitFieldDeclaration(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -473,15 +469,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_variableDeclaratorList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterVariableDeclaratorList(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterVariableDeclaratorList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitVariableDeclaratorList(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitVariableDeclaratorList(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitVariableDeclaratorList(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitVariableDeclaratorList(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -536,15 +532,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_variableDeclarator; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterVariableDeclarator(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterVariableDeclarator(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitVariableDeclarator(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitVariableDeclarator(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitVariableDeclarator(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitVariableDeclarator(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -599,15 +595,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_constructorDeclaration; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterConstructorDeclaration(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterConstructorDeclaration(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitConstructorDeclaration(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitConstructorDeclaration(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitConstructorDeclaration(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitConstructorDeclaration(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -682,15 +678,15 @@ public class ZParser extends Parser {
 		public TypedMethodDeclarationContext(MethodDeclarationContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterTypedMethodDeclaration(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterTypedMethodDeclaration(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitTypedMethodDeclaration(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitTypedMethodDeclaration(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitTypedMethodDeclaration(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitTypedMethodDeclaration(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -710,15 +706,15 @@ public class ZParser extends Parser {
 		public VoidMethodDeclarationContext(MethodDeclarationContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterVoidMethodDeclaration(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterVoidMethodDeclaration(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitVoidMethodDeclaration(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitVoidMethodDeclaration(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitVoidMethodDeclaration(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitVoidMethodDeclaration(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -834,15 +830,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_parameterList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterParameterList(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterParameterList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitParameterList(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitParameterList(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitParameterList(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitParameterList(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -897,15 +893,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_parameter; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterParameter(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterParameter(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitParameter(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitParameter(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitParameter(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitParameter(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -949,15 +945,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_block; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterBlock(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterBlock(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitBlock(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitBlock(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitBlock(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitBlock(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1047,15 +1043,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_statement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1186,15 +1182,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_variableDeclarationStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterVariableDeclarationStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterVariableDeclarationStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitVariableDeclarationStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitVariableDeclarationStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitVariableDeclarationStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitVariableDeclarationStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1245,15 +1241,15 @@ public class ZParser extends Parser {
 		public ExpressionInitializerValueContext(InitializerContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterExpressionInitializerValue(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterExpressionInitializerValue(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitExpressionInitializerValue(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitExpressionInitializerValue(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitExpressionInitializerValue(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitExpressionInitializerValue(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1266,15 +1262,15 @@ public class ZParser extends Parser {
 		public ArrayInitializerValueContext(InitializerContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterArrayInitializerValue(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterArrayInitializerValue(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitArrayInitializerValue(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitArrayInitializerValue(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitArrayInitializerValue(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitArrayInitializerValue(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1333,15 +1329,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_statementOrBlock; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterStatementOrBlock(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterStatementOrBlock(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitStatementOrBlock(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitStatementOrBlock(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitStatementOrBlock(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitStatementOrBlock(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1446,15 +1442,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_ifStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterIfStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterIfStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitIfStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitIfStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitIfStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitIfStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1479,7 +1475,7 @@ public class ZParser extends Parser {
 			setState(252);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,16,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -1552,15 +1548,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_switchStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterSwitchStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterSwitchStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitSwitchStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitSwitchStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitSwitchStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitSwitchStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1640,15 +1636,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_switchCase; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterSwitchCase(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterSwitchCase(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitSwitchCase(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitSwitchCase(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitSwitchCase(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitSwitchCase(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1709,15 +1705,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_defaultCase; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterDefaultCase(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterDefaultCase(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitDefaultCase(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitDefaultCase(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitDefaultCase(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitDefaultCase(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1769,8 +1765,8 @@ public class ZParser extends Parser {
 			return getToken(ZParser.SEMI, i);
 		}
 		public TerminalNode RPAREN() { return getToken(ZParser.RPAREN, 0); }
-		public BlockContext block() {
-			return getRuleContext(BlockContext.class,0);
+		public StatementOrBlockContext statementOrBlock() {
+			return getRuleContext(StatementOrBlockContext.class,0);
 		}
 		public ForInitializerContext forInitializer() {
 			return getRuleContext(ForInitializerContext.class,0);
@@ -1787,15 +1783,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_forStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterForStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterForStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitForStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitForStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitForStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitForStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1848,7 +1844,7 @@ public class ZParser extends Parser {
 			setState(305);
 			match(RPAREN);
 			setState(306);
-			block();
+			statementOrBlock();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1876,15 +1872,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_forInitializer; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterForInitializer(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterForInitializer(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitForInitializer(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitForInitializer(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitForInitializer(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitForInitializer(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1937,15 +1933,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_variableDeclarationStatementNoSemi; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterVariableDeclarationStatementNoSemi(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterVariableDeclarationStatementNoSemi(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitVariableDeclarationStatementNoSemi(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitVariableDeclarationStatementNoSemi(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitVariableDeclarationStatementNoSemi(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitVariableDeclarationStatementNoSemi(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1984,15 +1980,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_forUpdate; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterForUpdate(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterForUpdate(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitForUpdate(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitForUpdate(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitForUpdate(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitForUpdate(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2036,15 +2032,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_expressionList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterExpressionList(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterExpressionList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitExpressionList(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitExpressionList(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitExpressionList(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitExpressionList(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2095,8 +2091,8 @@ public class ZParser extends Parser {
 			return getRuleContext(ExpressionContext.class,0);
 		}
 		public TerminalNode RPAREN() { return getToken(ZParser.RPAREN, 0); }
-		public BlockContext block() {
-			return getRuleContext(BlockContext.class,0);
+		public StatementOrBlockContext statementOrBlock() {
+			return getRuleContext(StatementOrBlockContext.class,0);
 		}
 		public WhileStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -2104,15 +2100,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_whileStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterWhileStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterWhileStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitWhileStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitWhileStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitWhileStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitWhileStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2132,7 +2128,7 @@ public class ZParser extends Parser {
 			setState(328);
 			match(RPAREN);
 			setState(329);
-			block();
+			statementOrBlock();
 			}
 		}
 		catch (RecognitionException re) {
@@ -2165,15 +2161,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_doWhileStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterDoWhileStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterDoWhileStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitDoWhileStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitDoWhileStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitDoWhileStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitDoWhileStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2224,15 +2220,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_returnStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterReturnStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterReturnStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitReturnStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitReturnStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitReturnStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitReturnStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2281,15 +2277,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_breakStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterBreakStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterBreakStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitBreakStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitBreakStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitBreakStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitBreakStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2327,15 +2323,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_continueStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterContinueStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterContinueStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitContinueStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitContinueStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitContinueStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitContinueStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2378,15 +2374,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_printStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterPrintStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterPrintStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitPrintStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitPrintStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitPrintStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitPrintStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2444,15 +2440,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_printlnStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterPrintlnStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterPrintlnStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitPrintlnStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitPrintlnStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitPrintlnStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitPrintlnStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2507,15 +2503,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_readlnStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterReadlnStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterReadlnStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitReadlnStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitReadlnStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitReadlnStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitReadlnStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2559,15 +2555,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_expressionStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterExpressionStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterExpressionStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitExpressionStatement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitExpressionStatement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitExpressionStatement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitExpressionStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2606,15 +2602,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_expression; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterExpression(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterExpression(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitExpression(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitExpression(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitExpression(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitExpression(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2666,15 +2662,15 @@ public class ZParser extends Parser {
 		public AssignmentExpressionValueContext(AssignmentExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterAssignmentExpressionValue(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterAssignmentExpressionValue(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitAssignmentExpressionValue(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitAssignmentExpressionValue(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitAssignmentExpressionValue(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitAssignmentExpressionValue(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2686,15 +2682,15 @@ public class ZParser extends Parser {
 		public ToConditionalExpressionContext(AssignmentExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterToConditionalExpression(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterToConditionalExpression(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitToConditionalExpression(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitToConditionalExpression(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitToConditionalExpression(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitToConditionalExpression(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2751,15 +2747,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_assignmentOperator; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterAssignmentOperator(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterAssignmentOperator(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitAssignmentOperator(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitAssignmentOperator(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitAssignmentOperator(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitAssignmentOperator(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2822,15 +2818,15 @@ public class ZParser extends Parser {
 		public TernaryExpressionContext(ConditionalExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterTernaryExpression(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterTernaryExpression(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitTernaryExpression(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitTernaryExpression(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitTernaryExpression(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitTernaryExpression(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2842,15 +2838,15 @@ public class ZParser extends Parser {
 		public LogicalOrConditionalExpressionContext(ConditionalExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterLogicalOrConditionalExpression(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterLogicalOrConditionalExpression(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitLogicalOrConditionalExpression(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitLogicalOrConditionalExpression(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitLogicalOrConditionalExpression(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitLogicalOrConditionalExpression(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2919,15 +2915,15 @@ public class ZParser extends Parser {
 		public ToLogicalAndExprContext(LogicalOrExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterToLogicalAndExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterToLogicalAndExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitToLogicalAndExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitToLogicalAndExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitToLogicalAndExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitToLogicalAndExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2943,15 +2939,15 @@ public class ZParser extends Parser {
 		public OrExprContext(LogicalOrExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterOrExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterOrExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitOrExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitOrExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitOrExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitOrExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2983,7 +2979,7 @@ public class ZParser extends Parser {
 			setState(403);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,32,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -3041,15 +3037,15 @@ public class ZParser extends Parser {
 		public AndExprContext(LogicalAndExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterAndExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterAndExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitAndExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitAndExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitAndExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitAndExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3061,15 +3057,15 @@ public class ZParser extends Parser {
 		public ToEqualityExprContext(LogicalAndExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterToEqualityExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterToEqualityExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitToEqualityExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitToEqualityExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitToEqualityExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitToEqualityExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3101,7 +3097,7 @@ public class ZParser extends Parser {
 			setState(414);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,33,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -3159,15 +3155,15 @@ public class ZParser extends Parser {
 		public EqualExprContext(EqualityExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterEqualExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterEqualExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitEqualExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitEqualExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitEqualExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitEqualExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3179,15 +3175,15 @@ public class ZParser extends Parser {
 		public ToComparisonExprContext(EqualityExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterToComparisonExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterToComparisonExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitToComparisonExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitToComparisonExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitToComparisonExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitToComparisonExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3203,15 +3199,15 @@ public class ZParser extends Parser {
 		public NotEqualExprContext(EqualityExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterNotEqualExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterNotEqualExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitNotEqualExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitNotEqualExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitNotEqualExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitNotEqualExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3243,7 +3239,7 @@ public class ZParser extends Parser {
 			setState(428);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,35,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -3315,15 +3311,15 @@ public class ZParser extends Parser {
 		public ToAdditiveExprContext(ComparisonExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterToAdditiveExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterToAdditiveExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitToAdditiveExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitToAdditiveExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitToAdditiveExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitToAdditiveExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3339,15 +3335,15 @@ public class ZParser extends Parser {
 		public GreaterExprContext(ComparisonExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterGreaterExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterGreaterExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitGreaterExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitGreaterExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitGreaterExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitGreaterExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3363,15 +3359,15 @@ public class ZParser extends Parser {
 		public GreaterEqualExprContext(ComparisonExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterGreaterEqualExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterGreaterEqualExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitGreaterEqualExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitGreaterEqualExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitGreaterEqualExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitGreaterEqualExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3387,15 +3383,15 @@ public class ZParser extends Parser {
 		public LessExprContext(ComparisonExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterLessExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterLessExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitLessExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitLessExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitLessExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitLessExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3411,15 +3407,15 @@ public class ZParser extends Parser {
 		public LessEqualExprContext(ComparisonExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterLessEqualExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterLessEqualExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitLessEqualExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitLessEqualExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitLessEqualExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitLessEqualExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3451,7 +3447,7 @@ public class ZParser extends Parser {
 			setState(448);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,37,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -3547,15 +3543,15 @@ public class ZParser extends Parser {
 		public ToMultiplicativeExprContext(AdditiveExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterToMultiplicativeExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterToMultiplicativeExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitToMultiplicativeExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitToMultiplicativeExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitToMultiplicativeExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitToMultiplicativeExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3571,15 +3567,15 @@ public class ZParser extends Parser {
 		public AdditionExprContext(AdditiveExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterAdditionExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterAdditionExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitAdditionExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitAdditionExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitAdditionExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitAdditionExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3595,15 +3591,15 @@ public class ZParser extends Parser {
 		public SubtractionExprContext(AdditiveExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterSubtractionExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterSubtractionExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitSubtractionExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitSubtractionExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitSubtractionExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitSubtractionExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3635,7 +3631,7 @@ public class ZParser extends Parser {
 			setState(462);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,39,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -3711,15 +3707,15 @@ public class ZParser extends Parser {
 		public ModuloExprContext(MultiplicativeExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterModuloExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterModuloExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitModuloExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitModuloExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitModuloExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitModuloExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3731,15 +3727,15 @@ public class ZParser extends Parser {
 		public ToUnaryExprContext(MultiplicativeExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterToUnaryExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterToUnaryExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitToUnaryExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitToUnaryExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitToUnaryExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitToUnaryExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3755,15 +3751,15 @@ public class ZParser extends Parser {
 		public DivisionExprContext(MultiplicativeExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterDivisionExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterDivisionExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitDivisionExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitDivisionExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitDivisionExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitDivisionExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3779,15 +3775,15 @@ public class ZParser extends Parser {
 		public MultiplicationExprContext(MultiplicativeExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterMultiplicationExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterMultiplicationExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitMultiplicationExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitMultiplicationExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitMultiplicationExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitMultiplicationExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3819,7 +3815,7 @@ public class ZParser extends Parser {
 			setState(479);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,41,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
@@ -3903,15 +3899,15 @@ public class ZParser extends Parser {
 		public ToPostfixExprContext(UnaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterToPostfixExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterToPostfixExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitToPostfixExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitToPostfixExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitToPostfixExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitToPostfixExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3924,15 +3920,15 @@ public class ZParser extends Parser {
 		public PositiveExprContext(UnaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterPositiveExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterPositiveExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitPositiveExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitPositiveExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitPositiveExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitPositiveExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3945,15 +3941,15 @@ public class ZParser extends Parser {
 		public NotExprContext(UnaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterNotExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterNotExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitNotExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitNotExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitNotExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitNotExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3966,15 +3962,15 @@ public class ZParser extends Parser {
 		public NegateExprContext(UnaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterNegateExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterNegateExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitNegateExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitNegateExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitNegateExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitNegateExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4066,15 +4062,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_postfixExpression; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterPostfixExpression(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterPostfixExpression(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitPostfixExpression(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitPostfixExpression(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitPostfixExpression(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitPostfixExpression(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4091,7 +4087,7 @@ public class ZParser extends Parser {
 			setState(495);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,43,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -4139,15 +4135,15 @@ public class ZParser extends Parser {
 		public ArrayAccessOpContext(PostfixOperationContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterArrayAccessOp(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterArrayAccessOp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitArrayAccessOp(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitArrayAccessOp(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitArrayAccessOp(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitArrayAccessOp(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4157,15 +4153,15 @@ public class ZParser extends Parser {
 		public PostIncrementOpContext(PostfixOperationContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterPostIncrementOp(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterPostIncrementOp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitPostIncrementOp(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitPostIncrementOp(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitPostIncrementOp(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitPostIncrementOp(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4175,15 +4171,15 @@ public class ZParser extends Parser {
 		public PostDecrementOpContext(PostfixOperationContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterPostDecrementOp(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterPostDecrementOp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitPostDecrementOp(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitPostDecrementOp(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitPostDecrementOp(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitPostDecrementOp(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4197,15 +4193,15 @@ public class ZParser extends Parser {
 		public FunctionCallOpContext(PostfixOperationContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterFunctionCallOp(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterFunctionCallOp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitFunctionCallOp(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitFunctionCallOp(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitFunctionCallOp(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitFunctionCallOp(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4216,15 +4212,15 @@ public class ZParser extends Parser {
 		public MemberAccessOpContext(PostfixOperationContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterMemberAccessOp(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterMemberAccessOp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitMemberAccessOp(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitMemberAccessOp(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitMemberAccessOp(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitMemberAccessOp(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4334,15 +4330,15 @@ public class ZParser extends Parser {
 		public ObjCreationExprContext(PrimaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterObjCreationExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterObjCreationExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitObjCreationExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitObjCreationExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitObjCreationExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitObjCreationExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4354,15 +4350,15 @@ public class ZParser extends Parser {
 		public ReadExprContext(PrimaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterReadExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterReadExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitReadExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitReadExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitReadExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitReadExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4374,15 +4370,15 @@ public class ZParser extends Parser {
 		public LiteralExprContext(PrimaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterLiteralExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitLiteralExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitLiteralExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitLiteralExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4392,15 +4388,15 @@ public class ZParser extends Parser {
 		public VariableExprContext(PrimaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterVariableExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterVariableExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitVariableExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitVariableExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitVariableExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitVariableExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4414,15 +4410,15 @@ public class ZParser extends Parser {
 		public ParenthesizedExprContext(PrimaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterParenthesizedExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterParenthesizedExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitParenthesizedExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitParenthesizedExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitParenthesizedExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitParenthesizedExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4434,15 +4430,15 @@ public class ZParser extends Parser {
 		public ArrayCreationExprContext(PrimaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterArrayCreationExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterArrayCreationExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitArrayCreationExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitArrayCreationExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitArrayCreationExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitArrayCreationExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4452,15 +4448,15 @@ public class ZParser extends Parser {
 		public NullExprContext(PrimaryExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterNullExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterNullExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitNullExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitNullExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitNullExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitNullExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4582,15 +4578,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_arrayCreation; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterArrayCreation(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterArrayCreation(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitArrayCreation(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitArrayCreation(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitArrayCreation(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitArrayCreation(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4659,15 +4655,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_arrayCreationDimensions; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterArrayCreationDimensions(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterArrayCreationDimensions(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitArrayCreationDimensions(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitArrayCreationDimensions(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitArrayCreationDimensions(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitArrayCreationDimensions(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4702,7 +4698,7 @@ public class ZParser extends Parser {
 				setState(548); 
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,49,_ctx);
-			} while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER );
+			} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
 			}
 		}
 		catch (RecognitionException re) {
@@ -4734,15 +4730,15 @@ public class ZParser extends Parser {
 		public IntegerLiteralExprContext(LiteralContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterIntegerLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterIntegerLiteralExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitIntegerLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitIntegerLiteralExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitIntegerLiteralExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitIntegerLiteralExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4752,15 +4748,15 @@ public class ZParser extends Parser {
 		public TrueLiteralExprContext(LiteralContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterTrueLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterTrueLiteralExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitTrueLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitTrueLiteralExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitTrueLiteralExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitTrueLiteralExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4770,15 +4766,15 @@ public class ZParser extends Parser {
 		public FloatLiteralExprContext(LiteralContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterFloatLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterFloatLiteralExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitFloatLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitFloatLiteralExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitFloatLiteralExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitFloatLiteralExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4788,15 +4784,15 @@ public class ZParser extends Parser {
 		public FalseLiteralExprContext(LiteralContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterFalseLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterFalseLiteralExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitFalseLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitFalseLiteralExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitFalseLiteralExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitFalseLiteralExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4806,15 +4802,15 @@ public class ZParser extends Parser {
 		public StringLiteralExprContext(LiteralContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterStringLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterStringLiteralExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitStringLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitStringLiteralExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitStringLiteralExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitStringLiteralExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4824,15 +4820,15 @@ public class ZParser extends Parser {
 		public CharLiteralExprContext(LiteralContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterCharLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterCharLiteralExpr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitCharLiteralExpr(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitCharLiteralExpr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitCharLiteralExpr(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitCharLiteralExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4925,15 +4921,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_argumentList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterArgumentList(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterArgumentList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitArgumentList(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitArgumentList(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitArgumentList(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitArgumentList(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -4989,15 +4985,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_arrayInitializer; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterArrayInitializer(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterArrayInitializer(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitArrayInitializer(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitArrayInitializer(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitArrayInitializer(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitArrayInitializer(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -5054,15 +5050,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_arrayInitializerElementList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterArrayInitializerElementList(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterArrayInitializerElementList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitArrayInitializerElementList(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitArrayInitializerElementList(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitArrayInitializerElementList(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitArrayInitializerElementList(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -5119,15 +5115,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_arrayInitializerElement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterArrayInitializerElement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterArrayInitializerElement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitArrayInitializerElement(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitArrayInitializerElement(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitArrayInitializerElement(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitArrayInitializerElement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -5197,15 +5193,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_arrayDimensions; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterArrayDimensions(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterArrayDimensions(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitArrayDimensions(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitArrayDimensions(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitArrayDimensions(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitArrayDimensions(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -5263,15 +5259,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_type; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterType(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterType(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitType(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitType(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitType(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitType(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -5349,15 +5345,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_primitiveType; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterPrimitiveType(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterPrimitiveType(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitPrimitiveType(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitPrimitiveType(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitPrimitiveType(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitPrimitiveType(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -5402,15 +5398,15 @@ public class ZParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_referenceType; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).enterReferenceType(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).enterReferenceType(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof ZListener) ((ZListener)listener).exitReferenceType(this);
+			if ( listener instanceof ZListener ) ((ZListener)listener).exitReferenceType(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ZVisitor) return ((ZVisitor<? extends T>)visitor).visitReferenceType(this);
+			if ( visitor instanceof ZVisitor ) return ((ZVisitor<? extends T>)visitor).visitReferenceType(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -5734,7 +5730,7 @@ public class ZParser extends Parser {
 		"\u0001\u0000\u0000\u0000\u012d\u012f\u00059\u0000\u0000\u012e\u0130\u0003"+
 		",\u0016\u0000\u012f\u012e\u0001\u0000\u0000\u0000\u012f\u0130\u0001\u0000"+
 		"\u0000\u0000\u0130\u0131\u0001\u0000\u0000\u0000\u0131\u0132\u00051\u0000"+
-		"\u0000\u0132\u0133\u0003\u0014\n\u0000\u0133\'\u0001\u0000\u0000\u0000"+
+		"\u0000\u0132\u0133\u0003\u001c\u000e\u0000\u0133\'\u0001\u0000\u0000\u0000"+
 		"\u0134\u0137\u0003*\u0015\u0000\u0135\u0137\u0003.\u0017\u0000\u0136\u0134"+
 		"\u0001\u0000\u0000\u0000\u0136\u0135\u0001\u0000\u0000\u0000\u0137)\u0001"+
 		"\u0000\u0000\u0000\u0138\u0139\u0003n7\u0000\u0139\u013a\u0003\b\u0004"+
@@ -5745,7 +5741,7 @@ public class ZParser extends Parser {
 		"\u0000\u0142\u0143\u0001\u0000\u0000\u0000\u0143/\u0001\u0000\u0000\u0000"+
 		"\u0144\u0142\u0001\u0000\u0000\u0000\u0145\u0146\u0005\u000b\u0000\u0000"+
 		"\u0146\u0147\u00050\u0000\u0000\u0147\u0148\u0003B!\u0000\u0148\u0149"+
-		"\u00051\u0000\u0000\u0149\u014a\u0003\u0014\n\u0000\u014a1\u0001\u0000"+
+		"\u00051\u0000\u0000\u0149\u014a\u0003\u001c\u000e\u0000\u014a1\u0001\u0000"+
 		"\u0000\u0000\u014b\u014c\u0005\f\u0000\u0000\u014c\u014d\u0003\u0014\n"+
 		"\u0000\u014d\u014e\u0005\u000b\u0000\u0000\u014e\u014f\u00050\u0000\u0000"+
 		"\u014f\u0150\u0003B!\u0000\u0150\u0151\u00051\u0000\u0000\u0151\u0152"+

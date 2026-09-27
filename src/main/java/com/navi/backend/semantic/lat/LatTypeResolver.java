@@ -10,11 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Resuelve los tipos de Lat: keywords primitivas ({@code numerus}, {@code textum}, ...)
- * y nombres de agregados (struct/class) contra la {@link com.navi.backend.semantic.model.TypeTable}.
- * Compartido por la pasada de declaraciones y la semántica (antes, una copia en cada una).
- */
+// resuelve tipos de Lat: primitivas (numerus, textum, ...) y nombres de
+// agregados contra la TypeTable; lo comparten declaraciones y semantica
 public final class LatTypeResolver {
 
     private final SemanticContext context;
@@ -44,7 +41,7 @@ public final class LatTypeResolver {
         };
     }
 
-    /** Tamaños constantes de una declaración de arreglo, o lista vacía si no son literales positivos. */
+    // tamaños constantes de un arreglo; vacio si no son literales positivos
     public static List<Integer> constantSizes(List<Expression> sizes) {
         if (sizes == null || sizes.isEmpty()) return List.of();
 

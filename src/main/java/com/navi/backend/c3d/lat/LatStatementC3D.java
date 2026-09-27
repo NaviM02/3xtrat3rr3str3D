@@ -25,11 +25,8 @@ import com.navi.backend.semantic.SemanticContext;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-/**
- * Emisión C3D de sentencias de Lat: control de flujo (con pilas de break/continue),
- * asignaciones, incrementos, impresión y lectura. El recorrido de los hijos lo
- * hace el dispatcher ({@link LatC3DVisitor}).
- */
+// emision C3D de sentencias de Lat: control de flujo (pilas de break/continue),
+// asignaciones, incrementos, impresion y lectura
 class LatStatementC3D {
 
     private final C3DEmitter emitter;

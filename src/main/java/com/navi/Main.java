@@ -20,15 +20,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/**
- * Arnés de prueba: valida semántica y genera C3D. Uso:
- * <pre>java -cp ... com.navi.Main &lt;archivo.pig|.y|.z&gt;</pre>
- *
- * Para {@code .pig} resuelve los imports de forma relativa al directorio del archivo.
- */
 public class Main {
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         String filePath = args.length > 0 ? args[0] : "testfiles/matriz_z/main.pig";
 
         Path file = Path.of(filePath).toAbsolutePath();
@@ -86,9 +80,9 @@ public class Main {
             System.out.print(code);
             emitC(name, c3d);
         }
-    }
+    }*/
 
-/*    public static void main(String[] args) {
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
                 FlatMaterialDarkerIJTheme.setup();
@@ -98,13 +92,9 @@ public class Main {
             CompilerWindow window = new CompilerWindow();
             window.setVisible(true);
         });
-    }*/
+    }
 
-    /**
-     * Traduce las cuartetas a un único archivo C en {@code output/} (limpiando la
-     * carpeta para no acumular artefactos de corridas anteriores) y lo compila
-     * con gcc.
-     */
+/*
     private static void emitC(String fileName, C3DGenerator c3d) {
         String base = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
         try {
@@ -132,7 +122,6 @@ public class Main {
         }
     }
 
-    /** Borra los archivos de {@code output/} para dejar solo el C de la corrida actual. */
     private static void cleanOutput(Path outDir) {
         if (!Files.isDirectory(outDir)) return;
         try (var entries = Files.list(outDir)) {
@@ -146,5 +135,5 @@ public class Main {
         } catch (IOException ignored) {
             // best-effort
         }
-    }
+    }*/
 }

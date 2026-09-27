@@ -10,10 +10,7 @@ import com.navi.backend.semantic.model.Symbol;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Produce un volcado legible del contexto semántico (errores, tabla de tipos y
- * tabla de símbolos) para verificar el análisis.
- */
+// imprime un volcado legible del contexto: errores, tipos y simbolos
 public final class SemanticReporter {
 
     private SemanticReporter() {

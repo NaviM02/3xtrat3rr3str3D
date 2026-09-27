@@ -3,18 +3,13 @@ package com.navi.backend.semantic.loading;
 import com.navi.backend.semantic.enums.Language;
 import lombok.Getter;
 
-/**
- * Parseo semántico de un import de Lat ({@code import carpeta.Objeto1.z}).
- *
- * <p>Se acepta cualquier path; la validación es semántica: el último segmento
- * separado por '.' debe ser {@code y} o {@code z} (la extensión). El resto es la
- * ruta del módulo (los puntos se mapean a separador de archivo en el loader).</p>
- */
+// parsea un import de Lat tipo "carpeta.Objeto1.z"
+// el ultimo segmento es la extension (y o z), el resto es la ruta
 @Getter
 public class ImportPath {
     private final String raw;
-    private final String modulePath; // todo excepto el último segmento
-    private final Language language; // Y o Z según la extensión; null si es inválida
+    private final String modulePath; // todo menos el ultimo segmento
+    private final Language language; // Y o Z segun la extension; null si no sirve
 
     public ImportPath(String raw) {
         this.raw = raw;

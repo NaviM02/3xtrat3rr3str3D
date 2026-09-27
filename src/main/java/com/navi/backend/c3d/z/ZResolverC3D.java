@@ -14,11 +14,8 @@ import com.navi.backend.semantic.model.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Direcciones, layout y asignación de Z para C3D. Los locales/parámetros viven
- * en el stack; los objetos y arreglos en el heap. Mantiene la clase actual para
- * resolver campos implícitos sobre {@code this}.
- */
+// direcciones, layout y asignacion de Z para C3D; locales/params en el stack
+// y objetos/arreglos en el heap. Guarda la clase actual para resolver this
 class ZResolverC3D {
 
     private final SemanticContext context;
@@ -59,7 +56,7 @@ class ZResolverC3D {
         }
     }
 
-    /** Lugar de una variable: local/param del stack, campo del objeto actual (heap) o nombre suelto. */
+    // lugar de una variable: local/param del stack, campo de this (heap) o nombre suelto
     String place(String name) {
         if (emitter.localOffset(name) != null) return emitter.loadVar(name);
         int idx = currentClass == null ? -1 : fieldIndex(currentClass, name);
@@ -67,11 +64,8 @@ class ZResolverC3D {
         return emitter.loadVar(name);
     }
 
-    /**
-     * Dirección de un elemento de arreglo de Z en el heap. El bloque del heap
-     * guarda una cabecera con las dimensiones ({@code heap[base + k] = dk}) y luego
-     * los datos; así se pueden aplanar en row-major arreglos de cualquier rank.
-     */
+    // direccion de un elemento de arreglo de Z en el heap
+    // el bloque guarda la cabecera [rank][d0][d1]... y luego los datos (row-major)
     String arrayElementAddr(ArrayAccessExpression node) {
         List<String> indices = new ArrayList<>();
         Expression current = node;
@@ -89,14 +83,14 @@ class ZResolverC3D {
         return emitter.binary("+", base, emitter.binary("+", String.valueOf(rank), flat));
     }
 
-    /** Rank declarado del arreglo (número de dimensiones), o {@code fallback} si no se conoce. */
+    // rank declarado del arreglo (fallback si no se conoce)
     private int arrayRank(Expression array, int fallback) {
         Type t = context.typeOf(array);
         if (t != null && t.isArray() && t.getDimensions() > 0) return t.getDimensions();
         return fallback;
     }
 
-    /** Receptor del método actual: parámetro 0 del marco. */
+    // receptor del metodo actual: parametro 0 del marco (this)
     String thisPlace() {
         return emitter.localOffset("this") != null ? emitter.loadVar("this") : "this";
     }

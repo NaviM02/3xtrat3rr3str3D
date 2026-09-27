@@ -17,10 +17,8 @@ import com.navi.backend.semantic.model.Symbol;
 
 import java.util.List;
 
-/**
- * Emisión C3D de declaraciones/funciones de Lat. Mantiene el estado del área
- * global ({@code globalSection}) para elegir entre declaración global o local.
- */
+// emision C3D de declaraciones/funciones de Lat; globalSection decide
+// si la declaracion es global o local
 class LatDeclarationC3D {
 
     private final SemanticContext context;

@@ -24,11 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Direcciones, layout y asignación de Lat para C3D: todo lo compartido entre la
- * emisión de declaraciones, sentencias y expresiones. No implementa el visitor;
- * el recorrido de los hijos lo delega al dispatcher ({@link LatC3DVisitor}).
- */
+// direcciones, layout y asignacion de Lat para C3D (lo compartido entre
+// declaraciones, sentencias y expresiones)
 class LatC3DResolver {
 
     private final SemanticContext context;
@@ -48,25 +45,25 @@ class LatC3DResolver {
         return null; // struct initializer no produce un valor unico (se emite campo a campo)
     }
 
-    /**
-     * Emite un literal de struct ({@code Tipo {"campo": valor, ...}}) escribiendo
-     * cada campo en {@code structAddr}. Soporta campos escalares; los campos
-     * arreglo (y cualquier caso no soportado) se omiten sin reportar error. Los
-     * campos del struct no listados se dejan en 0/null para no arrastrar basura.
-     */
+    // emite un literal de struct escribiendo cada campo en structAddr
+    // los campos arreglo no soportados se omiten; los no listados quedan en 0/null
     void emitStructInitializer(StructInitializer init, Expression target, Type structType) {
         if (target == null || structType == null || !structType.isStruct()) return;
 
         AggregateType agg = context.getTypeTable().resolve(structType.getName());
         if (agg == null) return;
 
+        int index = 0;
         for (StructFieldInitializer field : init.getFields()) {
-            Field declared = agg.findField(field.getName());
+            Field declared = field.getName() != null
+                    ? agg.findField(field.getName())
+                    : (index < agg.getFields().size() ? agg.getFields().get(index) : null);
+            index++;
             if (declared == null) continue;
             if (!(field.getValue() instanceof ExpressionInitializer ei)) continue;
             if (declared.getType() != null && (declared.getType().isArray() || declared.getType().isAggregate())) continue;
 
-            int off = fieldOffset(structType, field.getName());
+            int off = fieldOffset(structType, declared.getName());
             String addr = emitter.binary("+", structAddr(target), String.valueOf(off));
             emitter.stackStoreAt(addr, ei.getExpression().accept(visitor));
         }
@@ -74,10 +71,15 @@ class LatC3DResolver {
         initializeStructDefaults(agg, target, init);
     }
 
-    /** Deja en 0/null los campos escalares del struct que el literal no menciona. */
+    // deja en 0/null los campos escalares que el literal no menciona
     private void initializeStructDefaults(AggregateType agg, Expression target, StructInitializer init) {
         Set<String> provided = new HashSet<>();
-        for (StructFieldInitializer field : init.getFields()) provided.add(field.getName());
+        int index = 0;
+        for (StructFieldInitializer field : init.getFields()) {
+            if (field.getName() != null) provided.add(field.getName());
+            else if (index < agg.getFields().size()) provided.add(agg.getFields().get(index).getName());
+            index++;
+        }
 
         for (Field field : agg.getFields()) {
             if (provided.contains(field.getName())) continue;
@@ -110,7 +112,7 @@ class LatC3DResolver {
 
     // ---------------------------------------------------------------- direcciones
 
-    /** Dirección del elemento de un arreglo, aplanando índices multidimensionales. */
+    // direccion del elemento de un arreglo, aplanando indices
     String arrayElementAddr(ArrayAccessExpression node) {
         List<String> indices = new ArrayList<>();
         Expression current = node;
@@ -136,7 +138,7 @@ class LatC3DResolver {
         return emitter.heapAddr(m.getObject().accept(visitor), String.valueOf(fieldIndex(owner, m.getMember())));
     }
 
-    /** Dimensiones de un arreglo (variable local/global o campo de struct). */
+    // dimensiones de un arreglo (variable o campo de struct)
     private List<Integer> arrayDimsOf(Expression array) {
         if (array instanceof VariableExpression v) return emitter.arrayDims(v.getName());
         if (array instanceof MemberAccessExpression m) {
@@ -161,7 +163,7 @@ class LatC3DResolver {
         return obj.accept(visitor);
     }
 
-    /** Dirección (no valor) de una expresión que ocupa celdas contiguas. */
+    // direccion (no valor) de una expresion que ocupa celdas contiguas
     String addressOf(Expression e) {
         if (e instanceof VariableExpression v) return emitter.varAddr(v.getName());
         if (e instanceof ArrayAccessExpression a) return arrayElementAddr(a);
@@ -181,7 +183,7 @@ class LatC3DResolver {
         return 0;
     }
 
-    /** Offset (en celdas) de un campo; a diferencia de {@link #fieldIndex}, los campos arreglo ocupan varias celdas. */
+    // offset en celdas de un campo (los arreglo ocupan varias celdas)
     int fieldOffset(Type owner, String member) {
         if (owner == null) return 0;
         AggregateType agg = context.getTypeTable().resolve(owner.getName());
@@ -189,7 +191,7 @@ class LatC3DResolver {
         return agg.fieldOffset(member);
     }
 
-    /** Tamaño en celdas de un struct (o 1 si no se conoce). */
+    // tamano en celdas de un struct (1 si no se conoce)
     int structSize(String name) {
         AggregateType agg = context.getTypeTable().resolve(name);
         return agg == null ? 1 : agg.size();
@@ -202,7 +204,7 @@ class LatC3DResolver {
 
     // ---------------------------------------------------------------- arreglos
 
-    /** Celdas de un arreglo de tamaño constante (1 si el tamaño es dinámico/desconocido). */
+    // celdas de un arreglo de tamano constante (1 si es dinamico/desconocido)
     int arrayCells(List<Expression> sizes) {
         if (sizes == null || sizes.isEmpty()) return 1;
         int total = 1;
@@ -213,7 +215,7 @@ class LatC3DResolver {
         return total;
     }
 
-    /** Dimensiones constantes de un arreglo, o {@code null} si no se pueden calcular. */
+    // dimensiones constantes de un arreglo, o null si no se pueden calcular
     List<Integer> constantDims(List<Expression> sizes) {
         if (sizes == null || sizes.isEmpty()) return null;
         List<Integer> dims = new ArrayList<>();
@@ -224,7 +226,7 @@ class LatC3DResolver {
         return dims;
     }
 
-    /** Aplana y almacena un inicializador de arreglo (soporta anidados). */
+    // aplana y almacena un inicializador de arreglo (soporta anidados)
     int storeArrayInitializer(String base, List<AstLatNode> elements, int start) {
         if (elements == null) return start;
         int i = start;

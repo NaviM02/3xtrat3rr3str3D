@@ -22,12 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Emisión C3D de clases, métodos y constructores de Z. La clase actual se guarda
- * en {@link ZResolverC3D} para que expresiones y asignaciones resuelvan campos
- * implícitos sobre {@code this}; los inicializadores de campo se aplican en el
- * constructor.
- */
+// emision C3D de clases, metodos y constructores de Z; la clase actual va en
+// ZResolverC3D para resolver campos de this, los inicializadores van en el ctor
 class ZDeclarationC3D {
 
     private final SemanticContext context;
@@ -95,11 +91,8 @@ class ZDeclarationC3D {
         return null;
     }
 
-    /**
-     * Deja en {@code null} los campos de referencia (cadena, arreglo u objeto)
-     * que no tengan inicializador. Sin esto, la celda del heap queda en cero
-     * (entero 0) en lugar de {@code null}. Los primitivos ya valen 0 por defecto.
-     */
+    // deja en null los campos de referencia sin inicializador (si no la celda
+    // del heap queda en 0); los primitivos ya valen 0 por defecto
     private void initializeNullFields() {
         AggregateType cls = resolver.currentClass();
 

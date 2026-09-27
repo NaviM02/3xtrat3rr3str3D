@@ -50,16 +50,9 @@ import com.navi.backend.ast.z.visitors.AstZVisitor;
 import com.navi.backend.c3d.C3DEmitter;
 import com.navi.backend.semantic.SemanticContext;
 
-/**
- * Genera C3D para Z siguiendo los apuntes de clase. Locales/parámetros viven en
- * el stack ({@code stack[BP + off]}); los objetos y arreglos viven en el heap
- * ({@code t = HP; HP = HP + size} y {@code heap[base + off]}). El receptor
- * {@code this} es el parámetro 0 del marco. Booleanos materializados con saltos.
- *
- * <p>Dispatcher delgado: la lógica vive en {@link ZDeclarationC3D},
- * {@link ZStatementC3D} y {@link ZExpressionC3D}; {@link ZResolverC3D}
- * centraliza direcciones, layout y asignación.</p>
- */
+// genera C3D para Z: locales/params en stack[BP + off]; objetos y arreglos en el heap
+// this es el parametro 0 del marco
+// dispatcher delgado: la logica esta en ZDeclaration/Statement/ExpressionC3D
 public class ZC3DVisitor implements AstZVisitor<String> {
 
     private final ZExpressionC3D expressions;

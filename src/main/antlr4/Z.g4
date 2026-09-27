@@ -65,7 +65,7 @@ switchCase : CASE expression COLON statement*;
 
 defaultCase : DEFAULT COLON statement*;
 
-forStatement : FOR LPAREN forInitializer? SEMI expression? SEMI forUpdate? RPAREN block;
+forStatement : FOR LPAREN forInitializer? SEMI expression? SEMI forUpdate? RPAREN statementOrBlock;
 
 forInitializer
     : variableDeclarationStatementNoSemi
@@ -78,7 +78,7 @@ forUpdate : expressionList;
 
 expressionList : expression (COMMA expression)*;
 
-whileStatement : WHILE LPAREN expression RPAREN block;
+whileStatement : WHILE LPAREN expression RPAREN statementOrBlock;
 
 doWhileStatement : DO block WHILE LPAREN expression RPAREN SEMI;
 

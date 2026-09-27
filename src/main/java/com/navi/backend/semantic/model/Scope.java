@@ -8,11 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Ámbito léxico. Guarda los símbolos por nombre; los callables se agrupan en
- * lista para soportar sobrecarga (Z). No existe {@code MODULE}: los imports son
- * {@code import *} y todos los símbolos importados caen en el scope global.
- */
+// ambito lexico; los callables van en lista para soportar sobrecarga (Z)
+// no hay MODULE: los imports son import * y caen todos en el scope global
 @Getter
 public class Scope {
     private final ScopeKind kind;
@@ -25,24 +22,24 @@ public class Scope {
         this.parent = parent;
     }
 
-    /** Agrega un símbolo (permite sobrecarga de callables; la dedup la valida el caller). */
+    // agrega un simbolo (permite sobrecarga; la dedup la valida quien llama)
     public void define(Symbol symbol) {
         symbols.computeIfAbsent(symbol.getName(), k -> new ArrayList<>()).add(symbol);
     }
 
-    /** Define un nombre que debe ser único en este scope (variables, params). */
+    // define un nombre unico en este scope (variables, params)
     public boolean defineUnique(Symbol symbol) {
         if (symbols.containsKey(symbol.getName())) return false;
         define(symbol);
         return true;
     }
 
-    /** Símbolos con ese nombre solo en este scope (o null). */
+    // simbolos con ese nombre solo en este scope (o null)
     public List<Symbol> resolveOverloads(String name) {
         return symbols.get(name);
     }
 
-    /** Resuelve por nombre recorriendo la cadena de ámbitos (devuelve el primero). */
+    // resuelve por nombre recorriendo la cadena; devuelve el primero
     public Symbol resolve(String name) {
         List<Symbol> local = symbols.get(name);
         if (local != null && !local.isEmpty()) return local.get(0);
@@ -50,7 +47,7 @@ public class Scope {
         return null;
     }
 
-    /** Sobrecargas de un callable por nombre recorriendo la cadena (o null). */
+    // sobrecargas de un callable recorriendo la cadena (o null)
     public List<Symbol> resolveCallable(String name) {
         List<Symbol> local = symbols.get(name);
         if (local != null && !local.isEmpty()) return local;

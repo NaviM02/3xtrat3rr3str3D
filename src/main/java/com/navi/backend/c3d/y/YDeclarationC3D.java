@@ -16,10 +16,8 @@ import com.navi.backend.semantic.model.Symbol;
 
 import java.util.List;
 
-/**
- * Emisión C3D de declaraciones/funciones de Y. Las variables locales y structs
- * viven en el stack; los parámetros arreglo/struct se marcan por referencia.
- */
+// emision C3D de declaraciones/funciones de Y; locales y structs en el stack
+// y los parametros arreglo/struct se marcan por referencia
 class YDeclarationC3D {
 
     private final SemanticContext context;
