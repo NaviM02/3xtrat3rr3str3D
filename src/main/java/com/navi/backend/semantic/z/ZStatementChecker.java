@@ -28,12 +28,12 @@ import com.navi.backend.ast.z.statements.SwitchStatement;
 import com.navi.backend.ast.z.statements.VariableDeclarationStatement;
 import com.navi.backend.ast.z.statements.WhileStatement;
 import com.navi.backend.ast.z.visitors.AstZVisitor;
-import com.navi.backend.semantic.Definitions;
-import com.navi.backend.semantic.ScopeKind;
+import com.navi.backend.semantic.support.Definitions;
+import com.navi.backend.semantic.enums.ScopeKind;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Type;
-import com.navi.backend.semantic.TypeCompat;
-import com.navi.backend.semantic.TypeRules;
+import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.rules.TypeCompat;
+import com.navi.backend.semantic.rules.TypeRules;
 
 import java.util.List;
 

@@ -1,5 +1,6 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.model;
 
+import com.navi.backend.semantic.enums.ScopeKind;
 import lombok.Getter;
 
 import java.util.ArrayList;

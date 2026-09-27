@@ -41,12 +41,12 @@ import com.navi.backend.ast.lat.statements.ReadStatement;
 import com.navi.backend.ast.lat.statements.ReturnStatement;
 import com.navi.backend.ast.lat.statements.WhileStatement;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
-import com.navi.backend.semantic.Definitions;
-import com.navi.backend.semantic.FunctionSignature;
+import com.navi.backend.semantic.support.Definitions;
+import com.navi.backend.semantic.model.FunctionSignature;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Symbol;
-import com.navi.backend.semantic.SymbolKind;
-import com.navi.backend.semantic.Type;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.enums.SymbolKind;
+import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +124,8 @@ public class LatDeclarationVisitor implements AstLatVisitor<Void> {
     public Void visit(ArrayDeclaration node) {
         Type base = types.resolve(node.getType(), node.getLine(), node.getColumn());
         int rank = node.getSizes() == null ? 0 : node.getSizes().size();
-        defs.variable(node, node.getName(), Type.array(base, rank), node.getLine(), node.getColumn());
+        Symbol symbol = defs.variable(node, node.getName(), Type.array(base, rank), node.getLine(), node.getColumn());
+        symbol.setArraySizes(LatTypeResolver.constantSizes(node.getSizes()));
         return null;
     }
 

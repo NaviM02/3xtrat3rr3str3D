@@ -1,14 +1,18 @@
 package com.navi.backend.semantic.lat;
 
-import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.ast.lat.expressions.Expression;
+import com.navi.backend.ast.lat.expressions.literals.NumberLiteral;
+import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Type;
+import com.navi.backend.semantic.model.Type;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
  * Resuelve los tipos de Lat: keywords primitivas ({@code numerus}, {@code textum}, ...)
- * y nombres de agregados (struct/class) contra la {@link com.navi.backend.semantic.TypeTable}.
+ * y nombres de agregados (struct/class) contra la {@link com.navi.backend.semantic.model.TypeTable}.
  * Compartido por la pasada de declaraciones y la semántica (antes, una copia en cada una).
  */
 public final class LatTypeResolver {
@@ -38,5 +42,19 @@ public final class LatTypeResolver {
                 yield agg.isClass() ? Type.classType(name) : Type.struct(name);
             }
         };
+    }
+
+    /** Tamaños constantes de una declaración de arreglo, o lista vacía si no son literales positivos. */
+    public static List<Integer> constantSizes(List<Expression> sizes) {
+        if (sizes == null || sizes.isEmpty()) return List.of();
+
+        List<Integer> dims = new ArrayList<>();
+
+        for (Expression e : sizes) {
+            if (e instanceof NumberLiteral n && n.getValue() > 0) dims.add(n.getValue());
+            else return List.of();
+        }
+
+        return dims;
     }
 }

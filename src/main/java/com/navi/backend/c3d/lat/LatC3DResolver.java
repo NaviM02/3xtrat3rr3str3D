@@ -4,6 +4,8 @@ import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.declarations.ArrayInitializer;
 import com.navi.backend.ast.lat.declarations.initializers.ExpressionInitializer;
 import com.navi.backend.ast.lat.declarations.initializers.Initializer;
+import com.navi.backend.ast.lat.declarations.initializers.StructFieldInitializer;
+import com.navi.backend.ast.lat.declarations.initializers.StructInitializer;
 import com.navi.backend.ast.lat.expressions.ArrayAccessExpression;
 import com.navi.backend.ast.lat.expressions.Expression;
 import com.navi.backend.ast.lat.expressions.MemberAccessExpression;
@@ -11,14 +13,16 @@ import com.navi.backend.ast.lat.expressions.VariableExpression;
 import com.navi.backend.ast.lat.expressions.literals.NumberLiteral;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import com.navi.backend.c3d.C3DEmitter;
-import com.navi.backend.semantic.AggregateType;
-import com.navi.backend.semantic.Field;
+import com.navi.backend.semantic.model.AggregateType;
+import com.navi.backend.semantic.model.Field;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Symbol;
-import com.navi.backend.semantic.Type;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Direcciones, layout y asignación de Lat para C3D: todo lo compartido entre la
@@ -41,7 +45,50 @@ class LatC3DResolver {
 
     String initializerValue(Initializer init) {
         if (init instanceof ExpressionInitializer ei) return ei.getExpression().accept(visitor);
-        return null; // struct initializer no se emite (requiere layout; pendiente)
+        return null; // struct initializer no produce un valor unico (se emite campo a campo)
+    }
+
+    /**
+     * Emite un literal de struct ({@code Tipo {"campo": valor, ...}}) escribiendo
+     * cada campo en {@code structAddr}. Soporta campos escalares; los campos
+     * arreglo (y cualquier caso no soportado) se omiten sin reportar error. Los
+     * campos del struct no listados se dejan en 0/null para no arrastrar basura.
+     */
+    void emitStructInitializer(StructInitializer init, Expression target, Type structType) {
+        if (target == null || structType == null || !structType.isStruct()) return;
+
+        AggregateType agg = context.getTypeTable().resolve(structType.getName());
+        if (agg == null) return;
+
+        for (StructFieldInitializer field : init.getFields()) {
+            Field declared = agg.findField(field.getName());
+            if (declared == null) continue;
+            if (!(field.getValue() instanceof ExpressionInitializer ei)) continue;
+            if (declared.getType() != null && (declared.getType().isArray() || declared.getType().isAggregate())) continue;
+
+            int off = fieldOffset(structType, field.getName());
+            String addr = emitter.binary("+", structAddr(target), String.valueOf(off));
+            emitter.stackStoreAt(addr, ei.getExpression().accept(visitor));
+        }
+
+        initializeStructDefaults(agg, target, init);
+    }
+
+    /** Deja en 0/null los campos escalares del struct que el literal no menciona. */
+    private void initializeStructDefaults(AggregateType agg, Expression target, StructInitializer init) {
+        Set<String> provided = new HashSet<>();
+        for (StructFieldInitializer field : init.getFields()) provided.add(field.getName());
+
+        for (Field field : agg.getFields()) {
+            if (provided.contains(field.getName())) continue;
+
+            Type type = field.getType();
+            if (type == null || type.isArray() || type.isAggregate()) continue;
+
+            int off = fieldOffset(Type.struct(agg.getName()), field.getName());
+            String addr = emitter.binary("+", structAddr(target), String.valueOf(off));
+            emitter.stackStoreAt(addr, type.isString() ? "null" : "0");
+        }
     }
 
     void assignTo(Expression target, String value) {

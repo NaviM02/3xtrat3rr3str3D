@@ -1,4 +1,10 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.support;
+
+import com.navi.backend.semantic.SemanticContext;
+import com.navi.backend.semantic.enums.SymbolKind;
+import com.navi.backend.semantic.model.Scope;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.Type;
 
 /**
  * Alta de símbolos compartida por los seis visitantes (declaraciones + semántica

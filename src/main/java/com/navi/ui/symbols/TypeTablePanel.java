@@ -1,11 +1,11 @@
 package com.navi.ui.symbols;
 
-import com.navi.backend.semantic.AggregateType;
-import com.navi.backend.semantic.Field;
-import com.navi.backend.semantic.FunctionSignature;
-import com.navi.backend.semantic.Symbol;
-import com.navi.backend.semantic.Type;
-import com.navi.backend.semantic.TypeTable;
+import com.navi.backend.semantic.model.AggregateType;
+import com.navi.backend.semantic.model.Field;
+import com.navi.backend.semantic.model.FunctionSignature;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.model.TypeTable;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

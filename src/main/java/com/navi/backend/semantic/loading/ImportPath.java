@@ -1,5 +1,6 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.loading;
 
+import com.navi.backend.semantic.enums.Language;
 import lombok.Getter;
 
 /**

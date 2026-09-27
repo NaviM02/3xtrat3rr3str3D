@@ -1,4 +1,4 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.errors;
 
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
@@ -13,12 +13,22 @@ import java.util.List;
  */
 public class CollectingErrorListener extends BaseErrorListener {
 
+    /** Tope de errores reportados para que un archivo muy roto no llene la consola. */
+    private static final int MAX_ERRORS = 50;
+
     private final List<String> errors = new ArrayList<>();
 
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
                             int line, int charPositionInLine, String msg, RecognitionException e) {
-        errors.add("[" + line + ":" + charPositionInLine + "] " + msg);
+        if (errors.size() >= MAX_ERRORS) return;
+
+        String entry = "[" + line + ":" + charPositionInLine + "] " + msg;
+
+        // La estrategia de recuperación puede re-reportar el mismo token: evitar ruido.
+        if (!errors.isEmpty() && errors.get(errors.size() - 1).equals(entry)) return;
+
+        errors.add(entry);
     }
 
     public boolean hasErrors() {

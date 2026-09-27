@@ -1,4 +1,4 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.loading;
 
 import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;

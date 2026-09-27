@@ -11,16 +11,19 @@ import com.navi.backend.ast.lat.expressions.FunctionCallExpression;
 import com.navi.backend.ast.lat.expressions.MemberAccessExpression;
 import com.navi.backend.ast.lat.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.lat.expressions.UnaryExpression;
+import com.navi.backend.ast.lat.expressions.UnaryOperator;
 import com.navi.backend.ast.lat.expressions.VariableExpression;
+import com.navi.backend.ast.lat.expressions.literals.NumberLiteral;
 import com.navi.backend.ast.lat.AstLatNode;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
-import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.model.AggregateType;
+import com.navi.backend.semantic.model.Field;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Symbol;
-import com.navi.backend.semantic.SymbolKind;
-import com.navi.backend.semantic.Type;
-import com.navi.backend.semantic.TypeCompat;
-import com.navi.backend.semantic.TypeRules;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.enums.SymbolKind;
+import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.rules.TypeCompat;
+import com.navi.backend.semantic.rules.TypeRules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,9 +88,54 @@ public class LatExpressionChecker {
     Type arrayAccess(ArrayAccessExpression node) {
         Type arr = node.getArray().accept(visitor);
         Type idx = node.getIndex().accept(visitor);
+        checkArrayBounds(node);
         Type result = rules.arrayElement(arr, idx, node.getLine(), node.getColumn());
         context.annotate(node, result);
         return result;
+    }
+
+    /** Valida en compilación el índice si es constante y se conocen los tamaños del arreglo. */
+    private void checkArrayBounds(ArrayAccessExpression node) {
+        List<Integer> sizes = sizesOf(node.getArray());
+
+        if (sizes == null || sizes.isEmpty()) return;
+
+        Integer index = constantIndex(node.getIndex());
+
+        if (index == null) return;
+
+        rules.checkIndex(sizes.get(0), index, node.getLine(), node.getColumn());
+    }
+
+    /** Tamaños conocidos del arreglo (variable o miembro de struct); null si se desconocen. */
+    private List<Integer> sizesOf(Expression array) {
+        if (array instanceof VariableExpression v) {
+            Symbol s = context.getSymbolTable().resolve(v.getName());
+            return s == null || s.getArraySizes().isEmpty() ? null : s.getArraySizes();
+        }
+        if (array instanceof ArrayAccessExpression a) {
+            List<Integer> parent = sizesOf(a.getArray());
+            return parent != null && parent.size() > 1 ? parent.subList(1, parent.size()) : null;
+        }
+        if (array instanceof MemberAccessExpression m) {
+            Type owner = context.typeOf(m.getObject());
+            if (owner != null && owner.isAggregate()) {
+                AggregateType agg = context.getTypeTable().resolve(owner.getName());
+                Field field = agg == null ? null : agg.findField(m.getMember());
+                if (field != null && !field.getArrayDims().isEmpty()) return field.getArrayDims();
+            }
+            return null;
+        }
+        return null;
+    }
+
+    private Integer constantIndex(Expression e) {
+        if (e instanceof NumberLiteral n) return n.getValue();
+        if (e instanceof UnaryExpression u && u.getOperator() == UnaryOperator.NEGATE
+                && u.getExpression() instanceof NumberLiteral n) {
+            return -n.getValue();
+        }
+        return null;
     }
 
     Type memberAccess(MemberAccessExpression node) {
@@ -190,6 +238,20 @@ public class LatExpressionChecker {
     }
 
     void checkInitializer(Initializer init, Type expected, int line, int col) {
+        // Literal de struct: soporte parcial en C3D (campos escalares). Mientras
+        // no esté completo, se acepta cuando el tipo esperado es struct para no
+        // bloquear la compilación; la emisión omite los campos no soportados.
+        if (init instanceof StructInitializer si) {
+            if (expected.isStruct()) {
+                for (StructFieldInitializer f : si.getFields()) {
+                    if (f.getValue() instanceof ExpressionInitializer ei) ei.getExpression().accept(visitor);
+                }
+                return;
+            }
+            rules.error(line, col, "No se puede inicializar " + expected + " con un literal de estructura");
+            return;
+        }
+
         Type actual = initializerType(init);
         if (!TypeCompat.canAssign(expected, actual)) {
             rules.error(line, col, "No se puede inicializar " + expected + " con " + actual);

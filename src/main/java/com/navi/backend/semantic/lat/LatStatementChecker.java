@@ -24,11 +24,12 @@ import com.navi.backend.ast.lat.statements.ReturnStatement;
 import com.navi.backend.ast.lat.statements.Statement;
 import com.navi.backend.ast.lat.statements.WhileStatement;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
-import com.navi.backend.semantic.Definitions;
-import com.navi.backend.semantic.ScopeKind;
+import com.navi.backend.semantic.support.Definitions;
+import com.navi.backend.semantic.enums.ScopeKind;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Type;
-import com.navi.backend.semantic.TypeRules;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.rules.TypeRules;
 
 /**
  * Chequeo de sentencias de Lat: ámbitos, símbolos y control de flujo.
@@ -104,7 +105,8 @@ public class LatStatementChecker {
         Type base = types.resolve(node.getType(), node.getLine(), node.getColumn());
         int rank = node.getSizes() == null ? 0 : node.getSizes().size();
         Type arrayType = rank > 0 ? Type.array(base, rank) : base;
-        defs.variable(node, node.getName(), arrayType, node.getLine(), node.getColumn());
+        Symbol symbol = defs.variable(node, node.getName(), arrayType, node.getLine(), node.getColumn());
+        symbol.setArraySizes(LatTypeResolver.constantSizes(node.getSizes()));
         if (node.getInitializer() != null) {
             checkArrayInitializer(node.getInitializer(), arrayType, node.getLine(), node.getColumn());
         }

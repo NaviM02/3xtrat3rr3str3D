@@ -40,10 +40,10 @@ import com.navi.backend.ast.y.statements.SwitchCase;
 import com.navi.backend.ast.y.statements.SwitchStatement;
 import com.navi.backend.ast.y.statements.WhileStatement;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
-import com.navi.backend.semantic.Definitions;
+import com.navi.backend.semantic.support.Definitions;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Type;
-import com.navi.backend.semantic.TypeRules;
+import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.rules.TypeRules;
 
 /**
  * Pasada semántica de Y. Valida tipos y anota expresiones con su {@link Type}.

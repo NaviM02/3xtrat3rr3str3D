@@ -1,7 +1,10 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.model;
 
+import com.navi.backend.semantic.enums.SymbolKind;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * Símbolo semántico. Guarda tipo/ámbito y, una vez que el generador de C3D
@@ -21,6 +24,8 @@ public class Symbol {
     private final int column;
     @Setter
     private int posMemory = -1;              // offset en stack/global; -1 mientras no se asigna
+    @Setter
+    private List<Integer> arraySizes = List.of(); // tamaños constantes si es arreglo; vacío si se desconocen
 
     public Symbol(String name, SymbolKind kind, Type type, FunctionSignature signature,
                   boolean reference, Scope scope, AggregateType owner, int line, int column) {

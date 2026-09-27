@@ -1,4 +1,6 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.rules;
+
+import com.navi.backend.semantic.model.Type;
 
 /**
  * Reglas de compatibilidad/promoción de tipos (la "tabla de compatibilidad"

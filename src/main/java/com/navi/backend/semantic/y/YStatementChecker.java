@@ -13,6 +13,7 @@ import com.navi.backend.ast.y.declarations.StructureInitializer;
 import com.navi.backend.ast.y.declarations.StructureParameter;
 import com.navi.backend.ast.y.declarations.VariableDeclaration;
 import com.navi.backend.ast.y.expressions.Expression;
+import com.navi.backend.ast.y.expressions.literals.LiteralExpression;
 import com.navi.backend.ast.y.statements.AssignmentStatement;
 import com.navi.backend.ast.y.statements.AssignmentOperator;
 import com.navi.backend.ast.y.statements.DefaultCase;
@@ -30,15 +31,17 @@ import com.navi.backend.ast.y.statements.SwitchCase;
 import com.navi.backend.ast.y.statements.SwitchStatement;
 import com.navi.backend.ast.y.statements.WhileStatement;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
-import com.navi.backend.semantic.AggregateType;
-import com.navi.backend.semantic.Definitions;
-import com.navi.backend.semantic.Field;
-import com.navi.backend.semantic.ScopeKind;
+import com.navi.backend.semantic.model.AggregateType;
+import com.navi.backend.semantic.support.Definitions;
+import com.navi.backend.semantic.model.Field;
+import com.navi.backend.semantic.enums.ScopeKind;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Type;
-import com.navi.backend.semantic.TypeCompat;
-import com.navi.backend.semantic.TypeRules;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.rules.TypeCompat;
+import com.navi.backend.semantic.rules.TypeRules;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -115,16 +118,33 @@ public class YStatementChecker {
         Type base = types.resolve(node.getType());
         int rank = node.getArrayDeclaration() == null ? 0 : node.getArrayDeclaration().getDimensions().size();
         Type type = rank > 0 ? Type.array(base, rank) : base;
-        defs.variable(node, node.getName(), type, node.getLine(), node.getColumn());
+        Symbol symbol = defs.variable(node, node.getName(), type, node.getLine(), node.getColumn());
+        if (node.getArrayDeclaration() != null) {
+            symbol.setArraySizes(constantSizes(node.getArrayDeclaration().getDimensions()));
+        }
         if (node.getInitializer() != null) {
             checkInitializer(node.getInitializer(), type, node.getLine(), node.getColumn());
         }
         return null;
     }
 
+    /** Tamaños constantes de una declaración Y, o lista vacía si algún tamaño no es literal. */
+    private static List<Integer> constantSizes(List<Expression> dims) {
+        if (dims == null || dims.isEmpty()) return List.of();
+
+        List<Integer> sizes = new ArrayList<>();
+
+        for (Expression e : dims) {
+            if (e instanceof LiteralExpression lit && lit.getValue() instanceof Integer i && i > 0) sizes.add(i);
+            else return List.of();
+        }
+
+        return sizes;
+    }
+
     /**
      * Estructura declarada localmente (dentro de una función): se registra en el
-     * {@link com.navi.backend.semantic.TypeTable} plano para que el resto del
+     * {@link com.navi.backend.semantic.model.TypeTable} plano para que el resto del
      * cuerpo pueda usarla por nombre simple.
      */
     Type structureDeclaration(StructureDeclaration node) {

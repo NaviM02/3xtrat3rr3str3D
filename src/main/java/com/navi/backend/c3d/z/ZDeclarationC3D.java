@@ -12,12 +12,15 @@ import com.navi.backend.ast.z.declarations.VariableDeclarator;
 import com.navi.backend.ast.z.declarations.ZType;
 import com.navi.backend.ast.z.visitors.AstZVisitor;
 import com.navi.backend.c3d.C3DEmitter;
-import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.model.AggregateType;
+import com.navi.backend.semantic.model.Field;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Type;
+import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Emisión C3D de clases, métodos y constructores de Z. La clase actual se guarda
@@ -85,10 +88,41 @@ class ZDeclarationC3D {
                 if (idx >= 0) emitter.heapStore(resolver.thisPlace(), String.valueOf(idx), ei.getExpression().accept(visitor));
             }
         }
+        initializeNullFields();
         node.getBody().accept(visitor);
         emitter.returnVoid();
         emitter.exitFrame();
         return null;
+    }
+
+    /**
+     * Deja en {@code null} los campos de referencia (cadena, arreglo u objeto)
+     * que no tengan inicializador. Sin esto, la celda del heap queda en cero
+     * (entero 0) en lugar de {@code null}. Los primitivos ya valen 0 por defecto.
+     */
+    private void initializeNullFields() {
+        AggregateType cls = resolver.currentClass();
+
+        if (cls == null) return;
+
+        Set<String> initialized = new HashSet<>();
+
+        for (VariableDeclarator v : fieldInitializers) initialized.add(v.getName());
+
+        for (Field field : cls.getFields()) {
+            if (initialized.contains(field.getName())) continue;
+
+            Type type = field.getType();
+
+            if (type == null || !needsNullDefault(type)) continue;
+
+            int idx = resolver.fieldIndex(cls, field.getName());
+            emitter.heapStore(resolver.thisPlace(), String.valueOf(idx), emitter.literal("null"));
+        }
+    }
+
+    private static boolean needsNullDefault(Type type) {
+        return type.isString() || type.isArray() || type.isAggregate();
     }
 
     String variableDeclaration(VariableDeclaration node) {

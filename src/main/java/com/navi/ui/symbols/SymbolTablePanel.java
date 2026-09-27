@@ -1,8 +1,8 @@
 package com.navi.ui.symbols;
 
-import com.navi.backend.semantic.Scope;
-import com.navi.backend.semantic.Symbol;
-import com.navi.backend.semantic.SymbolTable;
+import com.navi.backend.semantic.model.Scope;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.SymbolTable;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

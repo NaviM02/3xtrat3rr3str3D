@@ -42,10 +42,10 @@ import com.navi.backend.ast.lat.statements.ReturnStatement;
 import com.navi.backend.ast.lat.statements.Statement;
 import com.navi.backend.ast.lat.statements.WhileStatement;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
-import com.navi.backend.semantic.Definitions;
+import com.navi.backend.semantic.support.Definitions;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Type;
-import com.navi.backend.semantic.TypeRules;
+import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.rules.TypeRules;
 
 /**
  * Pasada semántica de Lat: valida tipos y anota cada expresión con su {@link Type}.

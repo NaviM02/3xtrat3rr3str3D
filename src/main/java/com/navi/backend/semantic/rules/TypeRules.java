@@ -1,4 +1,10 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.rules;
+
+import com.navi.backend.semantic.SemanticContext;
+import com.navi.backend.semantic.errors.SemanticErrors;
+import com.navi.backend.semantic.model.AggregateType;
+import com.navi.backend.semantic.model.Field;
+import com.navi.backend.semantic.model.Type;
 
 /**
  * Reglas de tipo compartidas por los tres checkers semánticos (Lat/Y/Z).
@@ -154,6 +160,17 @@ public final class TypeRules {
         if (arr.isArray()) return arrayElementType(arr);
         error(line, col, "Acceso por índice a un no-arreglo: " + arr);
         return Type.ERROR;
+    }
+
+    /**
+     * Índice constante contra una dimensión conocida (validación en compilación).
+     * Solo aplica cuando el índice y el tamaño son constantes; los índices
+     * variables no pueden validarse estáticamente.
+     */
+    public void checkIndex(int dim, int index, int line, int col) {
+        if (index < 0 || index >= dim) {
+            error(line, col, "Índice " + index + " fuera de rango (dimensión " + dim + ")");
+        }
     }
 
     /** Campo de struct/clase. */

@@ -3,6 +3,8 @@ package com.navi.backend.c3d.lat;
 import com.navi.backend.ast.lat.declarations.ArrayDeclaration;
 import com.navi.backend.ast.lat.declarations.Declaration;
 import com.navi.backend.ast.lat.declarations.VariableDeclaration;
+import com.navi.backend.ast.lat.declarations.initializers.StructInitializer;
+import com.navi.backend.ast.lat.expressions.VariableExpression;
 import com.navi.backend.ast.lat.global.FunctionBody;
 import com.navi.backend.ast.lat.global.FunctionDeclaration;
 import com.navi.backend.ast.lat.global.GlobalVariableSection;
@@ -11,7 +13,7 @@ import com.navi.backend.ast.lat.global.Parameter;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import com.navi.backend.c3d.C3DEmitter;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Symbol;
+import com.navi.backend.semantic.model.Symbol;
 
 import java.util.List;
 
@@ -59,10 +61,22 @@ class LatDeclarationC3D {
             }
         }
         if (node.getInitializer() != null) {
-            String value = resolver.initializerValue(node.getInitializer());
-            if (value != null) emitter.storeVar(node.getName(), value);
+            if (node.getInitializer() instanceof StructInitializer si) {
+                resolver.emitStructInitializer(si, structTarget(node.getName()), symbolType(symbol));
+            } else {
+                String value = resolver.initializerValue(node.getInitializer());
+                if (value != null) emitter.storeVar(node.getName(), value);
+            }
         }
         return null;
+    }
+
+    private com.navi.backend.ast.lat.expressions.Expression structTarget(String name) {
+        return new VariableExpression(0, 0, name);
+    }
+
+    private com.navi.backend.semantic.model.Type symbolType(Symbol symbol) {
+        return symbol == null ? null : symbol.getType();
     }
 
     String arrayDeclaration(ArrayDeclaration node) {

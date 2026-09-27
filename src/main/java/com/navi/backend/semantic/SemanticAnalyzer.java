@@ -6,6 +6,8 @@ import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;
 import com.navi.backend.semantic.lat.LatDeclarationVisitor;
 import com.navi.backend.semantic.lat.LatSemanticVisitor;
+import com.navi.backend.semantic.loading.ImportPath;
+import com.navi.backend.semantic.loading.ModuleLoader;
 import com.navi.backend.semantic.y.YDeclarationVisitor;
 import com.navi.backend.semantic.y.YSemanticVisitor;
 import com.navi.backend.semantic.z.ZDeclarationVisitor;

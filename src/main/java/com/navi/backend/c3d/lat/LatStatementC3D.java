@@ -2,6 +2,7 @@ package com.navi.backend.c3d.lat;
 
 import com.navi.backend.ast.lat.expressions.Expression;
 import com.navi.backend.ast.lat.expressions.UnaryOperator;
+import com.navi.backend.ast.lat.declarations.initializers.StructInitializer;
 import com.navi.backend.ast.lat.statements.AssignmentStatement;
 import com.navi.backend.ast.lat.statements.BlockStatement;
 import com.navi.backend.ast.lat.statements.BreakStatement;
@@ -19,6 +20,7 @@ import com.navi.backend.ast.lat.statements.Statement;
 import com.navi.backend.ast.lat.statements.WhileStatement;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import com.navi.backend.c3d.C3DEmitter;
+import com.navi.backend.semantic.SemanticContext;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -31,14 +33,16 @@ import java.util.Deque;
 class LatStatementC3D {
 
     private final C3DEmitter emitter;
+    private final SemanticContext context;
     private final LatC3DResolver resolver;
     private final LatExpressionC3D expressions;
     private final AstLatVisitor<String> visitor;
     private final Deque<String> breakLabels = new ArrayDeque<>();
     private final Deque<String> continueLabels = new ArrayDeque<>();
 
-    LatStatementC3D(C3DEmitter emitter, LatC3DResolver resolver, LatExpressionC3D expressions, AstLatVisitor<String> visitor) {
+    LatStatementC3D(C3DEmitter emitter, SemanticContext context, LatC3DResolver resolver, LatExpressionC3D expressions, AstLatVisitor<String> visitor) {
         this.emitter = emitter;
+        this.context = context;
         this.resolver = resolver;
         this.expressions = expressions;
         this.visitor = visitor;
@@ -50,6 +54,10 @@ class LatStatementC3D {
     }
 
     String assignment(AssignmentStatement node) {
+        if (node.getInitializer() instanceof StructInitializer si) {
+            resolver.emitStructInitializer(si, node.getTarget(), context.typeOf(node.getTarget()));
+            return null;
+        }
         String value = resolver.initializerValue(node.getInitializer());
         if (value != null) resolver.assignTo(node.getTarget(), value);
         return null;

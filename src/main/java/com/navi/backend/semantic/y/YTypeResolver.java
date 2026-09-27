@@ -1,15 +1,15 @@
 package com.navi.backend.semantic.y;
 
 import com.navi.backend.ast.y.declarations.YType;
-import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Type;
+import com.navi.backend.semantic.model.Type;
 
 import java.util.Locale;
 
 /**
  * Resuelve los tipos de Y: keywords primitivas ({@code entero}, {@code cadena}, ...)
- * y nombres de struct contra la {@link com.navi.backend.semantic.TypeTable}.
+ * y nombres de struct contra la {@link com.navi.backend.semantic.model.TypeTable}.
  * Compartido por la pasada de declaraciones y la semántica.
  */
 public final class YTypeResolver {

@@ -1,4 +1,4 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.loading;
 
 import com.navi.backend.ast.lat.global.Program;
 import com.navi.backend.ast.lat.visitors.ProgramVisitor;
@@ -13,6 +13,8 @@ import com.navi.backend.lexer_parser.y.YLexer;
 import com.navi.backend.lexer_parser.y.YParser;
 import com.navi.backend.lexer_parser.z.ZLexer;
 import com.navi.backend.lexer_parser.z.ZParser;
+import com.navi.backend.semantic.errors.CollectingErrorListener;
+import com.navi.backend.semantic.model.SemanticError;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -64,6 +66,8 @@ public class FileModuleLoader implements ModuleLoader {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PigLatinParser parser = new PigLatinParser(tokens);
         CollectingErrorListener errors = new CollectingErrorListener();
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(errors);
         parser.removeErrorListeners();
         parser.addErrorListener(errors);
         PigLatinParser.ProgramContext tree = parser.program();
@@ -77,6 +81,8 @@ public class FileModuleLoader implements ModuleLoader {
         CommonTokenStream tokens = new CommonTokenStream(indentation);
         YParser parser = new YParser(tokens);
         CollectingErrorListener errors = new CollectingErrorListener();
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(errors);
         parser.removeErrorListeners();
         parser.addErrorListener(errors);
         YParser.ProgramContext tree = parser.program();
@@ -89,6 +95,8 @@ public class FileModuleLoader implements ModuleLoader {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         ZParser parser = new ZParser(tokens);
         CollectingErrorListener errors = new CollectingErrorListener();
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(errors);
         parser.removeErrorListeners();
         parser.addErrorListener(errors);
         ZParser.ProgramContext tree = parser.program();

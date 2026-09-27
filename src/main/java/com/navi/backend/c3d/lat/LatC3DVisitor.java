@@ -67,7 +67,7 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
         this.emitter = emitter;
         this.resolver = new LatC3DResolver(context, emitter, this);
         this.expressions = new LatExpressionC3D(context, emitter, resolver, this);
-        this.statements = new LatStatementC3D(emitter, resolver, expressions, this);
+        this.statements = new LatStatementC3D(emitter, context, resolver, expressions, this);
         this.declarations = new LatDeclarationC3D(context, emitter, resolver, this);
     }
 

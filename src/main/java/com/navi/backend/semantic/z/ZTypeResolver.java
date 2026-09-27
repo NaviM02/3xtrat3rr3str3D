@@ -1,13 +1,13 @@
 package com.navi.backend.semantic.z;
 
 import com.navi.backend.ast.z.declarations.ZType;
-import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Type;
+import com.navi.backend.semantic.model.Type;
 
 /**
  * Resuelve los tipos de Z: primitivas ({@code int}, {@code String}, ...) y nombres de
- * clase contra la {@link com.navi.backend.semantic.TypeTable}, aplicando las
+ * clase contra la {@link com.navi.backend.semantic.model.TypeTable}, aplicando las
  * dimensiones de arreglo si el {@link ZType} las declara.
  * Compartido por la pasada de declaraciones y la semántica.
  */

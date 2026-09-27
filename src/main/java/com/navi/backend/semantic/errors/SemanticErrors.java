@@ -1,4 +1,4 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.errors;
 
 import java.util.ArrayList;
 import java.util.List;

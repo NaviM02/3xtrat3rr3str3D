@@ -5,11 +5,11 @@ import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;
 import com.navi.backend.c3d.C3DGenerator;
 import com.navi.backend.c3d.CGenerator;
-import com.navi.backend.semantic.FileModuleLoader;
-import com.navi.backend.semantic.ModuleLoader;
+import com.navi.backend.semantic.loading.FileModuleLoader;
+import com.navi.backend.semantic.loading.ModuleLoader;
 import com.navi.backend.semantic.SemanticAnalyzer;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.SemanticReporter;
+import com.navi.backend.semantic.errors.SemanticReporter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

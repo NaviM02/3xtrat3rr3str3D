@@ -1,7 +1,7 @@
 package com.navi.backend.c3d;
 
-import com.navi.backend.semantic.Type;
-import com.navi.backend.semantic.TypeKind;
+import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.enums.TypeKind;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

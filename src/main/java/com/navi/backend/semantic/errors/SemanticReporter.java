@@ -1,4 +1,11 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.errors;
+
+import com.navi.backend.semantic.SemanticContext;
+import com.navi.backend.semantic.enums.SymbolKind;
+import com.navi.backend.semantic.model.AggregateType;
+import com.navi.backend.semantic.model.Field;
+import com.navi.backend.semantic.model.Scope;
+import com.navi.backend.semantic.model.Symbol;
 
 import java.util.List;
 import java.util.Map;

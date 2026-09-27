@@ -1,5 +1,10 @@
 package com.navi.backend.semantic;
 
+import com.navi.backend.semantic.errors.SemanticErrors;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.SymbolTable;
+import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.model.TypeTable;
 import lombok.Getter;
 
 import java.util.HashSet;

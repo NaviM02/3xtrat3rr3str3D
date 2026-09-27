@@ -14,9 +14,9 @@ import com.navi.backend.ast.y.expressions.literals.LiteralExpression;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
 import com.navi.backend.c3d.C3DEmitter;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Symbol;
-import com.navi.backend.semantic.SymbolKind;
-import com.navi.backend.semantic.Type;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.enums.SymbolKind;
+import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
 import java.util.List;

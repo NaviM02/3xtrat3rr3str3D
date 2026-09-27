@@ -19,10 +19,10 @@ import com.navi.backend.ast.z.expressions.literals.LiteralExpression;
 import com.navi.backend.ast.z.statements.AssignmentOperator;
 import com.navi.backend.ast.z.visitors.AstZVisitor;
 import com.navi.backend.c3d.C3DEmitter;
-import com.navi.backend.semantic.AggregateType;
+import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.Symbol;
-import com.navi.backend.semantic.Type;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
 import java.util.List;

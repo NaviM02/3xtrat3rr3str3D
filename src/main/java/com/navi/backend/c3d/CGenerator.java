@@ -63,7 +63,7 @@ public class CGenerator {
             sb.append("static long long BP = 0, GP = 0, HP = 0, SP = 0;\n");
             sb.append("static long long RET;\n");
         } else {
-            sb.append(runtimeWithVal());
+            sb.append(ValRuntime.build(quads));
         }
 
         sb.append("\n/* ---- prototipos ---- */\n");
@@ -186,7 +186,7 @@ public class CGenerator {
             case "=" -> emitAssign(sb, q.getResult(), q.getArgs().get(0));
             case "neg" -> sb.append("    ").append(q.getResult()).append(" = ")
                     .append(intMode ? "-" + expr(q.getArgs().get(0))
-                            : "op('-', I(0), " + val(q.getArgs().get(0)) + ")")
+                            : "op('-', mk_int(0), " + val(q.getArgs().get(0)) + ")")
                     .append(";\n");
             case "+", "-", "*", "/", "%" -> emitBinary(sb, q);
             case "if" -> emitIf(sb, q);
@@ -271,7 +271,7 @@ public class CGenerator {
 
     /** Dirección de un acceso a memoria: en modo int es un valor, en modo Val hay que desenvolverlo. */
     private String loadAddr(Quad q) {
-        return intMode ? expr(q.getArgs().get(0)) : "IDX(" + val(q.getArgs().get(0)) + ")";
+        return intMode ? expr(q.getArgs().get(0)) : "as_index(" + val(q.getArgs().get(0)) + ")";
     }
 
     /** Valor almacenado: en modo int es directo; en modo Val usa el valor. */
@@ -305,19 +305,19 @@ public class CGenerator {
 
     /** Modo Val: operando como {@code Val}. */
     private static String val(String operand) {
-        if (isReg(operand)) return "I(" + operand + ")";
+        if (isReg(operand)) return "mk_int(" + operand + ")";
         if (isTemp(operand)) return operand;
-        if ("null".equals(operand)) return "NIL";
-        if (operand.startsWith("\"")) return "S(" + operand + ")";
-        if (operand.startsWith("'")) return "CH(" + operand + ")";
-        if (operand.contains(".")) return "D(" + operand + ")";
-        return "I(" + operand + ")";
+        if ("null".equals(operand)) return "mk_null()";
+        if (operand.startsWith("\"")) return "mk_str(" + operand + ")";
+        if (operand.startsWith("'")) return "mk_chr(" + operand + ")";
+        if (operand.contains(".")) return "mk_dbl(" + operand + ")";
+        return "mk_int(" + operand + ")";
     }
 
     /** Modo Val: operando como entero C (para direcciones/registros). */
     private static String intExpr(String operand) {
         if (isReg(operand)) return operand;
-        if (isTemp(operand)) return "IDX(" + operand + ")";
+        if (isTemp(operand)) return "as_index(" + operand + ")";
         return operand;
     }
 
@@ -341,145 +341,4 @@ public class CGenerator {
         }
     }
 
-    // ---------------------------------------------------------------- runtime C (modo Val)
-
-    private String runtimeWithVal() {
-        boolean useAdd = false, useOp = false, useCmp = false, usePrint = false, useRead = false;
-        for (Quad q : quads) {
-            switch (q.getOp()) {
-                case "+" -> useAdd = true;
-                case "-", "*", "/", "%", "neg" -> useOp = true;
-                case "if" -> useCmp = true;
-                case "print" -> usePrint = true;
-                case "read" -> useRead = true;
-                default -> { }
-            }
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("/* Generado desde las cuartetas C3D. Compilar: gcc -o programa programa.c */\n");
-        sb.append("#include <stdio.h>\n");
-        if (useAdd || useCmp || useRead) sb.append("#include <string.h>\n#include <stdlib.h>\n");
-        sb.append('\n').append(VAL_TYPE);
-        if (useAdd || useCmp) sb.append(AS_STR);
-        if (useAdd) sb.append(ADD);
-        if (useOp) sb.append(OP);
-        if (useCmp) sb.append(CMP);
-        if (usePrint) sb.append(PRINT);
-        if (useRead) sb.append(READ);
-        return sb.toString();
-    }
-
-    private static final String VAL_TYPE = """
-            typedef struct { int t; union { long long i; double d; char c; char *s; } u; } Val;
-            #define I(x)    ((Val){0,{.i=(x)}})
-            #define D(x)    ((Val){1,{.d=(x)}})
-            #define CH(x)   ((Val){2,{.c=(x)}})
-            #define S(x)    ((Val){3,{.s=(x)}})
-            #define NIL     ((Val){4,{.i=0}})
-            #define IDX(v)  ((int)(v).u.i)
-            #define AS_D(v) ((v).t==1 ? (v).u.d : (double)(v).u.i)
-
-            static Val stack[262144];
-            static Val heap[262144];
-            static long long BP = 0, GP = 0, HP = 0, SP = 0;
-            static Val RET;
-
-            """;
-
-    private static final String AS_STR = """
-            static const char *as_str(Val v) {
-                static char b[64];
-                switch (v.t) {
-                    case 3: return v.u.s;
-                    case 2: snprintf(b, sizeof b, "%c", v.u.c); return b;
-                    case 1: snprintf(b, sizeof b, "%g", v.u.d); return b;
-                    case 4: return "null";
-                    default: snprintf(b, sizeof b, "%lld", v.u.i); return b;
-                }
-            }
-
-            """;
-
-    private static final String ADD = """
-            /* suma: numérica o concatenación de cadenas */
-            static Val add(Val a, Val b) {
-                if (a.t == 3 || b.t == 3) {
-                    char *x = strdup(as_str(a));
-                    const char *y = as_str(b);
-                    char *r = (char *)malloc(strlen(x) + strlen(y) + 1);
-                    strcpy(r, x); strcat(r, y); free(x);
-                    return S(r);
-                }
-                if (a.t == 1 || b.t == 1) return D(AS_D(a) + AS_D(b));
-                return I(a.u.i + b.u.i);
-            }
-
-            """;
-
-    private static final String OP = """
-            /* aritmética: '-' resta, '*' producto, '/' división, '%' módulo */
-            static Val op(char k, Val a, Val b) {
-                if (a.t == 1 || b.t == 1) {
-                    double x = AS_D(a), y = AS_D(b);
-                    switch (k) {
-                        case '-': return D(x - y);
-                        case '*': return D(x * y);
-                        case '/': return D(x / y);
-                        default:  return D((double)((long long)x % (long long)y));
-                    }
-                }
-                switch (k) {
-                    case '-': return I(a.u.i - b.u.i);
-                    case '*': return I(a.u.i * b.u.i);
-                    case '/': return I(a.u.i / b.u.i);
-                    default:  return I(a.u.i % b.u.i);
-                }
-            }
-
-            """;
-
-    private static final String CMP = """
-            /* comparación: -1 menor, 0 igual, 1 mayor */
-            static int cmp(Val a, Val b) {
-                if (a.t == 3 || b.t == 3) {
-                    char *x = strdup(as_str(a)), *y = strdup(as_str(b));
-                    int r = strcmp(x, y); free(x); free(y);
-                    return r < 0 ? -1 : (r > 0 ? 1 : 0);
-                }
-                if (a.t == 4 || b.t == 4) return (a.t == 4 && b.t == 4) ? 0 : (a.t == 4 ? -1 : 1);
-                double x = AS_D(a), y = AS_D(b);
-                return x < y ? -1 : (x > y ? 1 : 0);
-            }
-
-            """;
-
-    private static final String PRINT = """
-            static void prn(Val v) {
-                switch (v.t) {
-                    case 3: fputs(v.u.s, stdout); break;
-                    case 2: putchar(v.u.c); break;
-                    case 1: printf("%g", v.u.d); break;
-                    case 4: fputs("null", stdout); break;
-                    default: printf("%lld", v.u.i); break;
-                }
-            }
-
-            """;
-
-    private static final String READ = """
-            static Val rd(void) {
-                static char b[4096];
-                fflush(stdout);
-                if (!fgets(b, sizeof b, stdin)) b[0] = '\\0';
-                size_t n = strlen(b);
-                while (n > 0 && (b[n-1] == '\\n' || b[n-1] == '\\r')) b[--n] = '\\0';
-                char *e;
-                long long i = strtoll(b, &e, 10);
-                if (e != b && *e == '\\0') return I(i);
-                double d = strtod(b, &e);
-                if (e != b && *e == '\\0') return D(d);
-                return S(b);
-            }
-
-            """;
 }

@@ -1,5 +1,6 @@
-package com.navi.backend.semantic;
+package com.navi.backend.semantic.model;
 
+import com.navi.backend.semantic.enums.TypeKind;
 import lombok.Getter;
 
 import java.util.Objects;
