@@ -40,7 +40,8 @@ parameterList
     ;
 
 parameter
-    : ESTO ID ':' type
+    : ESTO ID ':' type              #NormalParameter
+    | ESTO ID (LBRACK RBRACK)+ ':' type #ArrayParameter
     ;
 
 functionBody
@@ -61,7 +62,8 @@ variableDeclaration
     : ESTO ID ':' type ';'                           #NormalVarDeclaration
     | ESTO ID ':' type expression ';'                #NormalVarDeclaration
     | ESTO ID ':' type structInitializer ';'?        #NormalVarDeclaration
-    | ESTO variableName=ID ':' NOVUS objectType=ID functionArguments ';' #NewObjectDeclaration
+    | ESTO variableName=ID ':' NOVUS objectType=ID functionArguments (':' declaredType=ID)? ';' #NewObjectDeclaration
+    | ESTO variableName=ID ':' NULL ':' declaredType=ID ';' #NullObjectDeclaration
     ;
 
 initializer
@@ -269,6 +271,7 @@ primaryExpression
     | CHAR                   #CharLiteralExpr
     | VERUM                  #TrueLiteralExpr
     | FALSUS                 #FalseLiteralExpr
+    | NULL                   #NullLiteralExpr
     | ID                     #VariableExpr
     | NOVUS ID '(' argumentList? ')' #ObjectCreationExpr
     | '(' expression ')'     #ParenthesizedExpr
@@ -298,6 +301,7 @@ INTERRUMPE : 'interrumpe';
 VARIABILES : 'VARIABILES';
 IMPORT     : 'import';
 NOVUS      : 'novus';
+NULL       : 'null';
 
 // key word for types
 NUMERUS   : 'numerus';
@@ -326,6 +330,10 @@ LESS_EQUAL  : '<=';
 GREATER_EQUAL : '>=';
 READ        : '<<';
 PRINT       : '>>';
+
+// puntuacion de arreglos (tambien usada en series e indexado)
+LBRACK      : '[';
+RBRACK      : ']';
 
 // literals
 NUMBER  : [0-9]+ ;

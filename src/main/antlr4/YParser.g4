@@ -32,7 +32,7 @@ parameter
     | type ID                                #NormalParameter
     ;
 
-arrayParameter : LBRACK RBRACK type ID;
+arrayParameter : (LBRACK RBRACK)+ type ID;
 
 structureParameter : LBRACE RBRACE ID ID;
 

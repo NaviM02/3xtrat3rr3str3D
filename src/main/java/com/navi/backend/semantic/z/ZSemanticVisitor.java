@@ -24,6 +24,7 @@ import com.navi.backend.ast.z.expressions.NullExpression;
 import com.navi.backend.ast.z.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.z.expressions.ReadExpression;
 import com.navi.backend.ast.z.expressions.TernaryExpression;
+import com.navi.backend.ast.z.expressions.ThisExpression;
 import com.navi.backend.ast.z.expressions.UnaryExpression;
 import com.navi.backend.ast.z.expressions.VariableExpression;
 import com.navi.backend.ast.z.expressions.literals.LiteralExpression;
@@ -43,6 +44,7 @@ import com.navi.backend.ast.z.statements.ReadlnStatement;
 import com.navi.backend.ast.z.statements.ReturnStatement;
 import com.navi.backend.ast.z.statements.SwitchCase;
 import com.navi.backend.ast.z.statements.SwitchStatement;
+import com.navi.backend.ast.z.statements.SuperCallStatement;
 import com.navi.backend.ast.z.statements.VariableDeclarationStatement;
 import com.navi.backend.ast.z.statements.WhileStatement;
 import com.navi.backend.ast.z.statements.BlockStatement;
@@ -50,24 +52,33 @@ import com.navi.backend.ast.z.visitors.AstZVisitor;
 import com.navi.backend.semantic.support.Definitions;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.FunctionSignature;
+import com.navi.backend.semantic.enums.AccessModifier;
+import com.navi.backend.semantic.support.AccessControl;
+import com.navi.backend.semantic.rules.TypeCompat;
 import com.navi.backend.semantic.rules.TypeRules;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // pasada semantica de Z: valida tipos y anota expresiones; delega sentencias y
 // miembros en los checkers y mantiene la clase actual y los nodos pasivos
 public class ZSemanticVisitor implements AstZVisitor<Type> {
 
     private final SemanticContext context;
+    private final ZTypeResolver types;
     private final ZStatementChecker statements;
     private final ZExpressionChecker expressions;
 
     public ZSemanticVisitor(SemanticContext context) {
         this.context = context;
         TypeRules rules = new TypeRules(context);
-        ZTypeResolver types = new ZTypeResolver(context);
+        this.types = new ZTypeResolver(context);
         Definitions defs = new Definitions(context);
         // `this` como recorrido: los checkers delegan el accept de los hijos aquí.
-        this.expressions = new ZExpressionChecker(context, rules, types, this);
-        this.statements = new ZStatementChecker(context, rules, types, defs, this);
+        this.expressions = new ZExpressionChecker(context, rules, this.types, this);
+        this.statements = new ZStatementChecker(context, rules, this.types, defs, this);
     }
 
     public void build(ProgramZ program) {
@@ -84,9 +95,11 @@ public class ZSemanticVisitor implements AstZVisitor<Type> {
 
     @Override
     public Type visit(ClassDeclaration node) {
-        expressions.setCurrentClass(context.getTypeTable().resolve(node.getName()));
+        var currentClass = context.getTypeTable().resolve(node.getName());
+        expressions.setCurrentClass(currentClass);
         if (node.getMembers() != null) {
             for (ClassMember member : node.getMembers()) {
+                if (member instanceof MethodDeclaration method) validateOverride(currentClass, method);
                 member.accept(this);
             }
         }
@@ -116,6 +129,7 @@ public class ZSemanticVisitor implements AstZVisitor<Type> {
     @Override public Type visit(ReturnStatement node) { return statements.returnStatement(node); }
     @Override public Type visit(PrintStatement node) { return statements.print(node); }
     @Override public Type visit(PrintlnStatement node) { return statements.println(node); }
+    @Override public Type visit(SuperCallStatement node) { return statements.superCall(node); }
 
     @Override public Type visit(BinaryExpression node) { return expressions.binary(node); }
     @Override public Type visit(UnaryExpression node) { return expressions.unary(node); }
@@ -125,12 +139,47 @@ public class ZSemanticVisitor implements AstZVisitor<Type> {
     @Override public Type visit(ArrayAccessExpression node) { return expressions.arrayAccess(node); }
     @Override public Type visit(MemberAccessExpression node) { return expressions.memberAccess(node); }
     @Override public Type visit(FunctionCallExpression node) { return expressions.functionCall(node); }
+    @Override public Type visit(ThisExpression node) { return expressions.thisExpression(node); }
     @Override public Type visit(ObjectCreationExpression node) { return expressions.objectCreation(node); }
     @Override public Type visit(ArrayCreationExpression node) { return expressions.arrayCreation(node); }
     @Override public Type visit(NullExpression node) { return expressions.nullExpression(node); }
     @Override public Type visit(ReadExpression node) { return expressions.read(node); }
     @Override public Type visit(ExpressionList node) { return expressions.expressionList(node); }
     @Override public Type visit(LiteralExpression node) { return expressions.literal(node); }
+
+    private void validateOverride(com.navi.backend.semantic.model.AggregateType currentClass,
+                                  MethodDeclaration node) {
+        if (currentClass == null) return;
+        List<Type> parameters = new ArrayList<>();
+        if (node.getParameters() != null) {
+            for (Parameter parameter : node.getParameters()) parameters.add(types.resolve(parameter.getType()));
+        }
+        Symbol inherited = currentClass.findInheritedMethod(node.getName(), parameters, context.getTypeTable());
+        if (node.isOverride() && inherited == null) {
+            context.getErrors().report(node.getLine(), node.getColumn(),
+                    "@Override no corresponde a un método heredado: " + node.getName());
+            return;
+        }
+        if (!node.isOverride() && inherited != null) {
+            context.getErrors().report(node.getLine(), node.getColumn(),
+                    "El método " + node.getName() + " sobrescribe uno heredado y requiere @Override");
+        }
+        if (inherited == null) return;
+
+        // Se admiten retornos covariantes: el retorno declarado debe ser el mismo
+        // tipo o un subtipo del retorno heredado (la firma, o sea los parametros, no cambia).
+        Type declaredReturn = node.getReturnType() == null ? Type.VOID : types.resolve(node.getReturnType());
+        Type inheritedReturn = inherited.getSignature().getReturnType();
+        if (!TypeCompat.canAssign(inheritedReturn, declaredReturn, context.getTypeTable())) {
+            context.getErrors().report(node.getLine(), node.getColumn(),
+                    "El tipo de retorno del método sobrescrito debe ser "
+                            + inheritedReturn + " o un subtipo");
+        }
+        if (!AccessControl.isAtLeastAsVisible(node.getAccessModifier(), inherited.getAccessModifier())) {
+            context.getErrors().report(node.getLine(), node.getColumn(),
+                    "El método sobrescrito no puede reducir su nivel de acceso");
+        }
+    }
 
     // ---------------------------------------------------------------- no-ops
 

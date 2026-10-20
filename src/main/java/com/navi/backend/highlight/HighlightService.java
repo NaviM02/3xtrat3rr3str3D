@@ -95,10 +95,10 @@ public class HighlightService {
                  PigLatinLexer.PLUSPLUS, PigLatinLexer.MINUSMINUS, PigLatinLexer.AND, PigLatinLexer.OR,
                  PigLatinLexer.NON, PigLatinLexer.EQUAL, PigLatinLexer.NOT_EQUAL, PigLatinLexer.LESS,
                  PigLatinLexer.GREATER, PigLatinLexer.LESS_EQUAL, PigLatinLexer.GREATER_EQUAL,
-                 PigLatinLexer.READ, PigLatinLexer.PRINT, PigLatinLexer.T__10 -> HighlightKind.OPERATOR;
+                 PigLatinLexer.READ, PigLatinLexer.PRINT, PigLatinLexer.T__8 -> HighlightKind.OPERATOR;
             case PigLatinLexer.T__0, PigLatinLexer.T__1, PigLatinLexer.T__2, PigLatinLexer.T__3,
                  PigLatinLexer.T__4, PigLatinLexer.T__5, PigLatinLexer.T__6, PigLatinLexer.T__7,
-                 PigLatinLexer.T__8, PigLatinLexer.T__9 -> HighlightKind.PUNCTUATION;
+                 PigLatinLexer.LBRACK, PigLatinLexer.RBRACK -> HighlightKind.PUNCTUATION;
             default -> null;
         };
     }

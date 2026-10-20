@@ -24,6 +24,7 @@ import com.navi.backend.ast.z.expressions.NullExpression;
 import com.navi.backend.ast.z.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.z.expressions.ReadExpression;
 import com.navi.backend.ast.z.expressions.TernaryExpression;
+import com.navi.backend.ast.z.expressions.ThisExpression;
 import com.navi.backend.ast.z.expressions.UnaryExpression;
 import com.navi.backend.ast.z.expressions.VariableExpression;
 import com.navi.backend.ast.z.expressions.literals.LiteralExpression;
@@ -42,6 +43,7 @@ import com.navi.backend.ast.z.statements.PrintStatement;
 import com.navi.backend.ast.z.statements.PrintlnStatement;
 import com.navi.backend.ast.z.statements.ReadlnStatement;
 import com.navi.backend.ast.z.statements.ReturnStatement;
+import com.navi.backend.ast.z.statements.SuperCallStatement;
 import com.navi.backend.ast.z.statements.SwitchCase;
 import com.navi.backend.ast.z.statements.SwitchStatement;
 import com.navi.backend.ast.z.statements.VariableDeclarationStatement;
@@ -55,6 +57,7 @@ import com.navi.backend.semantic.model.Scope;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.enums.SymbolKind;
+import com.navi.backend.semantic.enums.AccessModifier;
 import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
@@ -75,30 +78,48 @@ public class ZDeclarationVisitor implements AstZVisitor<Void> {
     }
 
     public void build(ProgramZ program) {
-        program.accept(this);
+        registerTypes(program);
+        registerMembers(program);
+    }
+
+    public void registerTypes(ProgramZ program) {
+        if (program.getClassDeclaration() != null) program.getClassDeclaration().accept(this);
+    }
+
+    public void registerMembers(ProgramZ program) {
+        ClassDeclaration node = program.getClassDeclaration();
+        if (node == null) return;
+        AggregateType agg = context.getTypeTable().resolve(node.getName());
+        if (agg == null || !agg.isClass()) return;
+
+        boolean hasConstructor = false;
+        if (node.getMembers() != null) {
+            for (ClassMember member : node.getMembers()) {
+                if (member instanceof FieldDeclaration f) registerField(agg, f);
+                else if (member instanceof MethodDeclaration m) registerMethod(agg, m);
+                else if (member instanceof ConstructorDeclaration c) {
+                    hasConstructor = true;
+                    registerConstructor(agg, c);
+                }
+            }
+        }
+        if (!hasConstructor) registerDefaultConstructor(agg, node);
     }
 
     @Override
     public Void visit(ProgramZ node) {
-        if (node.getClassDeclaration() != null) {
-            node.getClassDeclaration().accept(this);
-        }
+        registerTypes(node);
+        registerMembers(node);
         return null;
     }
 
     @Override
     public Void visit(ClassDeclaration node) {
         Scope global = context.getSymbolTable().getGlobalScope();
-        AggregateType agg = new AggregateType(node.getName(), true, global);
+        AggregateType agg = new AggregateType(node.getName(), true, global,
+                node.getSuperClassName(), node.getLine(), node.getColumn());
         if (!context.getTypeTable().register(agg)) {
             context.getErrors().report(node.getLine(), node.getColumn(), "Clase duplicada: " + node.getName());
-        }
-        if (node.getMembers() != null) {
-            for (ClassMember member : node.getMembers()) {
-                if (member instanceof FieldDeclaration f) registerField(agg, f);
-                else if (member instanceof MethodDeclaration m) registerMethod(agg, m);
-                else if (member instanceof ConstructorDeclaration c) registerConstructor(agg, c);
-            }
         }
         return null;
     }
@@ -106,7 +127,7 @@ public class ZDeclarationVisitor implements AstZVisitor<Void> {
     private void registerField(AggregateType agg, FieldDeclaration node) {
         Type type = types.resolve(node.getType());
         for (VariableDeclarator v : node.getVariables()) {
-            agg.addField(new Field(v.getName(), type));
+            agg.addField(new Field(v.getName(), type, node.getAccessModifier(), agg));
         }
     }
 
@@ -115,7 +136,7 @@ public class ZDeclarationVisitor implements AstZVisitor<Void> {
         List<Type> params = resolveParams(node.getParameters());
         Symbol s = new Symbol(node.getName(), SymbolKind.METHOD, returnType,
                 new FunctionSignature(params, returnType), false, agg.getMemberScope(), agg,
-                node.getLine(), node.getColumn());
+                node.getLine(), node.getColumn(), node.getAccessModifier(), node.isOverride());
         defs.callableIn(agg.getMemberScope(), s);
     }
 
@@ -124,8 +145,16 @@ public class ZDeclarationVisitor implements AstZVisitor<Void> {
         List<Type> params = resolveParams(node.getParameters());
         Symbol s = new Symbol(node.getName(), SymbolKind.CONSTRUCTOR, classType,
                 new FunctionSignature(params, classType), false, agg.getMemberScope(), agg,
-                node.getLine(), node.getColumn());
+                node.getLine(), node.getColumn(), node.getAccessModifier(), false);
         defs.callableIn(agg.getMemberScope(), s);
+    }
+
+    private void registerDefaultConstructor(AggregateType agg, ClassDeclaration node) {
+        Type classType = Type.classType(agg.getName());
+        Symbol constructor = new Symbol(agg.getName(), SymbolKind.CONSTRUCTOR, classType,
+                new FunctionSignature(List.of(), classType), false, agg.getMemberScope(), agg,
+                node.getLine(), node.getColumn(), AccessModifier.PUBLIC, false);
+        defs.callableIn(agg.getMemberScope(), constructor);
     }
 
     private List<Type> resolveParams(List<Parameter> parameters) {
@@ -167,6 +196,7 @@ public class ZDeclarationVisitor implements AstZVisitor<Void> {
     @Override public Void visit(PrintStatement node) { return null; }
     @Override public Void visit(PrintlnStatement node) { return null; }
     @Override public Void visit(ReadlnStatement node) { return null; }
+    @Override public Void visit(SuperCallStatement node) { return null; }
 
     @Override public Void visit(ArrayAccessExpression node) { return null; }
     @Override public Void visit(AssignmentExpression node) { return null; }
@@ -182,4 +212,5 @@ public class ZDeclarationVisitor implements AstZVisitor<Void> {
     @Override public Void visit(ReadExpression node) { return null; }
     @Override public Void visit(ExpressionList node) { return null; }
     @Override public Void visit(LiteralExpression node) { return null; }
+    @Override public Void visit(ThisExpression node) { return null; }
 }

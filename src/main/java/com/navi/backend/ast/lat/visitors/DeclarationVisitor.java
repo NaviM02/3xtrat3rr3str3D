@@ -7,6 +7,7 @@ import com.navi.backend.ast.lat.declarations.initializers.Initializer;
 import com.navi.backend.ast.lat.declarations.initializers.StructFieldInitializer;
 import com.navi.backend.ast.lat.declarations.initializers.StructInitializer;
 import com.navi.backend.ast.lat.expressions.Expression;
+import com.navi.backend.ast.lat.expressions.NullExpression;
 import com.navi.backend.ast.lat.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.lat.global.FunctionBody;
 import com.navi.backend.ast.lat.global.FunctionDeclaration;
@@ -74,9 +75,19 @@ public class DeclarationVisitor extends StatementVisitor {
                 ctx.getStart().getLine(),
                 ctx.getStart().getCharPositionInLine(),
                 ctx.variableName.getText(),
-                ctx.objectType.getText(),
+                ctx.declaredType == null ? ctx.objectType.getText() : ctx.declaredType.getText(),
                 initializer
         );
+    }
+
+    @Override
+    public AstLatNode visitNullObjectDeclaration(PigLatinParser.NullObjectDeclarationContext ctx) {
+        NullExpression nullExpression = new NullExpression(
+                ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine());
+        ExpressionInitializer initializer = new ExpressionInitializer(
+                ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), nullExpression);
+        return new VariableDeclaration(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
+                ctx.variableName.getText(), ctx.declaredType.getText(), initializer);
     }
 
     @Override
@@ -210,8 +221,15 @@ public class DeclarationVisitor extends StatementVisitor {
     }
 
     @Override
-    public AstLatNode visitParameter(PigLatinParser.ParameterContext ctx) {
-        return new Parameter(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.ID().getText(), ctx.type().getText());
+    public AstLatNode visitNormalParameter(PigLatinParser.NormalParameterContext ctx) {
+        return new Parameter(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
+                ctx.ID().getText(), ctx.type().getText());
+    }
+
+    @Override
+    public AstLatNode visitArrayParameter(PigLatinParser.ArrayParameterContext ctx) {
+        return new Parameter(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
+                ctx.ID().getText(), ctx.type().getText(), ctx.LBRACK().size());
     }
 
     @Override

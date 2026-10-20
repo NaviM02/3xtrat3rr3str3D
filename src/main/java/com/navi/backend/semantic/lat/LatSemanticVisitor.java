@@ -8,6 +8,7 @@ import com.navi.backend.ast.lat.expressions.ArrayAccessExpression;
 import com.navi.backend.ast.lat.expressions.BinaryExpression;
 import com.navi.backend.ast.lat.expressions.FunctionCallExpression;
 import com.navi.backend.ast.lat.expressions.MemberAccessExpression;
+import com.navi.backend.ast.lat.expressions.NullExpression;
 import com.navi.backend.ast.lat.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.lat.expressions.UnaryExpression;
 import com.navi.backend.ast.lat.expressions.VariableExpression;
@@ -135,6 +136,7 @@ public class LatSemanticVisitor implements AstLatVisitor<Type> {
     @Override public Type visit(MemberAccessExpression node) { return expressions.memberAccess(node); }
     @Override public Type visit(FunctionCallExpression node) { return expressions.functionCall(node); }
     @Override public Type visit(ObjectCreationExpression node) { return expressions.objectCreation(node); }
+    @Override public Type visit(NullExpression node) { return expressions.nullExpression(node); }
 
     @Override public Type visit(BooleanLiteral node) { return expressions.constant(node, Type.BOOLEAN); }
     @Override public Type visit(CharLiteral node) { return expressions.constant(node, Type.CHAR); }

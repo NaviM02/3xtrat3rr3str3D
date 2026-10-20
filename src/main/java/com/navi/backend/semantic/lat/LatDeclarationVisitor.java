@@ -11,6 +11,7 @@ import com.navi.backend.ast.lat.expressions.ArrayAccessExpression;
 import com.navi.backend.ast.lat.expressions.BinaryExpression;
 import com.navi.backend.ast.lat.expressions.FunctionCallExpression;
 import com.navi.backend.ast.lat.expressions.MemberAccessExpression;
+import com.navi.backend.ast.lat.expressions.NullExpression;
 import com.navi.backend.ast.lat.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.lat.expressions.UnaryExpression;
 import com.navi.backend.ast.lat.expressions.VariableExpression;
@@ -100,7 +101,8 @@ public class LatDeclarationVisitor implements AstLatVisitor<Void> {
         List<Type> paramTypes = new ArrayList<>();
         if (node.getParameters() != null) {
             for (Parameter p : node.getParameters()) {
-                paramTypes.add(types.resolve(p.getType(), p.getLine(), p.getColumn()));
+                Type base = types.resolve(p.getType(), p.getLine(), p.getColumn());
+                paramTypes.add(p.getRank() > 0 ? Type.array(base, p.getRank()) : base);
             }
         }
         Symbol fn = new Symbol(node.getName(), SymbolKind.FUNCTION, returnType,
@@ -154,6 +156,7 @@ public class LatDeclarationVisitor implements AstLatVisitor<Void> {
     @Override public Void visit(FunctionCallExpression node) { return null; }
     @Override public Void visit(MemberAccessExpression node) { return null; }
     @Override public Void visit(ObjectCreationExpression node) { return null; }
+    @Override public Void visit(NullExpression node) { return null; }
     @Override public Void visit(UnaryExpression node) { return null; }
     @Override public Void visit(VariableExpression node) { return null; }
 

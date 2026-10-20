@@ -5,6 +5,7 @@ import com.navi.backend.ast.z.declarations.*;
 import com.navi.backend.ast.z.expressions.*;
 import com.navi.backend.ast.z.statements.*;
 import com.navi.backend.lexer_parser.z.ZParser;
+import com.navi.backend.semantic.enums.AccessModifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,9 @@ public class DeclarationVisitor extends StatementVisitor {
     public AstZNode visitClassDeclaration(ZParser.ClassDeclarationContext ctx) {
         List<ClassMember> members = new ArrayList<>();
         for (ZParser.ClassMemberContext member : ctx.classMember()) members.add((ClassMember) visit(member));
-        return new ClassDeclaration(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.ID().getText(), members);
+        String superClassName = ctx.EXTENDS() == null ? null : ctx.ID(1).getText();
+        return new ClassDeclaration(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
+                ctx.ID(0).getText(), superClassName, members);
     }
 
     @Override
@@ -37,7 +40,7 @@ public class DeclarationVisitor extends StatementVisitor {
     public AstZNode visitFieldDeclaration(ZParser.FieldDeclarationContext ctx) {
         return new FieldDeclaration(
                 ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
-                ctx.PUBLIC() != null, (ZType) visit(ctx.type()), visitVariableDeclarators(ctx.variableDeclaratorList()));
+                accessModifier(ctx.accessModifier()), (ZType) visit(ctx.type()), visitVariableDeclarators(ctx.variableDeclaratorList()));
     }
 
     @Override
@@ -99,19 +102,28 @@ public class DeclarationVisitor extends StatementVisitor {
     @Override
     public AstZNode visitConstructorDeclaration(ZParser.ConstructorDeclarationContext ctx) {
         return new ConstructorDeclaration(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
-                ctx.PUBLIC() != null, ctx.ID().getText(), visitParameters(ctx.parameterList()), (BlockStatement) visit(ctx.block()));
+                accessModifier(ctx.accessModifier()), ctx.ID().getText(), visitParameters(ctx.parameterList()), (BlockStatement) visit(ctx.block()));
     }
 
     @Override
     public AstZNode visitTypedMethodDeclaration(ZParser.TypedMethodDeclarationContext ctx) {
         return new MethodDeclaration(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
-                ctx.PUBLIC() != null, (ZType) visit(ctx.type()), ctx.ID().getText(), visitParameters(ctx.parameterList()), (BlockStatement) visit(ctx.block()));
+                accessModifier(ctx.accessModifier()), ctx.overrideAnnotation() != null,
+                (ZType) visit(ctx.type()), ctx.ID().getText(), visitParameters(ctx.parameterList()), (BlockStatement) visit(ctx.block()));
     }
 
     @Override
     public AstZNode visitVoidMethodDeclaration(ZParser.VoidMethodDeclarationContext ctx) {
         return new MethodDeclaration(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
-                ctx.PUBLIC() != null, null, ctx.ID().getText(), visitParameters(ctx.parameterList()), (BlockStatement) visit(ctx.block()));
+                accessModifier(ctx.accessModifier()), ctx.overrideAnnotation() != null,
+                null, ctx.ID().getText(), visitParameters(ctx.parameterList()), (BlockStatement) visit(ctx.block()));
+    }
+
+    private AccessModifier accessModifier(ZParser.AccessModifierContext ctx) {
+        if (ctx == null) return AccessModifier.DEFAULT;
+        if (ctx.PUBLIC() != null) return AccessModifier.PUBLIC;
+        if (ctx.PROTECTED() != null) return AccessModifier.PROTECTED;
+        return AccessModifier.PRIVATE;
     }
 
     private List<Parameter> visitParameters(ZParser.ParameterListContext ctx) {

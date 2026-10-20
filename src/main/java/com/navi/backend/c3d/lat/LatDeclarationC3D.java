@@ -15,6 +15,7 @@ import com.navi.backend.c3d.C3DEmitter;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // emision C3D de declaraciones/funciones de Lat; globalSection decide
@@ -95,7 +96,18 @@ class LatDeclarationC3D {
         emitter.entryLabel(node.getName());
         emitter.enterFrame(node.getName());
         if (node.getParameters() != null) {
-            for (Parameter p : node.getParameters()) resolver.setPos(p, emitter.declareParam(p.getName()));
+            for (Parameter p : node.getParameters()) {
+                boolean isArray = p.getRank() > 0;
+                resolver.setPos(p, emitter.declareParam(p.getName(), isArray));
+                // arreglo multi-D: dimensiones dims[1..N-1] como params ocultos
+                if (p.getRank() > 1) {
+                    List<Integer> dimOffsets = new ArrayList<>();
+                    for (int k = 1; k < p.getRank(); k++) {
+                        dimOffsets.add(emitter.declareParam(p.getName() + "_dim" + k, false));
+                    }
+                    resolver.recordParamDims(p.getName(), dimOffsets);
+                }
+            }
         }
         if (node.getBody() != null) node.getBody().accept(visitor);
         emitter.returnVoid();

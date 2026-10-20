@@ -1,4 +1,5 @@
-package com.navi.backend.lexer_parser.z;// Generated from Z.g4 by ANTLR 4.13.2
+package com.navi.backend.lexer_parser.z;
+// Generated from Z.g4 by ANTLR 4.13.2
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -148,6 +149,30 @@ public class ZBaseListener implements ZListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterOverrideAnnotation(ZParser.OverrideAnnotationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOverrideAnnotation(ZParser.OverrideAnnotationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAccessModifier(ZParser.AccessModifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAccessModifier(ZParser.AccessModifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterParameterList(ZParser.ParameterListContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -191,6 +216,18 @@ public class ZBaseListener implements ZListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStatement(ZParser.StatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSuperStatement(ZParser.SuperStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSuperStatement(ZParser.SuperStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -899,6 +936,18 @@ public class ZBaseListener implements ZListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVariableExpr(ZParser.VariableExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterThisExpr(ZParser.ThisExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitThisExpr(ZParser.ThisExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

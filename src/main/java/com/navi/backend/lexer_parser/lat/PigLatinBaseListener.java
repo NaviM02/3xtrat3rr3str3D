@@ -1,4 +1,5 @@
-package com.navi.backend.lexer_parser.lat;// Generated from PigLatin.g4 by ANTLR 4.13.2
+package com.navi.backend.lexer_parser.lat;
+// Generated from PigLatin.g4 by ANTLR 4.13.2
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -136,13 +137,25 @@ public class PigLatinBaseListener implements PigLatinListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParameter(PigLatinParser.ParameterContext ctx) { }
+	@Override public void enterNormalParameter(PigLatinParser.NormalParameterContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParameter(PigLatinParser.ParameterContext ctx) { }
+	@Override public void exitNormalParameter(PigLatinParser.NormalParameterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayParameter(PigLatinParser.ArrayParameterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayParameter(PigLatinParser.ArrayParameterContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -203,6 +216,18 @@ public class PigLatinBaseListener implements PigLatinListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNewObjectDeclaration(PigLatinParser.NewObjectDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNullObjectDeclaration(PigLatinParser.NullObjectDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNullObjectDeclaration(PigLatinParser.NullObjectDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1163,6 +1188,18 @@ public class PigLatinBaseListener implements PigLatinListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFalseLiteralExpr(PigLatinParser.FalseLiteralExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNullLiteralExpr(PigLatinParser.NullLiteralExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNullLiteralExpr(PigLatinParser.NullLiteralExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

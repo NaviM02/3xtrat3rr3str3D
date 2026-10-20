@@ -1,6 +1,7 @@
 package com.navi.backend.semantic.model;
 
 import com.navi.backend.semantic.enums.SymbolKind;
+import com.navi.backend.semantic.enums.AccessModifier;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,8 @@ public class Symbol {
     private final boolean reference;         // Y: arreglos/structs por ref; Z: objetos son punteros
     private final Scope scope;               // ambito donde se define
     private final AggregateType owner;       // clase dueña (METHOD/CONSTRUCTOR), null en el resto
+    private final AccessModifier accessModifier;
+    private final boolean override;
     private final int line;
     private final int column;
     @Setter
@@ -25,6 +28,13 @@ public class Symbol {
 
     public Symbol(String name, SymbolKind kind, Type type, FunctionSignature signature,
                   boolean reference, Scope scope, AggregateType owner, int line, int column) {
+        this(name, kind, type, signature, reference, scope, owner, line, column,
+                AccessModifier.PUBLIC, false);
+    }
+
+    public Symbol(String name, SymbolKind kind, Type type, FunctionSignature signature,
+                  boolean reference, Scope scope, AggregateType owner, int line, int column,
+                  AccessModifier accessModifier, boolean override) {
         this.name = name;
         this.kind = kind;
         this.type = type;
@@ -34,6 +44,8 @@ public class Symbol {
         this.owner = owner;
         this.line = line;
         this.column = column;
+        this.accessModifier = accessModifier == null ? AccessModifier.DEFAULT : accessModifier;
+        this.override = override;
     }
 
     public boolean isCallable() {

@@ -21,7 +21,9 @@ import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 // direcciones, layout y asignacion de Lat para C3D (lo compartido entre
@@ -32,10 +34,17 @@ class LatC3DResolver {
     private final C3DEmitter emitter;
     private final AstLatVisitor<String> visitor;
 
+    // offsets BP de las dimensiones ocultas de un parametro arreglo multi-D
+    private final Map<String, List<Integer>> paramDims = new LinkedHashMap<>();
+
     LatC3DResolver(SemanticContext context, C3DEmitter emitter, AstLatVisitor<String> visitor) {
         this.context = context;
         this.emitter = emitter;
         this.visitor = visitor;
+    }
+
+    void recordParamDims(String name, List<Integer> dimOffsets) {
+        if (dimOffsets != null && !dimOffsets.isEmpty()) paramDims.put(name, dimOffsets);
     }
 
     // ---------------------------------------------------------------- inicializadores
@@ -121,11 +130,29 @@ class LatC3DResolver {
             current = access.getArray();
         }
         String base = arrayBaseAddr(current);
+        // arreglo multi-D por referencia: dimensiones vienen en slots ocultos
+        if (current instanceof VariableExpression v && emitter.isReference(v.getName()) && indices.size() > 1) {
+            return paramArrayAddr(base, v.getName(), indices);
+        }
         return emitter.addressOffset(base, arrayDimsOf(current), indices);
     }
 
+    // fila-mayor usando dimensiones en tiempo de ejecucion (slots ocultos del param)
+    private String paramArrayAddr(String base, String name, List<String> indices) {
+        String flat = indices.get(0);
+        List<Integer> dimOffsets = paramDims.get(name);
+        for (int k = 1; k < indices.size(); k++) {
+            String dim = dimOffsets != null && k - 1 < dimOffsets.size()
+                    ? emitter.stackLoad("BP", dimOffsets.get(k - 1)) : "1";
+            flat = emitter.binary("+", emitter.binary("*", flat, dim), indices.get(k));
+        }
+        return emitter.binary("+", base, flat);
+    }
+
     private String arrayBaseAddr(Expression array) {
-        if (array instanceof VariableExpression v) return emitter.varAddr(v.getName());
+        if (array instanceof VariableExpression v) {
+            return emitter.isReference(v.getName()) ? emitter.loadVar(v.getName()) : emitter.varAddr(v.getName());
+        }
         if (array instanceof MemberAccessExpression m) return memberAddr(m);
         return array.accept(visitor);
     }
@@ -138,8 +165,9 @@ class LatC3DResolver {
         return emitter.heapAddr(m.getObject().accept(visitor), String.valueOf(fieldIndex(owner, m.getMember())));
     }
 
-    // dimensiones de un arreglo (variable o campo de struct)
-    private List<Integer> arrayDimsOf(Expression array) {
+    // dimensiones de un arreglo (variable o campo de struct); tambien las usa
+    // la llamada para pasar dims[1..N-1] como argumentos extra
+    List<Integer> arrayDimsOf(Expression array) {
         if (array instanceof VariableExpression v) return emitter.arrayDims(v.getName());
         if (array instanceof MemberAccessExpression m) {
             Type owner = context.typeOf(m.getObject());
@@ -165,7 +193,9 @@ class LatC3DResolver {
 
     // direccion (no valor) de una expresion que ocupa celdas contiguas
     String addressOf(Expression e) {
-        if (e instanceof VariableExpression v) return emitter.varAddr(v.getName());
+        if (e instanceof VariableExpression v) {
+            return emitter.isReference(v.getName()) ? emitter.loadVar(v.getName()) : emitter.varAddr(v.getName());
+        }
         if (e instanceof ArrayAccessExpression a) return arrayElementAddr(a);
         if (e instanceof MemberAccessExpression m) return memberAddr(m);
         return e.accept(visitor);
@@ -177,10 +207,8 @@ class LatC3DResolver {
         if (owner == null) return 0;
         AggregateType agg = context.getTypeTable().resolve(owner.getName());
         if (agg == null) return 0;
-        for (int i = 0; i < agg.getFields().size(); i++) {
-            if (agg.getFields().get(i).getName().equals(member)) return i;
-        }
-        return 0;
+        int offset = agg.fieldOffset(member);
+        return agg.isClass() ? offset + 1 : offset;
     }
 
     // offset en celdas de un campo (los arreglo ocupan varias celdas)
@@ -199,7 +227,7 @@ class LatC3DResolver {
 
     int objectSize(String className) {
         AggregateType agg = context.getTypeTable().resolve(className);
-        return agg == null ? 1 : Math.max(1, agg.getFields().size());
+        return agg == null ? 1 : agg.objectSize();
     }
 
     // ---------------------------------------------------------------- arreglos

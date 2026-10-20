@@ -1,4 +1,5 @@
-package com.navi.backend.lexer_parser.lat;// Generated from PigLatin.g4 by ANTLR 4.13.2
+package com.navi.backend.lexer_parser.lat;
+// Generated from PigLatin.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -70,11 +71,19 @@ public interface PigLatinVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParameterList(PigLatinParser.ParameterListContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PigLatinParser#parameter}.
+	 * Visit a parse tree produced by the {@code NormalParameter}
+	 * labeled alternative in {@link PigLatinParser#parameter}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitParameter(PigLatinParser.ParameterContext ctx);
+	T visitNormalParameter(PigLatinParser.NormalParameterContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ArrayParameter}
+	 * labeled alternative in {@link PigLatinParser#parameter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayParameter(PigLatinParser.ArrayParameterContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PigLatinParser#functionBody}.
 	 * @param ctx the parse tree
@@ -107,6 +116,13 @@ public interface PigLatinVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNewObjectDeclaration(PigLatinParser.NewObjectDeclarationContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NullObjectDeclaration}
+	 * labeled alternative in {@link PigLatinParser#variableDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNullObjectDeclaration(PigLatinParser.NullObjectDeclarationContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ExprInit}
 	 * labeled alternative in {@link PigLatinParser#initializer}.
@@ -642,6 +658,13 @@ public interface PigLatinVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFalseLiteralExpr(PigLatinParser.FalseLiteralExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NullLiteralExpr}
+	 * labeled alternative in {@link PigLatinParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNullLiteralExpr(PigLatinParser.NullLiteralExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code VariableExpr}
 	 * labeled alternative in {@link PigLatinParser#primaryExpression}.

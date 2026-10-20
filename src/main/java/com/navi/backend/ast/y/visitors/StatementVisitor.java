@@ -375,10 +375,12 @@ public class StatementVisitor extends ExpressionVisitor {
 
     @Override
     public AstYNode visitExpressionStmt(YParser.ExpressionStmtContext ctx) {
+        // se visita la expresion interna (no la regla, cuyo ultimo hijo NEWLINE
+        // devolveria null y romperia las llamadas como sentencia)
         return new ExpressionStatement(
             ctx.getStart().getLine(),
             ctx.getStart().getCharPositionInLine(),
-            (Expression) visit(ctx.expressionStatement())
+            (Expression) visit(ctx.expressionStatement().expression())
         );
     }
 }

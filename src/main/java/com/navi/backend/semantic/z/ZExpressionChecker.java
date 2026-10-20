@@ -12,6 +12,7 @@ import com.navi.backend.ast.z.expressions.NullExpression;
 import com.navi.backend.ast.z.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.z.expressions.ReadExpression;
 import com.navi.backend.ast.z.expressions.TernaryExpression;
+import com.navi.backend.ast.z.expressions.ThisExpression;
 import com.navi.backend.ast.z.expressions.UnaryExpression;
 import com.navi.backend.ast.z.expressions.VariableExpression;
 import com.navi.backend.ast.z.expressions.literals.LiteralExpression;
@@ -24,6 +25,7 @@ import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.model.Type;
 import com.navi.backend.semantic.rules.TypeCompat;
 import com.navi.backend.semantic.rules.TypeRules;
+import com.navi.backend.semantic.support.AccessControl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,8 +98,8 @@ public class ZExpressionChecker {
         Type t = node.getThenExpression().accept(visitor);
         Type e = node.getElseExpression().accept(visitor);
         Type result;
-        if (TypeCompat.canAssign(t, e)) result = t;
-        else if (TypeCompat.canAssign(e, t)) result = e;
+        if (TypeCompat.canAssign(t, e, context.getTypeTable())) result = t;
+        else if (TypeCompat.canAssign(e, t, context.getTypeTable())) result = e;
         else {
             rules.error(node.getLine(), node.getColumn(), "Ramas del ternario incompatibles: " + t + " y " + e);
             result = Type.ERROR;
@@ -123,6 +125,15 @@ public class ZExpressionChecker {
     Type memberAccess(MemberAccessExpression node) {
         Type objType = node.getObject().accept(visitor);
         Type result = rules.memberOf(objType, node.getMember(), node.getLine(), node.getColumn());
+        if (objType.isClass()) {
+            AggregateType owner = context.getTypeTable().resolve(objType.getName());
+            Field field = owner == null ? null : owner.findField(node.getMember());
+            if (field != null && !AccessControl.canAccess(field.getAccessModifier(), field.getOwner(), currentClass)) {
+                rules.error(node.getLine(), node.getColumn(),
+                        "Acceso denegado al campo " + node.getMember() + " (" + field.getAccessModifier().name().toLowerCase() + ")");
+                result = Type.ERROR;
+            }
+        }
         context.annotate(node, result);
         return result;
     }
@@ -134,12 +145,18 @@ public class ZExpressionChecker {
         }
         Type result = Type.ERROR;
         if (node.getFunction() instanceof VariableExpression ve) {
-            Symbol m = currentClass == null ? null : currentClass.findMethod(ve.getName(), argTypes);
+            Symbol m = currentClass == null ? null : currentClass.findMethod(ve.getName(), argTypes, context.getTypeTable());
             if (m == null) {
                 rules.error(node.getLine(), node.getColumn(),
                         "Método no definido: '" + ve.getName() + "' para " + argTypes);
             } else {
-                result = m.getSignature().getReturnType();
+                if (!AccessControl.canAccess(m.getAccessModifier(), m.getOwner(), currentClass)) {
+                    rules.error(node.getLine(), node.getColumn(),
+                            "Acceso denegado al método " + ve.getName() + " ("
+                                    + m.getAccessModifier().name().toLowerCase() + ")");
+                } else {
+                    result = m.getSignature().getReturnType();
+                }
             }
         } else if (node.getFunction() instanceof MemberAccessExpression ma) {
             Type objType = ma.getObject().accept(visitor);
@@ -147,12 +164,18 @@ public class ZExpressionChecker {
                 rules.error(node.getLine(), node.getColumn(), "El tipo " + objType + " no tiene métodos");
             } else {
                 AggregateType agg = context.getTypeTable().resolve(objType.getName());
-                Symbol m = agg == null ? null : agg.findMethod(ma.getMember(), argTypes);
+                Symbol m = agg == null ? null : agg.findMethod(ma.getMember(), argTypes, context.getTypeTable());
                 if (m == null) {
                     rules.error(node.getLine(), node.getColumn(),
                             "Método '" + ma.getMember() + "' no definido en " + objType + " para " + argTypes);
                 } else {
-                    result = m.getSignature().getReturnType();
+                    if (!AccessControl.canAccess(m.getAccessModifier(), m.getOwner(), currentClass)) {
+                        rules.error(node.getLine(), node.getColumn(),
+                                "Acceso denegado al método " + ma.getMember() + " ("
+                                        + m.getAccessModifier().name().toLowerCase() + ")");
+                    } else {
+                        result = m.getSignature().getReturnType();
+                    }
                 }
             }
         } else {
@@ -172,10 +195,18 @@ public class ZExpressionChecker {
         if (agg == null) {
             rules.error(node.getLine(), node.getColumn(), "Clase no definida: " + node.getTypeName());
             result = Type.ERROR;
+        } else if (!agg.isClass()) {
+            rules.error(node.getLine(), node.getColumn(),
+                    "new requiere una clase, no una estructura: " + node.getTypeName());
+            result = Type.ERROR;
         } else {
-            if (agg.findConstructor(argTypes) == null) {
+            Symbol constructor = agg.findConstructor(argTypes, context.getTypeTable());
+            if (constructor == null) {
                 rules.error(node.getLine(), node.getColumn(),
                         "No existe un constructor de " + node.getTypeName() + " para " + argTypes);
+            } else if (!AccessControl.canAccess(constructor.getAccessModifier(), agg, currentClass)) {
+                rules.error(node.getLine(), node.getColumn(),
+                        "Acceso denegado al constructor de " + node.getTypeName());
             }
             result = Type.classType(node.getTypeName());
         }
@@ -197,6 +228,17 @@ public class ZExpressionChecker {
     Type nullExpression(NullExpression node) {
         context.annotate(node, Type.NULL);
         return Type.NULL;
+    }
+
+    Type thisExpression(ThisExpression node) {
+        if (currentClass == null) {
+            Type error = rules.fail(node.getLine(), node.getColumn(), "this solo se puede usar dentro de una clase");
+            context.annotate(node, error);
+            return error;
+        }
+        Type type = Type.classType(currentClass.getName());
+        context.annotate(node, type);
+        return type;
     }
 
     Type read(ReadExpression node) {
@@ -223,7 +265,14 @@ public class ZExpressionChecker {
         if (s != null) return s.getType();
         if (currentClass != null) {
             Field f = currentClass.findField(name);
-            if (f != null) return f.getType();
+            if (f != null) {
+                if (!AccessControl.canAccess(f.getAccessModifier(), f.getOwner(), currentClass)) {
+                    rules.error(line, col, "Acceso denegado al campo " + name + " ("
+                            + f.getAccessModifier().name().toLowerCase() + ")");
+                    return Type.ERROR;
+                }
+                return f.getType();
+            }
         }
         rules.error(line, col, "Identificador no definido: " + name);
         return Type.ERROR;

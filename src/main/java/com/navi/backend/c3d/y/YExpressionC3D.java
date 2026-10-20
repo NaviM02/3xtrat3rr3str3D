@@ -107,15 +107,26 @@ class YExpressionC3D {
 
     // ---------------------------------------------------------------- argumentos
 
-    // evalua argumentos: param de Y arreglo/struct se envia por direccion
+    // evalua argumentos: param de Y arreglo/struct se envia por direccion;
+    // los arreglos multi-D agregan sus dimensiones dims[1..N-1] como enteros
     private List<String> evalArgs(List<Expression> args, List<Type> params, boolean byRef) {
         List<String> places = new ArrayList<>();
         if (args == null) return places;
         for (int i = 0; i < args.size(); i++) {
             Expression a = args.get(i);
             Type p = params != null && i < params.size() ? params.get(i) : null;
-            if (byRef && p != null && (p.isArray() || p.isStruct())) places.add(addressOf(a));
-            else places.add(a.accept(visitor));
+            if (byRef && p != null && (p.isArray() || p.isStruct())) {
+                places.add(addressOf(a));
+                if (p.isArray() && p.getDimensions() > 1) {
+                    List<Integer> dims = resolver.dimsOf(a);
+                    for (int k = 1; k < p.getDimensions(); k++) {
+                        int d = dims != null && k < dims.size() ? dims.get(k) : 1;
+                        places.add(emitter.literal(String.valueOf(d)));
+                    }
+                }
+            } else {
+                places.add(a.accept(visitor));
+            }
         }
         return places;
     }

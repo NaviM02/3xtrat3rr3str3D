@@ -103,6 +103,7 @@ public class DeclarationVisitor extends StatementVisitor {
         return new ArrayParameter(
             ctx.getStart().getLine(),
             ctx.getStart().getCharPositionInLine(),
+            parameter.LBRACK().size(),
             (YType) visit(parameter.type()),
             parameter.ID().getText()
         );

@@ -102,15 +102,13 @@ class ZResolverC3D {
 
     int fieldIndex(AggregateType agg, String member) {
         if (agg == null) return 0;
-        for (int i = 0; i < agg.getFields().size(); i++) {
-            if (agg.getFields().get(i).getName().equals(member)) return i;
-        }
-        return 0;
+        int offset = agg.fieldOffset(member);
+        return agg.isClass() ? offset + 1 : offset;
     }
 
     int objectSize(String className) {
         AggregateType agg = context.getTypeTable().resolve(className);
-        return agg == null ? 1 : Math.max(1, agg.getFields().size());
+        return agg == null ? 1 : agg.objectSize();
     }
 
     void setPos(Object node, int offset) {

@@ -1,6 +1,6 @@
 package com.navi.backend.c3d;
 
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 

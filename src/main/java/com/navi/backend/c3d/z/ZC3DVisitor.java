@@ -24,6 +24,7 @@ import com.navi.backend.ast.z.expressions.NullExpression;
 import com.navi.backend.ast.z.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.z.expressions.ReadExpression;
 import com.navi.backend.ast.z.expressions.TernaryExpression;
+import com.navi.backend.ast.z.expressions.ThisExpression;
 import com.navi.backend.ast.z.expressions.UnaryExpression;
 import com.navi.backend.ast.z.expressions.VariableExpression;
 import com.navi.backend.ast.z.expressions.literals.LiteralExpression;
@@ -42,6 +43,7 @@ import com.navi.backend.ast.z.statements.PrintStatement;
 import com.navi.backend.ast.z.statements.PrintlnStatement;
 import com.navi.backend.ast.z.statements.ReadlnStatement;
 import com.navi.backend.ast.z.statements.ReturnStatement;
+import com.navi.backend.ast.z.statements.SuperCallStatement;
 import com.navi.backend.ast.z.statements.SwitchCase;
 import com.navi.backend.ast.z.statements.SwitchStatement;
 import com.navi.backend.ast.z.statements.VariableDeclarationStatement;
@@ -101,6 +103,7 @@ public class ZC3DVisitor implements AstZVisitor<String> {
     @Override public String visit(PrintlnStatement node) { return statements.println(node); }
     @Override public String visit(BreakStatement node) { return statements.breakStatement(node); }
     @Override public String visit(ContinueStatement node) { return statements.continueStatement(node); }
+    @Override public String visit(SuperCallStatement node) { return statements.superCall(node); }
 
     // ---------------------------------------------------------------- expresiones
 
@@ -109,6 +112,7 @@ public class ZC3DVisitor implements AstZVisitor<String> {
     @Override public String visit(AssignmentExpression node) { return expressions.assignment(node); }
     @Override public String visit(TernaryExpression node) { return expressions.ternary(node); }
     @Override public String visit(VariableExpression node) { return expressions.variable(node); }
+    @Override public String visit(ThisExpression node) { return expressions.thisExpression(node); }
     @Override public String visit(ArrayAccessExpression node) { return expressions.arrayAccess(node); }
     @Override public String visit(MemberAccessExpression node) { return expressions.memberAccess(node); }
     @Override public String visit(FunctionCallExpression node) { return expressions.functionCall(node); }

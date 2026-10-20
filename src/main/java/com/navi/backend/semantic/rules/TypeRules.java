@@ -41,7 +41,7 @@ public final class TypeRules {
 
     // == / !=
     public Type equality(Type l, Type r, int line, int col) {
-        if (TypeCompat.comparable(l, r)) return Type.BOOLEAN;
+        if (TypeCompat.comparable(l, r, context.getTypeTable())) return Type.BOOLEAN;
         return fail(line, col, "Tipos no comparables: " + l + " y " + r);
     }
 
@@ -88,7 +88,7 @@ public final class TypeRules {
 
     // asignacion simple; true si es valida
     public boolean assign(Type target, Type value, int line, int col) {
-        if (TypeCompat.canAssign(target, value)) return true;
+        if (TypeCompat.canAssign(target, value, context.getTypeTable())) return true;
         error(line, col, "No se puede asignar " + value + " a " + target);
         return false;
     }
@@ -102,7 +102,7 @@ public final class TypeRules {
 
     // elemento de un inicializador de arreglo contra el tipo base
     public void checkElement(Type base, Type actual, int line, int col) {
-        if (!TypeCompat.canAssign(base, actual)) {
+        if (!TypeCompat.canAssign(base, actual, context.getTypeTable())) {
             error(line, col, "Elemento de arreglo " + actual + " no asignable a " + base);
         }
     }
@@ -120,7 +120,7 @@ public final class TypeRules {
         }
         if (declared == null || declared.isVoid()) {
             error(line, col, voidReturnMsg);
-        } else if (!TypeCompat.canAssign(declared, actual)) {
+        } else if (!TypeCompat.canAssign(declared, actual, context.getTypeTable())) {
             error(line, col, "Tipo de retorno " + actual + " no asignable a " + declared);
         }
     }

@@ -23,6 +23,7 @@ import com.navi.backend.ast.z.statements.PrintStatement;
 import com.navi.backend.ast.z.statements.PrintlnStatement;
 import com.navi.backend.ast.z.statements.ReturnStatement;
 import com.navi.backend.ast.z.statements.Statement;
+import com.navi.backend.ast.z.statements.SuperCallStatement;
 import com.navi.backend.ast.z.statements.SwitchCase;
 import com.navi.backend.ast.z.statements.SwitchStatement;
 import com.navi.backend.ast.z.statements.VariableDeclarationStatement;
@@ -31,10 +32,14 @@ import com.navi.backend.ast.z.visitors.AstZVisitor;
 import com.navi.backend.semantic.support.Definitions;
 import com.navi.backend.semantic.enums.ScopeKind;
 import com.navi.backend.semantic.SemanticContext;
+import com.navi.backend.semantic.model.AggregateType;
+import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.model.Type;
 import com.navi.backend.semantic.rules.TypeCompat;
 import com.navi.backend.semantic.rules.TypeRules;
+import com.navi.backend.semantic.support.AccessControl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // chequea sentencias y miembros de Z: ambitos, simbolos y control de flujo;
@@ -48,6 +53,7 @@ public class ZStatementChecker {
     private final AstZVisitor<Type> visitor;
 
     private Type currentReturnType;
+    private boolean inConstructor = false;
 
     ZStatementChecker(SemanticContext context, TypeRules rules, ZTypeResolver types,
                       Definitions defs, AstZVisitor<Type> visitor) {
@@ -74,6 +80,7 @@ public class ZStatementChecker {
         context.getSymbolTable().enterScope(ScopeKind.FUNCTION);
         defineParams(node.getParameters());
         currentReturnType = node.getReturnType() == null ? Type.VOID : types.resolve(node.getReturnType());
+        inConstructor = false;
         node.getBody().accept(visitor);
         currentReturnType = null;
         context.getSymbolTable().exitScope();
@@ -84,7 +91,10 @@ public class ZStatementChecker {
         context.getSymbolTable().enterScope(ScopeKind.FUNCTION);
         defineParams(node.getParameters());
         currentReturnType = Type.VOID;
+        inConstructor = true;
+        checkSuperCall(node);
         node.getBody().accept(visitor);
+        inConstructor = false;
         currentReturnType = null;
         context.getSymbolTable().exitScope();
         return null;
@@ -212,12 +222,76 @@ public class ZStatementChecker {
         return null;
     }
 
+    // la validacion real (posicion y argumentos) ocurre en checkSuperCall; aqui
+    // solo se rechaza super fuera de un constructor
+    Type superCall(SuperCallStatement node) {
+        if (!inConstructor) {
+            rules.error(node.getLine(), node.getColumn(), "super solo se puede usar dentro de un constructor");
+        }
+        return null;
+    }
+
+    // super(...) debe ser la primera instruccion del constructor; si se omite se
+    // invoca automaticamente el constructor sin argumentos del padre (si existe)
+    private void checkSuperCall(ConstructorDeclaration node) {
+        AggregateType cls = context.getTypeTable().resolve(node.getName());
+        if (cls == null) return;
+        AggregateType parent = cls.getSuperClass();
+
+        List<Statement> stmts = node.getBody() == null ? List.of() : node.getBody().getStatements();
+        SuperCallStatement superCall = null;
+        int index = -1;
+        for (int i = 0; i < stmts.size(); i++) {
+            if (stmts.get(i) instanceof SuperCallStatement sc) {
+                superCall = sc;
+                index = i;
+                break;
+            }
+        }
+
+        if (parent == null) {
+            if (superCall != null) {
+                rules.error(superCall.getLine(), superCall.getColumn(),
+                        "La clase " + cls.getName() + " no tiene superclase para invocar super");
+            }
+            return;
+        }
+
+        if (superCall == null) {
+            Symbol ctor = parent.findConstructor(List.of(), context.getTypeTable());
+            if (ctor == null) {
+                rules.error(node.getLine(), node.getColumn(),
+                        "La clase base " + parent.getName() + " no tiene constructor sin argumentos; debe invocar super(...)");
+            } else if (!AccessControl.canAccess(ctor.getAccessModifier(), parent, cls)) {
+                rules.error(node.getLine(), node.getColumn(),
+                        "El constructor sin argumentos de " + parent.getName() + " no es accesible");
+            }
+            return;
+        }
+
+        if (index != 0) {
+            rules.error(superCall.getLine(), superCall.getColumn(),
+                    "super(...) debe ser la primera instruccion del constructor");
+        }
+
+        List<Type> argTypes = new ArrayList<>();
+        for (Expression a : superCall.getArguments()) argTypes.add(a.accept(visitor));
+        Symbol ctor = parent.findConstructor(argTypes, context.getTypeTable());
+        if (ctor == null) {
+            rules.error(superCall.getLine(), superCall.getColumn(),
+                    "No existe un constructor de " + parent.getName() + " para " + argTypes);
+        } else if (!AccessControl.canAccess(ctor.getAccessModifier(), parent, cls)) {
+            rules.error(superCall.getLine(), superCall.getColumn(),
+                    "El constructor de " + parent.getName() + " no es accesible");
+        }
+    }
+
     // ---------------------------------------------------------------- inicializadores
 
     private void checkInitializer(Initializer init, Type expected, int line, int col) {
         if (init instanceof ExpressionInitializer ei) {
             Type actual = ei.getExpression().accept(visitor);
-            if (!TypeCompat.canAssign(expected, actual)) {
+            if (!TypeCompat.canAssign(expected, actual, context.getTypeTable())) {
                 rules.error(line, col, "No se puede inicializar " + expected + " con " + actual);
             }
         } else if (init instanceof ArrayInitializer ai) {

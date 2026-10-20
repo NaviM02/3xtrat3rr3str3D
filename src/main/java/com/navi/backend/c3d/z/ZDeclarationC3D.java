@@ -10,10 +10,14 @@ import com.navi.backend.ast.z.declarations.Parameter;
 import com.navi.backend.ast.z.declarations.VariableDeclaration;
 import com.navi.backend.ast.z.declarations.VariableDeclarator;
 import com.navi.backend.ast.z.declarations.ZType;
+import com.navi.backend.ast.z.expressions.Expression;
+import com.navi.backend.ast.z.statements.BlockStatement;
+import com.navi.backend.ast.z.statements.SuperCallStatement;
 import com.navi.backend.ast.z.visitors.AstZVisitor;
 import com.navi.backend.c3d.C3DEmitter;
 import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.model.Field;
+import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Type;
 
@@ -42,15 +46,27 @@ class ZDeclarationC3D {
     String classDeclaration(ClassDeclaration node) {
         resolver.setCurrentClass(context.getTypeTable().resolve(node.getName()));
         fieldInitializers.clear();
-        if (node.getMembers() != null) for (ClassMember m : node.getMembers()) m.accept(visitor);
+        boolean hasConstructor = false;
+        if (node.getMembers() != null) {
+            for (ClassMember member : node.getMembers()) {
+                if (member instanceof FieldDeclaration field) {
+                    for (VariableDeclarator variable : field.getVariables()) {
+                        if (variable.getInitializer() != null) fieldInitializers.add(variable);
+                    }
+                } else if (member instanceof ConstructorDeclaration) {
+                    hasConstructor = true;
+                    member.accept(visitor);
+                } else {
+                    member.accept(visitor);
+                }
+            }
+        }
+        if (!hasConstructor) defaultConstructor();
         resolver.setCurrentClass(null);
         return null;
     }
 
     String fieldDeclaration(FieldDeclaration node) {
-        for (VariableDeclarator v : node.getVariables()) {
-            if (v.getInitializer() != null) fieldInitializers.add(v);
-        }
         return null;
     }
 
@@ -78,17 +94,79 @@ class ZDeclarationC3D {
         if (node.getParameters() != null) {
             for (Parameter p : node.getParameters()) resolver.setPos(p, emitter.declareParam(p.getName()));
         }
-        for (VariableDeclarator v : fieldInitializers) {
-            if (v.getInitializer() instanceof ExpressionInitializer ei) {
-                int idx = resolver.fieldIndex(resolver.currentClass(), v.getName());
-                if (idx >= 0) emitter.heapStore(resolver.thisPlace(), String.valueOf(idx), ei.getExpression().accept(visitor));
-            }
-        }
+        SuperCallStatement superCall = leadingSuper(node.getBody());
+        if (superCall != null) emitSuperCall(superCall);
+        else initializeParent();
+        initializeOwnFields();
         initializeNullFields();
         node.getBody().accept(visitor);
         emitter.returnVoid();
         emitter.exitFrame();
         return null;
+    }
+
+    // super(...) si aparece como primera instruccion; si no, se omite y se llama
+    // al constructor sin argumentos del padre
+    private SuperCallStatement leadingSuper(BlockStatement body) {
+        if (body == null || body.getStatements() == null || body.getStatements().isEmpty()) return null;
+        return body.getStatements().get(0) instanceof SuperCallStatement sc ? sc : null;
+    }
+
+    // emite la llamada al constructor del padre con los argumentos de super(...)
+    private void emitSuperCall(SuperCallStatement node) {
+        AggregateType cls = resolver.currentClass();
+        if (cls == null || cls.getSuperClass() == null) return;
+        AggregateType parent = cls.getSuperClass();
+
+        List<String> argPlaces = new ArrayList<>();
+        List<Type> argTypes = new ArrayList<>();
+        for (Expression a : node.getArguments()) {
+            argPlaces.add(a.accept(visitor));
+            Type t = context.typeOf(a);
+            argTypes.add(t == null ? Type.ERROR : t);
+        }
+        Symbol ctor = parent.findConstructor(argTypes, context.getTypeTable());
+        if (ctor == null) return; // error ya reportado en semantica
+
+        String label = C3DEmitter.ctorLabel(parent.getName(), ctor.getSignature().getParameters());
+        List<String> callArgs = new ArrayList<>();
+        callArgs.add(resolver.thisPlace());
+        callArgs.addAll(argPlaces);
+        emitter.callVoid(label, callArgs);
+    }
+
+    private void defaultConstructor() {
+        AggregateType cls = resolver.currentClass();
+        if (cls == null) return;
+        String label = C3DEmitter.ctorLabel(cls.getName(), List.of());
+        emitter.entryLabel(label);
+        emitter.enterFrame(label);
+        emitter.declareParam("this");
+        initializeParent();
+        initializeOwnFields();
+        initializeNullFields();
+        emitter.returnVoid();
+        emitter.exitFrame();
+    }
+
+    // Cuando no hay super(...) explicito se invoca el constructor sin argumentos del padre.
+    private void initializeParent() {
+        AggregateType parent = resolver.currentClass() == null ? null : resolver.currentClass().getSuperClass();
+        if (parent == null) return;
+        var constructor = parent.findConstructor(List.of(), context.getTypeTable());
+        if (constructor == null) return;
+        String label = C3DEmitter.ctorLabel(parent.getName(), constructor.getSignature().getParameters());
+        emitter.callVoid(label, List.of(resolver.thisPlace()));
+    }
+
+    private void initializeOwnFields() {
+        for (VariableDeclarator variable : fieldInitializers) {
+            if (variable.getInitializer() instanceof ExpressionInitializer initializer) {
+                int offset = resolver.fieldIndex(resolver.currentClass(), variable.getName());
+                emitter.heapStore(resolver.thisPlace(), String.valueOf(offset),
+                        initializer.getExpression().accept(visitor));
+            }
+        }
     }
 
     // deja en null los campos de referencia sin inicializador (si no la celda

@@ -59,8 +59,10 @@ public class LatStatementChecker {
         context.getSymbolTable().enterScope(ScopeKind.FUNCTION);
         if (node.getParameters() != null) {
             for (Parameter p : node.getParameters()) {
-                Type t = types.resolve(p.getType(), p.getLine(), p.getColumn());
-                defs.parameter(p, p.getName(), t, false, p.getLine(), p.getColumn());
+                Type base = types.resolve(p.getType(), p.getLine(), p.getColumn());
+                boolean isArray = p.getRank() > 0;
+                Type t = isArray ? Type.array(base, p.getRank()) : base;
+                defs.parameter(p, p.getName(), t, isArray, p.getLine(), p.getColumn());
             }
         }
         currentReturnType = types.resolve(node.getReturnType(), node.getLine(), node.getColumn());

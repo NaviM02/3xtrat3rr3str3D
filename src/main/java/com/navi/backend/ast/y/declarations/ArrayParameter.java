@@ -8,11 +8,13 @@ import java.util.List;
 
 @Getter
 public class ArrayParameter extends Parameter {
+    private final int rank;
     private final YType type;
     private final String name;
 
-    public ArrayParameter(int line, int column, YType type, String name) {
+    public ArrayParameter(int line, int column, int rank, YType type, String name) {
         super(line, column);
+        this.rank = rank;
         this.type = type;
         this.name = name;
     }
@@ -24,7 +26,7 @@ public class ArrayParameter extends Parameter {
 
     @Override
     public String getNodeLabel() {
-        return "ArrayParameter: " + name;
+        return "ArrayParameter: " + name + " (rank " + rank + ")";
     }
 
     @Override

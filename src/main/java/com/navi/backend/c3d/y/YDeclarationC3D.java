@@ -14,6 +14,7 @@ import com.navi.backend.c3d.C3DEmitter;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // emision C3D de declaraciones/funciones de Y; locales y structs en el stack
@@ -42,7 +43,17 @@ class YDeclarationC3D {
                 if (p instanceof NormalParameter np) name = np.getName();
                 else if (p instanceof ArrayParameter ap) { name = ap.getName(); reference = true; }
                 else if (p instanceof StructureParameter sp) { name = sp.getName(); reference = true; }
-                if (name != null) resolver.setPos(p, emitter.declareParam(name, reference));
+                if (name != null) {
+                    resolver.setPos(p, emitter.declareParam(name, reference));
+                    // arreglo multi-D: dimensiones dims[1..N-1] como params ocultos
+                    if (p instanceof ArrayParameter ap && ap.getRank() > 1) {
+                        List<Integer> dimOffsets = new ArrayList<>();
+                        for (int k = 1; k < ap.getRank(); k++) {
+                            dimOffsets.add(emitter.declareParam(name + "_dim" + k, false));
+                        }
+                        resolver.recordParamDims(name, dimOffsets);
+                    }
+                }
             }
         }
         if (node.getStatements() != null) for (Statement s : node.getStatements()) s.accept(visitor);

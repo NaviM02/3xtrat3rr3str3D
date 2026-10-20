@@ -1,4 +1,5 @@
-package com.navi.backend.lexer_parser.y;// Generated from YLexer.g4 by ANTLR 4.13.2
+package com.navi.backend.lexer_parser.y;
+// Generated from YLexer.g4 by ANTLR 4.13.2
 
 import org.antlr.v4.runtime.Token;
 
@@ -19,16 +20,16 @@ public class YLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		INDENT=1, DEDENT=2, STRUCTURES=3, FUNCTIONS=4, STRUCTURE=5, DEFINE=6, 
-		IF=7, THEN=8, ELSE=9, OTHERWISE=10, SWITCH=11, CASE=12, ALWAYS=13, FOR=14, 
-		WHILE=15, DO=16, BREAK=17, CONTINUE=18, RETURN=19, PRINT=20, READ=21, 
-		INTEGER=22, FLOAT=23, CHARACTER=24, BOOLEAN=25, STRING=26, TRUE=27, FALSE=28, 
-		INCREMENT=29, DECREMENT=30, PLUS=31, MINUS=32, MULT=33, DIV=34, MOD=35, 
-		AND=36, OR=37, NOT=38, EQUAL=39, NOT_EQUAL=40, LESS_EQUAL=41, GREATER_EQUAL=42, 
-		LESS=43, GREATER=44, PLUS_ASSIGN=45, MINUS_ASSIGN=46, MULT_ASSIGN=47, 
-		ASSIGN=48, ARROW=49, LPAREN=50, RPAREN=51, LBRACK=52, RBRACK=53, LBRACE=54, 
-		RBRACE=55, COMMA=56, COLON=57, SEMI=58, DOT=59, FLOAT_LITERAL=60, INTEGER_LITERAL=61, 
-		CHAR_LITERAL=62, STRING_LITERAL=63, ID=64, LINE_COMMENT=65, BLOCK_COMMENT=66, 
+		INDENT=1, DEDENT=2, STRUCTURES=3, FUNCTIONS=4, STRUCTURE=5, DEFINE=6,
+		IF=7, THEN=8, ELSE=9, OTHERWISE=10, SWITCH=11, CASE=12, ALWAYS=13, FOR=14,
+		WHILE=15, DO=16, BREAK=17, CONTINUE=18, RETURN=19, PRINT=20, READ=21,
+		INTEGER=22, FLOAT=23, CHARACTER=24, BOOLEAN=25, STRING=26, TRUE=27, FALSE=28,
+		INCREMENT=29, DECREMENT=30, PLUS=31, MINUS=32, MULT=33, DIV=34, MOD=35,
+		AND=36, OR=37, NOT=38, EQUAL=39, NOT_EQUAL=40, LESS_EQUAL=41, GREATER_EQUAL=42,
+		LESS=43, GREATER=44, PLUS_ASSIGN=45, MINUS_ASSIGN=46, MULT_ASSIGN=47,
+		ASSIGN=48, ARROW=49, LPAREN=50, RPAREN=51, LBRACK=52, RBRACK=53, LBRACE=54,
+		RBRACE=55, COMMA=56, COLON=57, SEMI=58, DOT=59, FLOAT_LITERAL=60, INTEGER_LITERAL=61,
+		CHAR_LITERAL=62, STRING_LITERAL=63, ID=64, LINE_COMMENT=65, BLOCK_COMMENT=66,
 		NEWLINE=67, WS=68;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
@@ -40,15 +41,15 @@ public class YLexer extends Lexer {
 
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"STRUCTURES", "FUNCTIONS", "STRUCTURE", "DEFINE", "IF", "THEN", "ELSE", 
-			"OTHERWISE", "SWITCH", "CASE", "ALWAYS", "FOR", "WHILE", "DO", "BREAK", 
-			"CONTINUE", "RETURN", "PRINT", "READ", "INTEGER", "FLOAT", "CHARACTER", 
-			"BOOLEAN", "STRING", "TRUE", "FALSE", "INCREMENT", "DECREMENT", "PLUS", 
-			"MINUS", "MULT", "DIV", "MOD", "AND", "OR", "NOT", "EQUAL", "NOT_EQUAL", 
-			"LESS_EQUAL", "GREATER_EQUAL", "LESS", "GREATER", "PLUS_ASSIGN", "MINUS_ASSIGN", 
-			"MULT_ASSIGN", "ASSIGN", "ARROW", "LPAREN", "RPAREN", "LBRACK", "RBRACK", 
-			"LBRACE", "RBRACE", "COMMA", "COLON", "SEMI", "DOT", "FLOAT_LITERAL", 
-			"INTEGER_LITERAL", "CHAR_LITERAL", "STRING_LITERAL", "ID", "LINE_COMMENT", 
+			"STRUCTURES", "FUNCTIONS", "STRUCTURE", "DEFINE", "IF", "THEN", "ELSE",
+			"OTHERWISE", "SWITCH", "CASE", "ALWAYS", "FOR", "WHILE", "DO", "BREAK",
+			"CONTINUE", "RETURN", "PRINT", "READ", "INTEGER", "FLOAT", "CHARACTER",
+			"BOOLEAN", "STRING", "TRUE", "FALSE", "INCREMENT", "DECREMENT", "PLUS",
+			"MINUS", "MULT", "DIV", "MOD", "AND", "OR", "NOT", "EQUAL", "NOT_EQUAL",
+			"LESS_EQUAL", "GREATER_EQUAL", "LESS", "GREATER", "PLUS_ASSIGN", "MINUS_ASSIGN",
+			"MULT_ASSIGN", "ASSIGN", "ARROW", "LPAREN", "RPAREN", "LBRACK", "RBRACK",
+			"LBRACE", "RBRACE", "COMMA", "COLON", "SEMI", "DOT", "FLOAT_LITERAL",
+			"INTEGER_LITERAL", "CHAR_LITERAL", "STRING_LITERAL", "ID", "LINE_COMMENT",
 			"BLOCK_COMMENT", "NEWLINE", "WS"
 		};
 	}
@@ -56,28 +57,28 @@ public class YLexer extends Lexer {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, "'%estructuras'", "'%funciones'", "'estructura'", "'definir'", 
-			"'si'", "'entonces'", "'sino'", "'contrario'", "'elegir'", "'caso'", 
-			"'siempre'", "'para'", "'mientras'", "'hacer'", "'romper'", "'continuar'", 
-			"'retornar'", "'imprimir'", "'leer'", "'entero'", "'flotante'", "'caracter'", 
-			"'bool'", "'cadena'", "'verdadero'", "'falso'", "'++'", "'--'", "'+'", 
-			"'-'", "'*'", "'/'", "'%'", "'&&'", "'||'", "'!'", "'=='", "'!='", "'<='", 
-			"'>='", "'<'", "'>'", "'+='", "'-='", "'*='", "'='", "'->'", "'('", "')'", 
+			null, null, null, "'%estructuras'", "'%funciones'", "'estructura'", "'definir'",
+			"'si'", "'entonces'", "'sino'", "'contrario'", "'elegir'", "'caso'",
+			"'siempre'", "'para'", "'mientras'", "'hacer'", "'romper'", "'continuar'",
+			"'retornar'", "'imprimir'", "'leer'", "'entero'", "'flotante'", "'caracter'",
+			"'bool'", "'cadena'", "'verdadero'", "'falso'", "'++'", "'--'", "'+'",
+			"'-'", "'*'", "'/'", "'%'", "'&&'", "'||'", "'!'", "'=='", "'!='", "'<='",
+			"'>='", "'<'", "'>'", "'+='", "'-='", "'*='", "'='", "'->'", "'('", "')'",
 			"'['", "']'", "'{'", "'}'", "','", "':'", "';'", "'.'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "INDENT", "DEDENT", "STRUCTURES", "FUNCTIONS", "STRUCTURE", "DEFINE", 
-			"IF", "THEN", "ELSE", "OTHERWISE", "SWITCH", "CASE", "ALWAYS", "FOR", 
-			"WHILE", "DO", "BREAK", "CONTINUE", "RETURN", "PRINT", "READ", "INTEGER", 
-			"FLOAT", "CHARACTER", "BOOLEAN", "STRING", "TRUE", "FALSE", "INCREMENT", 
-			"DECREMENT", "PLUS", "MINUS", "MULT", "DIV", "MOD", "AND", "OR", "NOT", 
-			"EQUAL", "NOT_EQUAL", "LESS_EQUAL", "GREATER_EQUAL", "LESS", "GREATER", 
-			"PLUS_ASSIGN", "MINUS_ASSIGN", "MULT_ASSIGN", "ASSIGN", "ARROW", "LPAREN", 
-			"RPAREN", "LBRACK", "RBRACK", "LBRACE", "RBRACE", "COMMA", "COLON", "SEMI", 
-			"DOT", "FLOAT_LITERAL", "INTEGER_LITERAL", "CHAR_LITERAL", "STRING_LITERAL", 
+			null, "INDENT", "DEDENT", "STRUCTURES", "FUNCTIONS", "STRUCTURE", "DEFINE",
+			"IF", "THEN", "ELSE", "OTHERWISE", "SWITCH", "CASE", "ALWAYS", "FOR",
+			"WHILE", "DO", "BREAK", "CONTINUE", "RETURN", "PRINT", "READ", "INTEGER",
+			"FLOAT", "CHARACTER", "BOOLEAN", "STRING", "TRUE", "FALSE", "INCREMENT",
+			"DECREMENT", "PLUS", "MINUS", "MULT", "DIV", "MOD", "AND", "OR", "NOT",
+			"EQUAL", "NOT_EQUAL", "LESS_EQUAL", "GREATER_EQUAL", "LESS", "GREATER",
+			"PLUS_ASSIGN", "MINUS_ASSIGN", "MULT_ASSIGN", "ASSIGN", "ARROW", "LPAREN",
+			"RPAREN", "LBRACK", "RBRACK", "LBRACE", "RBRACE", "COMMA", "COLON", "SEMI",
+			"DOT", "FLOAT_LITERAL", "INTEGER_LITERAL", "CHAR_LITERAL", "STRING_LITERAL",
 			"ID", "LINE_COMMENT", "BLOCK_COMMENT", "NEWLINE", "WS"
 		};
 	}

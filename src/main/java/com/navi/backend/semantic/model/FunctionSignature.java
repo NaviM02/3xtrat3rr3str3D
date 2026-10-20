@@ -25,10 +25,17 @@ public class FunctionSignature {
     // los argumentos son asignables a los parametros?
     // ademas de coincidencia exacta se admite ensanchamiento numerico (int -> double)
     public boolean matches(List<Type> argTypes) {
+        return matches(argTypes, null);
+    }
+
+    public boolean matches(List<Type> argTypes, TypeTable types) {
         if (argTypes == null) return parameters.isEmpty();
         if (parameters.size() != argTypes.size()) return false;
         for (int i = 0; i < parameters.size(); i++) {
-            if (!TypeCompat.canAssign(parameters.get(i), argTypes.get(i))) return false;
+            boolean compatible = types == null
+                    ? TypeCompat.canAssign(parameters.get(i), argTypes.get(i))
+                    : TypeCompat.canAssign(parameters.get(i), argTypes.get(i), types);
+            if (!compatible) return false;
         }
         return true;
     }

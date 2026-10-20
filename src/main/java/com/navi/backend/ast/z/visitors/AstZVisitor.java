@@ -40,6 +40,7 @@ public interface AstZVisitor<R> {
     R visit(PrintStatement node);
     R visit(PrintlnStatement node);
     R visit(ReadlnStatement node);
+    R visit(SuperCallStatement node);
 
     R visit(ArrayAccessExpression node);
     R visit(AssignmentExpression node);
@@ -48,6 +49,7 @@ public interface AstZVisitor<R> {
     R visit(MemberAccessExpression node);
     R visit(UnaryExpression node);
     R visit(VariableExpression node);
+    R visit(ThisExpression node);
     R visit(TernaryExpression node);
     R visit(ObjectCreationExpression node);
     R visit(ArrayCreationExpression node);

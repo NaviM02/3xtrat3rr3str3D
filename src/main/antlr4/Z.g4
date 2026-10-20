@@ -2,7 +2,7 @@ grammar Z;
 
 program : classDeclaration EOF;
 
-classDeclaration : PUBLIC CLASS ID LBRACE classMember* RBRACE;
+classDeclaration : PUBLIC? CLASS ID (EXTENDS ID)? LBRACE classMember* RBRACE;
 
 classMember
     : fieldDeclaration          #FieldMember
@@ -10,18 +10,22 @@ classMember
     | methodDeclaration         #MethodMember
     ;
 
-fieldDeclaration : PUBLIC? type variableDeclaratorList SEMI;
+fieldDeclaration : accessModifier? type variableDeclaratorList SEMI;
 
 variableDeclaratorList : variableDeclarator (COMMA variableDeclarator)*;
 
 variableDeclarator : ID initializer?;
 
-constructorDeclaration : PUBLIC ID LPAREN parameterList? RPAREN block;
+constructorDeclaration : accessModifier? ID LPAREN parameterList? RPAREN block;
 
 methodDeclaration
-    : PUBLIC? type ID LPAREN parameterList? RPAREN block #TypedMethodDeclaration
-    | PUBLIC? VOID ID LPAREN parameterList? RPAREN block #VoidMethodDeclaration
+    : overrideAnnotation? accessModifier? type ID LPAREN parameterList? RPAREN block #TypedMethodDeclaration
+    | overrideAnnotation? accessModifier? VOID ID LPAREN parameterList? RPAREN block #VoidMethodDeclaration
     ;
+
+overrideAnnotation : AT OVERRIDE;
+
+accessModifier : PUBLIC | PRIVATE | PROTECTED;
 
 parameterList : parameter (COMMA parameter)*;
 
@@ -35,6 +39,7 @@ statement
     | printStatement
     | printlnStatement
     | readlnStatement
+    | superStatement
     | ifStatement
     | switchStatement
     | forStatement
@@ -44,6 +49,8 @@ statement
     | breakStatement
     | continueStatement
     ;
+
+superStatement : SUPER LPAREN argumentList? RPAREN SEMI;
 
 variableDeclarationStatement : type variableDeclaratorList SEMI;
 
@@ -174,6 +181,7 @@ postfixOperation
 primaryExpression
     : literal                                   #LiteralExpr
     | ID                                        #VariableExpr
+    | THIS                                      #ThisExpr
     | NEW ID LPAREN argumentList? RPAREN        #ObjCreationExpr
     | arrayCreation                             #ArrayCreationExpr
     | NULL                                      #NullExpr
@@ -232,6 +240,12 @@ referenceType
     ;
 
 PUBLIC : 'public';
+PRIVATE : 'private';
+PROTECTED : 'protected';
+EXTENDS : 'extends';
+OVERRIDE : 'Override';
+THIS : 'this';
+SUPER : 'super';
 CLASS : 'class';
 VOID   : 'void';
 RETURN : 'return';
@@ -289,6 +303,7 @@ MINUS_ASSIGN: '-=';
 MULT_ASSIGN : '*=';
 
 QUESTION    : '?';
+AT          : '@';
 
 LPAREN : '(';
 RPAREN : ')';

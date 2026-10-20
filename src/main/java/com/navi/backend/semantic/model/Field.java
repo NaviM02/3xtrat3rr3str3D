@@ -1,5 +1,6 @@
 package com.navi.backend.semantic.model;
 
+import com.navi.backend.semantic.enums.AccessModifier;
 import lombok.Getter;
 
 import java.util.List;
@@ -11,14 +12,26 @@ public class Field {
     private final String name;
     private final Type type;
     private final List<Integer> arrayDims;
+    private final AccessModifier accessModifier;
+    private final AggregateType owner;
 
     public Field(String name, Type type) {
-        this(name, type, List.of());
+        this(name, type, List.of(), AccessModifier.PUBLIC, null);
     }
 
     public Field(String name, Type type, List<Integer> arrayDims) {
+        this(name, type, arrayDims, AccessModifier.PUBLIC, null);
+    }
+
+    public Field(String name, Type type, AccessModifier accessModifier, AggregateType owner) {
+        this(name, type, List.of(), accessModifier, owner);
+    }
+
+    public Field(String name, Type type, List<Integer> arrayDims, AccessModifier accessModifier, AggregateType owner) {
         this.name = name;
         this.type = type;
         this.arrayDims = arrayDims == null ? List.of() : List.copyOf(arrayDims);
+        this.accessModifier = accessModifier == null ? AccessModifier.DEFAULT : accessModifier;
+        this.owner = owner;
     }
 }

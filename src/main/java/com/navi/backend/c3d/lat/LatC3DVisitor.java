@@ -4,6 +4,7 @@ import com.navi.backend.ast.lat.expressions.ArrayAccessExpression;
 import com.navi.backend.ast.lat.expressions.BinaryExpression;
 import com.navi.backend.ast.lat.expressions.FunctionCallExpression;
 import com.navi.backend.ast.lat.expressions.MemberAccessExpression;
+import com.navi.backend.ast.lat.expressions.NullExpression;
 import com.navi.backend.ast.lat.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.lat.expressions.UnaryExpression;
 import com.navi.backend.ast.lat.expressions.VariableExpression;
@@ -119,6 +120,7 @@ public class LatC3DVisitor implements AstLatVisitor<String> {
     @Override public String visit(MemberAccessExpression node) { return expressions.memberAccess(node); }
     @Override public String visit(FunctionCallExpression node) { return expressions.functionCall(node); }
     @Override public String visit(ObjectCreationExpression node) { return expressions.objectCreation(node); }
+    @Override public String visit(NullExpression node) { return expressions.nullExpression(node); }
 
     @Override public String visit(BooleanLiteral node) { return expressions.booleanLiteral(node); }
     @Override public String visit(CharLiteral node) { return expressions.charLiteral(node); }

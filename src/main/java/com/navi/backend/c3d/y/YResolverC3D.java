@@ -16,7 +16,9 @@ import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 // direcciones, layout y asignacion de Y para C3D; los arreglos/structs
 // por referencia guardan una direccion en su slot, el resto vive en el stack
@@ -26,10 +28,18 @@ class YResolverC3D {
     private final C3DEmitter emitter;
     private final AstYVisitor<String> visitor;
 
+    // offsets BP de las dimensiones ocultas de un parametro arreglo multi-D
+    // (dims[1..N-1]); el slot del arreglo guarda solo la direccion base
+    private final Map<String, List<Integer>> paramDims = new LinkedHashMap<>();
+
     YResolverC3D(SemanticContext context, C3DEmitter emitter, AstYVisitor<String> visitor) {
         this.context = context;
         this.emitter = emitter;
         this.visitor = visitor;
+    }
+
+    void recordParamDims(String name, List<Integer> dimOffsets) {
+        if (dimOffsets != null && !dimOffsets.isEmpty()) paramDims.put(name, dimOffsets);
     }
 
     void assignTo(Expression target, String value) {
@@ -51,7 +61,45 @@ class YResolverC3D {
             indices.add(0, access.getIndex().accept(visitor));
             current = access.getArray();
         }
-        return emitter.addressOffset(arrayBase(current), arrayDimsOf(current), indices);
+        String base = arrayBase(current);
+        // arreglo multi-D por referencia: las dimensiones vienen en slots ocultos
+        if (current instanceof VariableExpression v && emitter.isReference(v.getName()) && indices.size() > 1) {
+            return paramArrayAddr(base, v.getName(), indices);
+        }
+        return emitter.addressOffset(base, arrayDimsOf(current), indices);
+    }
+
+    // fila-mayor usando dimensiones en tiempo de ejecucion (slots ocultos del param)
+    private String paramArrayAddr(String base, String name, List<String> indices) {
+        String flat = indices.get(0);
+        List<Integer> dimOffsets = paramDims.get(name);
+        for (int k = 1; k < indices.size(); k++) {
+            String dim = dimOffsets != null && k - 1 < dimOffsets.size()
+                    ? emitter.stackLoad("BP", dimOffsets.get(k - 1)) : "1";
+            flat = emitter.binary("+", emitter.binary("*", flat, dim), indices.get(k));
+        }
+        return emitter.binary("+", base, flat);
+    }
+
+    // dimensiones conocidas (constantes) de una expresion arreglo, para pasarlas
+    // como argumentos extra en una llamada; null si no se pueden calcular
+    List<Integer> dimsOf(Expression e) {
+        if (e instanceof VariableExpression v) {
+            Symbol s = context.getSymbolTable().resolve(v.getName());
+            if (s != null && !s.getArraySizes().isEmpty()) return s.getArraySizes();
+            return emitter.arrayDims(v.getName());
+        }
+        if (e instanceof MemberAccessExpression m) {
+            Type owner = context.typeOf(m.getObject());
+            if (owner != null) {
+                AggregateType agg = context.getTypeTable().resolve(owner.getName());
+                if (agg != null) {
+                    Field field = agg.findField(m.getMember());
+                    if (field != null && !field.getArrayDims().isEmpty()) return field.getArrayDims();
+                }
+            }
+        }
+        return null;
     }
 
     // base de un arreglo: local por valor, param por referencia guarda la direccion

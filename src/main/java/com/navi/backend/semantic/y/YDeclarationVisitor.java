@@ -143,7 +143,7 @@ public class YDeclarationVisitor implements AstYVisitor<Void> {
 
     private Type paramType(Parameter p) {
         if (p instanceof NormalParameter n) return types.resolve(n.getType());
-        if (p instanceof ArrayParameter a) return Type.array(types.resolve(a.getType()), 1);
+        if (p instanceof ArrayParameter a) return Type.array(types.resolve(a.getType()), a.getRank());
         if (p instanceof StructureParameter s) {
             AggregateType agg = context.getTypeTable().resolve(s.getStructureName());
             if (agg == null) {

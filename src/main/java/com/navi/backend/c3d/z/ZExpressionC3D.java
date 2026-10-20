@@ -13,12 +13,14 @@ import com.navi.backend.ast.z.expressions.NullExpression;
 import com.navi.backend.ast.z.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.z.expressions.ReadExpression;
 import com.navi.backend.ast.z.expressions.TernaryExpression;
+import com.navi.backend.ast.z.expressions.ThisExpression;
 import com.navi.backend.ast.z.expressions.UnaryExpression;
 import com.navi.backend.ast.z.expressions.VariableExpression;
 import com.navi.backend.ast.z.expressions.literals.LiteralExpression;
 import com.navi.backend.ast.z.statements.AssignmentOperator;
 import com.navi.backend.ast.z.visitors.AstZVisitor;
 import com.navi.backend.c3d.C3DEmitter;
+import com.navi.backend.c3d.MethodDispatchC3D;
 import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
@@ -121,51 +123,35 @@ class ZExpressionC3D {
     }
 
     String functionCall(FunctionCallExpression node) {
-        List<String> argPlaces = evalArgs(node.getArguments());
         boolean isVoid = context.typeOf(node) != null && context.typeOf(node).isVoid();
         if (node.getFunction() instanceof VariableExpression ve) {
-            String label = resolveMethodLabel(resolver.currentClass().getName(), ve.getName(), node.getArguments());
-            List<String> callArgs = new ArrayList<>();
-            callArgs.add(resolver.thisPlace());
-            callArgs.addAll(argPlaces);
-            if (isVoid) {
-                emitter.callVoid(label, callArgs);
-                return null;
-            }
-            return emitter.call(label, callArgs);
+            List<String> argPlaces = evalArgs(node.getArguments());
+            String result = MethodDispatchC3D.call(context, emitter, resolver.currentClass(), ve.getName(),
+                    argTypes(node.getArguments()), resolver.thisPlace(), argPlaces, isVoid);
+            return result == null && isVoid ? null : result;
         }
         if (node.getFunction() instanceof MemberAccessExpression ma) {
             String obj = ma.getObject().accept(visitor);
             Type objType = context.typeOf(ma.getObject());
-            String label = resolveMethodLabel(objType == null ? "" : objType.getName(), ma.getMember(), node.getArguments());
-            List<String> callArgs = new ArrayList<>();
-            callArgs.add(obj);
-            callArgs.addAll(argPlaces);
-            if (isVoid) {
-                emitter.callVoid(label, callArgs);
-                return null;
-            }
-            return emitter.call(label, callArgs);
+            List<String> argPlaces = evalArgs(node.getArguments());
+            AggregateType staticClass = objType == null || !objType.isClass()
+                    ? null : context.getTypeTable().resolve(objType.getName());
+            String result = MethodDispatchC3D.call(context, emitter, staticClass, ma.getMember(),
+                    argTypes(node.getArguments()), obj, argPlaces, isVoid);
+            return result == null && isVoid ? null : result;
         }
         return emitter.literal("0");
-    }
-
-    private String resolveMethodLabel(String owner, String name, List<Expression> args) {
-        AggregateType agg = context.getTypeTable().resolve(owner);
-        List<Type> argTypes = argTypes(args);
-        if (agg == null) return owner + "_" + name;
-        Symbol m = agg.findMethod(name, argTypes);
-        if (m == null) return owner + "_" + name;
-        return C3DEmitter.methodLabel(owner, name, m.getSignature().getParameters());
     }
 
     String objectCreation(ObjectCreationExpression node) {
         List<String> argPlaces = evalArgs(node.getArguments());
         AggregateType agg = context.getTypeTable().resolve(node.getTypeName());
         List<Type> argTypes = argTypes(node.getArguments());
-        String ctor = C3DEmitter.ctorLabel(node.getTypeName(), agg != null && agg.findConstructor(argTypes) != null
-                ? agg.findConstructor(argTypes).getSignature().getParameters() : List.of());
+        Symbol constructor = agg == null ? null : agg.findConstructor(argTypes, context.getTypeTable());
+        String ctor = constructor == null ? C3DEmitter.ctorLabel(node.getTypeName(), List.of())
+                : C3DEmitter.ctorLabel(node.getTypeName(), constructor.getSignature().getParameters());
         String obj = emitter.heapAlloc(String.valueOf(resolver.objectSize(node.getTypeName())));
+        if (agg != null) emitter.heapStore(obj, "0", String.valueOf(agg.getTypeId()));
         List<String> callArgs = new ArrayList<>();
         callArgs.add(obj);
         callArgs.addAll(argPlaces);
@@ -191,6 +177,10 @@ class ZExpressionC3D {
 
     String nullExpression(NullExpression node) {
         return emitter.literal("null");
+    }
+
+    String thisExpression(ThisExpression node) {
+        return resolver.thisPlace();
     }
 
     String read(ReadExpression node) {

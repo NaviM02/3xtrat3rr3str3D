@@ -6,6 +6,7 @@ import com.navi.backend.ast.lat.expressions.BinaryOperator;
 import com.navi.backend.ast.lat.expressions.Expression;
 import com.navi.backend.ast.lat.expressions.FunctionCallExpression;
 import com.navi.backend.ast.lat.expressions.MemberAccessExpression;
+import com.navi.backend.ast.lat.expressions.NullExpression;
 import com.navi.backend.ast.lat.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.lat.expressions.UnaryExpression;
 import com.navi.backend.ast.lat.expressions.VariableExpression;
@@ -16,6 +17,7 @@ import com.navi.backend.ast.lat.expressions.literals.NumberLiteral;
 import com.navi.backend.ast.lat.expressions.literals.StringLiteral;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import com.navi.backend.c3d.C3DEmitter;
+import com.navi.backend.c3d.MethodDispatchC3D;
 import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
@@ -103,15 +105,21 @@ class LatExpressionC3D {
         List<String> args = evalArgs(node.getArguments(), null, false);
         AggregateType agg = context.getTypeTable().resolve(node.getType());
         List<Type> argTypes = argTypes(node.getArguments());
-        String ctor = agg != null && agg.findConstructor(argTypes) != null
-                ? C3DEmitter.ctorLabel(node.getType(), agg.findConstructor(argTypes).getSignature().getParameters())
+        Symbol constructor = agg == null ? null : agg.findConstructor(argTypes, context.getTypeTable());
+        String ctor = constructor != null
+                ? C3DEmitter.ctorLabel(node.getType(), constructor.getSignature().getParameters())
                 : node.getType() + "_init";
         String obj = emitter.heapAlloc(String.valueOf(resolver.objectSize(node.getType())));
+        if (agg != null) emitter.heapStore(obj, "0", String.valueOf(agg.getTypeId()));
         List<String> callArgs = new ArrayList<>();
         callArgs.add(obj);
         callArgs.addAll(args);
         emitter.callVoid(ctor, callArgs);
         return obj;
+    }
+
+    String nullExpression(NullExpression node) {
+        return emitter.literal("null");
     }
 
     String booleanLiteral(BooleanLiteral node) { return emitter.literal(node.isValue() ? "1" : "0"); }
@@ -135,32 +143,40 @@ class LatExpressionC3D {
             return emitter.call(ve.getName(), argPlaces);
         }
         if (callee instanceof MemberAccessExpression ma) {
-            List<String> argPlaces = evalArgs(args, null, false);
             String objPlace = ma.getObject().accept(visitor);
+            List<String> argPlaces = evalArgs(args, null, false);
             Type objType = context.typeOf(ma.getObject());
-            String label = methodLabel(objType, ma.getMember(), argTypes(args));
-            List<String> callArgs = new ArrayList<>();
-            callArgs.add(objPlace);
-            callArgs.addAll(argPlaces);
-            if (isVoid) {
-                emitter.callVoid(label, callArgs);
-                return null;
-            }
-            return emitter.call(label, callArgs);
+            AggregateType staticClass = objType == null || !objType.isClass()
+                    ? null : context.getTypeTable().resolve(objType.getName());
+            String result = MethodDispatchC3D.call(context, emitter, staticClass, ma.getMember(),
+                    argTypes(args), objPlace, argPlaces, isVoid);
+            return result == null && isVoid ? null : result;
         }
         return emitter.literal("0");
     }
 
-    // evalua argumentos: si la funcion es de Y (param por referencia) los
-    // arreglos/structs se pasan por direccion; el resto por valor
+    // evalua argumentos: los arreglos se pasan por direccion (los multi-D agregan
+    // sus dimensiones dims[1..N-1]); los structs de Y van por referencia; el resto por valor
     private List<String> evalArgs(List<Expression> args, List<Type> params, boolean byRef) {
         List<String> places = new ArrayList<>();
         if (args == null) return places;
         for (int i = 0; i < args.size(); i++) {
             Expression a = args.get(i);
             Type p = params != null && i < params.size() ? params.get(i) : null;
-            if (byRef && p != null && (p.isArray() || p.isStruct())) places.add(resolver.addressOf(a));
-            else places.add(a.accept(visitor));
+            if (p != null && p.isArray()) {
+                places.add(resolver.addressOf(a));
+                if (p.getDimensions() > 1) {
+                    List<Integer> dims = resolver.arrayDimsOf(a);
+                    for (int k = 1; k < p.getDimensions(); k++) {
+                        int d = dims != null && k < dims.size() ? dims.get(k) : 1;
+                        places.add(emitter.literal(String.valueOf(d)));
+                    }
+                }
+            } else if (byRef && p != null && p.isStruct()) {
+                places.add(resolver.addressOf(a));
+            } else {
+                places.add(a.accept(visitor));
+            }
         }
         return places;
     }
@@ -175,15 +191,6 @@ class LatExpressionC3D {
             }
         }
         return null;
-    }
-
-    private String methodLabel(Type objType, String name, List<Type> argTypes) {
-        if (objType == null || !objType.isClass()) return "unknown_" + name;
-        AggregateType agg = context.getTypeTable().resolve(objType.getName());
-        if (agg == null) return objType.getName() + "_" + name;
-        Symbol m = agg.findMethod(name, argTypes);
-        if (m == null) return objType.getName() + "_" + name;
-        return C3DEmitter.methodLabel(objType.getName(), name, m.getSignature().getParameters());
     }
 
     private List<Type> argTypes(List<Expression> args) {

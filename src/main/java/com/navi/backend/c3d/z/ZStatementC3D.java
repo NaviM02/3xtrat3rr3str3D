@@ -14,6 +14,7 @@ import com.navi.backend.ast.z.statements.PrintStatement;
 import com.navi.backend.ast.z.statements.PrintlnStatement;
 import com.navi.backend.ast.z.statements.ReturnStatement;
 import com.navi.backend.ast.z.statements.Statement;
+import com.navi.backend.ast.z.statements.SuperCallStatement;
 import com.navi.backend.ast.z.statements.SwitchCase;
 import com.navi.backend.ast.z.statements.SwitchStatement;
 import com.navi.backend.ast.z.statements.VariableDeclarationStatement;
@@ -214,6 +215,12 @@ class ZStatementC3D {
 
     String continueStatement(ContinueStatement node) {
         if (!continueLabels.isEmpty()) emitter.jump(continueLabels.peek());
+        return null;
+    }
+
+    // la llamada a super(...) ya fue emitida al inicio del constructor por
+    // ZDeclarationC3D; aqui no genera codigo para no duplicarla
+    String superCall(SuperCallStatement node) {
         return null;
     }
 }

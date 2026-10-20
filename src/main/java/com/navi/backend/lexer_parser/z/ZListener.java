@@ -1,4 +1,5 @@
-package com.navi.backend.lexer_parser.z;// Generated from Z.g4 by ANTLR 4.13.2
+package com.navi.backend.lexer_parser.z;
+// Generated from Z.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -127,6 +128,26 @@ public interface ZListener extends ParseTreeListener {
 	 */
 	void exitVoidMethodDeclaration(ZParser.VoidMethodDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ZParser#overrideAnnotation}.
+	 * @param ctx the parse tree
+	 */
+	void enterOverrideAnnotation(ZParser.OverrideAnnotationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ZParser#overrideAnnotation}.
+	 * @param ctx the parse tree
+	 */
+	void exitOverrideAnnotation(ZParser.OverrideAnnotationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ZParser#accessModifier}.
+	 * @param ctx the parse tree
+	 */
+	void enterAccessModifier(ZParser.AccessModifierContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ZParser#accessModifier}.
+	 * @param ctx the parse tree
+	 */
+	void exitAccessModifier(ZParser.AccessModifierContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ZParser#parameterList}.
 	 * @param ctx the parse tree
 	 */
@@ -166,6 +187,16 @@ public interface ZListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStatement(ZParser.StatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ZParser#superStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterSuperStatement(ZParser.SuperStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ZParser#superStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitSuperStatement(ZParser.SuperStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ZParser#variableDeclarationStatement}.
 	 * @param ctx the parse tree
@@ -828,6 +859,18 @@ public interface ZListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitVariableExpr(ZParser.VariableExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ThisExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterThisExpr(ZParser.ThisExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ThisExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitThisExpr(ZParser.ThisExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ObjCreationExpr}
 	 * labeled alternative in {@link ZParser#primaryExpression}.

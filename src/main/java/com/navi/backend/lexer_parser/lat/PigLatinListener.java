@@ -1,4 +1,5 @@
-package com.navi.backend.lexer_parser.lat;// Generated from PigLatin.g4 by ANTLR 4.13.2
+package com.navi.backend.lexer_parser.lat;
+// Generated from PigLatin.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -107,15 +108,29 @@ public interface PigLatinListener extends ParseTreeListener {
 	 */
 	void exitParameterList(PigLatinParser.ParameterListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PigLatinParser#parameter}.
+	 * Enter a parse tree produced by the {@code NormalParameter}
+	 * labeled alternative in {@link PigLatinParser#parameter}.
 	 * @param ctx the parse tree
 	 */
-	void enterParameter(PigLatinParser.ParameterContext ctx);
+	void enterNormalParameter(PigLatinParser.NormalParameterContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PigLatinParser#parameter}.
+	 * Exit a parse tree produced by the {@code NormalParameter}
+	 * labeled alternative in {@link PigLatinParser#parameter}.
 	 * @param ctx the parse tree
 	 */
-	void exitParameter(PigLatinParser.ParameterContext ctx);
+	void exitNormalParameter(PigLatinParser.NormalParameterContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArrayParameter}
+	 * labeled alternative in {@link PigLatinParser#parameter}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayParameter(PigLatinParser.ArrayParameterContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArrayParameter}
+	 * labeled alternative in {@link PigLatinParser#parameter}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayParameter(PigLatinParser.ArrayParameterContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PigLatinParser#functionBody}.
 	 * @param ctx the parse tree
@@ -170,6 +185,18 @@ public interface PigLatinListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNewObjectDeclaration(PigLatinParser.NewObjectDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NullObjectDeclaration}
+	 * labeled alternative in {@link PigLatinParser#variableDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterNullObjectDeclaration(PigLatinParser.NullObjectDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NullObjectDeclaration}
+	 * labeled alternative in {@link PigLatinParser#variableDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitNullObjectDeclaration(PigLatinParser.NullObjectDeclarationContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprInit}
 	 * labeled alternative in {@link PigLatinParser#initializer}.
@@ -1080,6 +1107,18 @@ public interface PigLatinListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFalseLiteralExpr(PigLatinParser.FalseLiteralExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NullLiteralExpr}
+	 * labeled alternative in {@link PigLatinParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNullLiteralExpr(PigLatinParser.NullLiteralExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NullLiteralExpr}
+	 * labeled alternative in {@link PigLatinParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNullLiteralExpr(PigLatinParser.NullLiteralExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code VariableExpr}
 	 * labeled alternative in {@link PigLatinParser#primaryExpression}.

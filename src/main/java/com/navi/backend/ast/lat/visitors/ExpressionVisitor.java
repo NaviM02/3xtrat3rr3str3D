@@ -57,6 +57,11 @@ public class ExpressionVisitor extends PigLatinBaseVisitor<AstLatNode> {
     }
 
     @Override
+    public AstLatNode visitNullLiteralExpr(PigLatinParser.NullLiteralExprContext ctx) {
+        return new NullExpression(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine());
+    }
+
+    @Override
     public AstLatNode visitVariableExpr(PigLatinParser.VariableExprContext ctx) {
         return new VariableExpression(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), ctx.ID().getText());
     }

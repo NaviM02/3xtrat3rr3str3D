@@ -48,6 +48,7 @@ public interface AstLatVisitor<R> {
     R visit(FunctionCallExpression node);
     R visit(MemberAccessExpression node);
     R visit(ObjectCreationExpression node);
+    R visit(NullExpression node);
     R visit(UnaryExpression node);
     R visit(VariableExpression node);
 

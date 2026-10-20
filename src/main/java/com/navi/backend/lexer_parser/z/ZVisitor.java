@@ -1,4 +1,5 @@
-package com.navi.backend.lexer_parser.z;// Generated from Z.g4 by ANTLR 4.13.2
+package com.navi.backend.lexer_parser.z;
+// Generated from Z.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -81,6 +82,18 @@ public interface ZVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVoidMethodDeclaration(ZParser.VoidMethodDeclarationContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ZParser#overrideAnnotation}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOverrideAnnotation(ZParser.OverrideAnnotationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ZParser#accessModifier}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAccessModifier(ZParser.AccessModifierContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ZParser#parameterList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -104,6 +117,12 @@ public interface ZVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitStatement(ZParser.StatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ZParser#superStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSuperStatement(ZParser.SuperStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ZParser#variableDeclarationStatement}.
 	 * @param ctx the parse tree
@@ -494,6 +513,13 @@ public interface ZVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVariableExpr(ZParser.VariableExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ThisExpr}
+	 * labeled alternative in {@link ZParser#primaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitThisExpr(ZParser.ThisExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ObjCreationExpr}
 	 * labeled alternative in {@link ZParser#primaryExpression}.

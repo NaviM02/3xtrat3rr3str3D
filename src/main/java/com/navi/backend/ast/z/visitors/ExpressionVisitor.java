@@ -262,6 +262,11 @@ public class ExpressionVisitor extends ZBaseVisitor<AstZNode> {
     }
 
     @Override
+    public AstZNode visitThisExpr(ZParser.ThisExprContext ctx) {
+        return new ThisExpression(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine());
+    }
+
+    @Override
     public AstZNode visitReadExpr(ZParser.ReadExprContext ctx) {
         return new ReadExpression(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine());
     }

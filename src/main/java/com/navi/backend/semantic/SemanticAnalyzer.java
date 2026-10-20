@@ -45,9 +45,12 @@ public class SemanticAnalyzer {
     // analisis suelto de un modulo Z (para probar)
     public void analyze(ProgramZ program) {
         new ZDeclarationVisitor(context).build(program);
+        context.getTypeTable().resolveInheritance(context.getErrors());
         new ZSemanticVisitor(context).build(program);
     }
 
+    // carga y analiza cada import en orden; por eso la superclase debe importarse
+    // antes que sus subclases (la herencia se resuelve sobre lo ya registrado)
     private void loadImport(ImportDeclaration imp) {
         ImportPath path = new ImportPath(imp.getPath());
         if (!path.isValid()) {
@@ -70,6 +73,7 @@ public class SemanticAnalyzer {
             ProgramZ z = loader.loadZ(imp.getPath());
             context.recordAst(imp.getPath(), z);
             new ZDeclarationVisitor(context).build(z);
+            context.getTypeTable().resolveInheritance(context.getErrors());
             new ZSemanticVisitor(context).build(z);
         }
     }

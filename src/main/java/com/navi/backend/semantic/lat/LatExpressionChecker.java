@@ -9,6 +9,7 @@ import com.navi.backend.ast.lat.expressions.BinaryExpression;
 import com.navi.backend.ast.lat.expressions.Expression;
 import com.navi.backend.ast.lat.expressions.FunctionCallExpression;
 import com.navi.backend.ast.lat.expressions.MemberAccessExpression;
+import com.navi.backend.ast.lat.expressions.NullExpression;
 import com.navi.backend.ast.lat.expressions.ObjectCreationExpression;
 import com.navi.backend.ast.lat.expressions.UnaryExpression;
 import com.navi.backend.ast.lat.expressions.UnaryOperator;
@@ -24,6 +25,7 @@ import com.navi.backend.semantic.enums.SymbolKind;
 import com.navi.backend.semantic.model.Type;
 import com.navi.backend.semantic.rules.TypeCompat;
 import com.navi.backend.semantic.rules.TypeRules;
+import com.navi.backend.semantic.support.AccessControl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,6 +138,16 @@ public class LatExpressionChecker {
     Type memberAccess(MemberAccessExpression node) {
         Type objType = node.getObject().accept(visitor);
         Type result = rules.memberOf(objType, node.getMember(), node.getLine(), node.getColumn());
+        if (objType.isClass()) {
+            AggregateType owner = context.getTypeTable().resolve(objType.getName());
+            Field field = owner == null ? null : owner.findField(node.getMember());
+            if (field != null && !AccessControl.canAccess(field.getAccessModifier(), field.getOwner(), null)) {
+                rules.error(node.getLine(), node.getColumn(),
+                        "Acceso denegado al campo " + node.getMember() + " ("
+                                + field.getAccessModifier().name().toLowerCase() + ")");
+                result = Type.ERROR;
+            }
+        }
         context.annotate(node, result);
         return result;
     }
@@ -161,14 +173,22 @@ public class LatExpressionChecker {
                     "novus requiere una clase, no una estructura: " + node.getType());
             result = Type.ERROR;
         } else {
-            if (agg.findConstructor(argTypes) == null) {
+            Symbol constructor = agg.findConstructor(argTypes, context.getTypeTable());
+            if (constructor == null) {
                 rules.error(node.getLine(), node.getColumn(), "No existe un constructor de " + node.getType()
                         + " para los argumentos " + argTypes);
+            } else if (!AccessControl.canAccess(constructor.getAccessModifier(), agg, null)) {
+                rules.error(node.getLine(), node.getColumn(), "Acceso denegado al constructor de " + node.getType());
             }
             result = Type.classType(node.getType());
         }
         context.annotate(node, result);
         return result;
+    }
+
+    Type nullExpression(NullExpression node) {
+        context.annotate(node, Type.NULL);
+        return Type.NULL;
     }
 
     // literal de tipo fijo: lo anota y devuelve el tipo
@@ -191,7 +211,8 @@ public class LatExpressionChecker {
                 return Type.ERROR;
             }
             for (Symbol fn : overloads) {
-                if (fn.getKind() == SymbolKind.FUNCTION && fn.getSignature().matches(argTypes)) {
+                if (fn.getKind() == SymbolKind.FUNCTION
+                        && fn.getSignature().matches(argTypes, context.getTypeTable())) {
                     return fn.getSignature().getReturnType();
                 }
             }
@@ -216,9 +237,14 @@ public class LatExpressionChecker {
             rules.error(line, col, "Clase no definida: " + objType.getName());
             return Type.ERROR;
         }
-        Symbol m = agg.findMethod(name, argTypes);
+        Symbol m = agg.findMethod(name, argTypes, context.getTypeTable());
         if (m == null) {
             rules.error(line, col, "No existe el método '" + name + "' en " + objType + " para " + argTypes);
+            return Type.ERROR;
+        }
+        if (!AccessControl.canAccess(m.getAccessModifier(), m.getOwner(), null)) {
+            rules.error(line, col, "Acceso denegado al método " + name + " ("
+                    + m.getAccessModifier().name().toLowerCase() + ")");
             return Type.ERROR;
         }
         return m.getSignature().getReturnType();
@@ -250,7 +276,7 @@ public class LatExpressionChecker {
         }
 
         Type actual = initializerType(init);
-        if (!TypeCompat.canAssign(expected, actual)) {
+        if (!TypeCompat.canAssign(expected, actual, context.getTypeTable())) {
             rules.error(line, col, "No se puede inicializar " + expected + " con " + actual);
         }
     }
@@ -292,7 +318,7 @@ public class LatExpressionChecker {
                 Type actual = ei.getExpression().accept(visitor);
                 Type fieldType = declared == null ? null : declared.getType();
                 if (fieldType != null && !fieldType.isArray() && !fieldType.isAggregate()
-                        && !TypeCompat.canAssign(fieldType, actual)) {
+                        && !TypeCompat.canAssign(fieldType, actual, context.getTypeTable())) {
                     rules.error(f.getLine(), f.getColumn(), "No se puede inicializar el campo '" + declared.getName()
                             + "' (" + fieldType + ") con " + actual);
                 }

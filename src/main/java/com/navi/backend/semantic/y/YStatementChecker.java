@@ -91,7 +91,7 @@ public class YStatementChecker {
             type = types.resolve(n.getType());
             name = n.getName();
         } else if (p instanceof ArrayParameter a) {
-            type = Type.array(types.resolve(a.getType()), 1);
+            type = Type.array(types.resolve(a.getType()), a.getRank());
             reference = true;
             name = a.getName();
         } else if (p instanceof StructureParameter s) {

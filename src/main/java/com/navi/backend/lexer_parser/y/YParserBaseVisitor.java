@@ -1,4 +1,5 @@
-package com.navi.backend.lexer_parser.y;// Generated from YParser.g4 by ANTLR 4.13.2
+package com.navi.backend.lexer_parser.y;
+// Generated from YParser.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**

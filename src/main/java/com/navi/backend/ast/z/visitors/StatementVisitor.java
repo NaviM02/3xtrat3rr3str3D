@@ -185,4 +185,10 @@ public class StatementVisitor extends ExpressionVisitor {
     public AstZNode visitReadlnStatement(ZParser.ReadlnStatementContext ctx) {
         return new ReadlnStatement(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine());
     }
+
+    @Override
+    public AstZNode visitSuperStatement(ZParser.SuperStatementContext ctx) {
+        return new SuperCallStatement(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(),
+                visitArguments(ctx.argumentList()));
+    }
 }
