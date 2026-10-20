@@ -41,7 +41,7 @@ parameterList
 
 parameter
     : ESTO ID ':' type              #NormalParameter
-    | ESTO ID (LBRACK RBRACK)+ ':' type #ArrayParameter
+    | SERIES ID (LBRACK RBRACK)+ ':' type #ArrayParameter
     ;
 
 functionBody

@@ -654,7 +654,7 @@ public class PigLatinParser extends Parser {
 			setState(164);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if (_la==ESTO) {
+			if (_la==ESTO || _la==SERIES) {
 				{
 				setState(163);
 				parameterList();
@@ -733,7 +733,7 @@ public class PigLatinParser extends Parser {
 			setState(176);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if (_la==ESTO) {
+			if (_la==ESTO || _la==SERIES) {
 				{
 				setState(175);
 				parameterList();
@@ -844,7 +844,7 @@ public class PigLatinParser extends Parser {
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ArrayParameterContext extends ParameterContext {
-		public TerminalNode ESTO() { return getToken(PigLatinParser.ESTO, 0); }
+		public TerminalNode SERIES() { return getToken(PigLatinParser.SERIES, 0); }
 		public TerminalNode ID() { return getToken(PigLatinParser.ID, 0); }
 		public TypeContext type() {
 			return getRuleContext(TypeContext.class,0);
@@ -902,8 +902,8 @@ public class PigLatinParser extends Parser {
 		try {
 			setState(205);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,12,_ctx) ) {
-			case 1:
+			switch (_input.LA(1)) {
+			case ESTO:
 				_localctx = new NormalParameterContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
@@ -917,12 +917,12 @@ public class PigLatinParser extends Parser {
 				type();
 				}
 				break;
-			case 2:
+			case SERIES:
 				_localctx = new ArrayParameterContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(195);
-				match(ESTO);
+				match(SERIES);
 				setState(196);
 				match(ID);
 				setState(199);
@@ -947,6 +947,8 @@ public class PigLatinParser extends Parser {
 				type();
 				}
 				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -5734,7 +5736,7 @@ public class PigLatinParser extends Parser {
 		"\u0001\u0000\u0000\u0000\u00bc\u00bd\u0001\u0000\u0000\u0000\u00bd\u0013"+
 		"\u0001\u0000\u0000\u0000\u00be\u00bc\u0001\u0000\u0000\u0000\u00bf\u00c0"+
 		"\u0005\u000f\u0000\u0000\u00c0\u00c1\u0005=\u0000\u0000\u00c1\u00c2\u0005"+
-		"\u0006\u0000\u0000\u00c2\u00ce\u0003.\u0017\u0000\u00c3\u00c4\u0005\u000f"+
+		"\u0006\u0000\u0000\u00c2\u00ce\u0003.\u0017\u0000\u00c3\u00c4\u0005\u0010"+
 		"\u0000\u0000\u00c4\u00c7\u0005=\u0000\u0000\u00c5\u00c6\u00057\u0000\u0000"+
 		"\u00c6\u00c8\u00058\u0000\u0000\u00c7\u00c5\u0001\u0000\u0000\u0000\u00c8"+
 		"\u00c9\u0001\u0000\u0000\u0000\u00c9\u00c7\u0001\u0000\u0000\u0000\u00c9"+
