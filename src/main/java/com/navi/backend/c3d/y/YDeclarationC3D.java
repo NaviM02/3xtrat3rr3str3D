@@ -13,6 +13,7 @@ import com.navi.backend.ast.y.visitors.AstYVisitor;
 import com.navi.backend.c3d.C3DEmitter;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +45,14 @@ class YDeclarationC3D {
                 else if (p instanceof ArrayParameter ap) { name = ap.getName(); reference = true; }
                 else if (p instanceof StructureParameter sp) { name = sp.getName(); reference = true; }
                 if (name != null) {
-                    resolver.setPos(p, emitter.declareParam(name, reference));
+                    Symbol ps = context.symbolOf(p);
+                    resolver.setPos(p, emitter.declareParam(name, reference, ps == null ? null : ps.getType()));
                     // arreglo multi-D: dimensiones dims[1..N-1] como params ocultos
                     if (p instanceof ArrayParameter ap && ap.getRank() > 1) {
                         List<Integer> dimOffsets = new ArrayList<>();
                         for (int k = 1; k < ap.getRank(); k++) {
-                            dimOffsets.add(emitter.declareParam(name + "_dim" + k, false));
+                            dimOffsets.add(emitter.declareParam(name + "_dim" + k, false,
+                                    com.navi.backend.semantic.model.Type.INT));
                         }
                         resolver.recordParamDims(name, dimOffsets);
                     }
@@ -66,10 +69,13 @@ class YDeclarationC3D {
         if (node.getArrayDeclaration() != null) {
             int cells = resolver.arrayCells(node.getArrayDeclaration().getDimensions());
             List<Integer> dims = resolver.constantDims(node.getArrayDeclaration().getDimensions());
-            resolver.setPos(node, emitter.declareLocalArray(node.getName(), cells, dims));
+            Symbol arraySymbol = context.symbolOf(node);
+            resolver.setPos(node, emitter.declareLocalArray(node.getName(), cells, dims,
+                    arraySymbol == null ? null : arraySymbol.getType()));
         } else {
-            resolver.setPos(node, emitter.declareLocal(node.getName()));
             Symbol symbol = context.symbolOf(node);
+            resolver.setPos(node, emitter.declareLocal(node.getName(),
+                    symbol == null ? null : symbol.getType()));
             if (symbol != null && symbol.getType() != null && symbol.getType().isStruct()) {
                 int extra = resolver.structSize(symbol.getType().getName()) - 1;
                 if (extra > 0) emitter.reserve(extra);

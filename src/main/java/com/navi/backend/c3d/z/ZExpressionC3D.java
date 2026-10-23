@@ -25,6 +25,7 @@ import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.rules.TypeCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,12 +53,13 @@ class ZExpressionC3D {
             case EQUAL, NOT_EQUAL, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL -> {
                 String l = node.getLeft().accept(visitor);
                 String r = node.getRight().accept(visitor);
-                return emitter.materializeComparison(l, relop(node.getOperator()), r);
+                Type cmp = TypeCompat.promoteNumeric(context.typeOf(node.getLeft()), context.typeOf(node.getRight()));
+                return emitter.materializeComparison(l, relop(node.getOperator()), r, cmp);
             }
             default -> {
                 String l = node.getLeft().accept(visitor);
                 String r = node.getRight().accept(visitor);
-                return emitter.binary(arith(node.getOperator()), l, r);
+                return emitter.binary(arith(node.getOperator()), l, r, context.typeOf(node));
             }
         }
     }
@@ -65,7 +67,7 @@ class ZExpressionC3D {
     String unary(UnaryExpression node) {
         return switch (node.getOperator()) {
             case NOT -> materializeNot(node.getExpression());
-            case NEGATE -> emitter.unaryNeg(node.getExpression().accept(visitor));
+            case NEGATE -> emitter.unaryNeg(node.getExpression().accept(visitor), context.typeOf(node));
             case POSITIVE -> node.getExpression().accept(visitor);
             case POST_INCREMENT -> postIncDec(node.getExpression(), "+");
             case POST_DECREMENT -> postIncDec(node.getExpression(), "-");
@@ -74,7 +76,7 @@ class ZExpressionC3D {
 
     private String postIncDec(Expression target, String op) {
         String old = target.accept(visitor);
-        resolver.assignTo(target, emitter.binary(op, old, "1"));
+        resolver.assignTo(target, emitter.binary(op, old, "1", context.typeOf(target)));
         return old;
     }
 
@@ -113,13 +115,13 @@ class ZExpressionC3D {
     }
 
     String arrayAccess(ArrayAccessExpression node) {
-        return emitter.heapLoadAt(resolver.arrayElementAddr(node));
+        return emitter.heapLoadAt(resolver.arrayElementAddr(node), context.typeOf(node));
     }
 
     String memberAccess(MemberAccessExpression node) {
         String base = node.getObject().accept(visitor);
         int off = resolver.fieldIndex(context.typeOf(node.getObject()), node.getMember());
-        return emitter.heapLoad(base, String.valueOf(off));
+        return emitter.heapLoad(base, String.valueOf(off), context.typeOf(node));
     }
 
     String functionCall(FunctionCallExpression node) {
@@ -184,7 +186,7 @@ class ZExpressionC3D {
     }
 
     String read(ReadExpression node) {
-        return emitter.read();
+        return emitter.read(Type.STRING);
     }
 
     String expressionList(ExpressionList node) {

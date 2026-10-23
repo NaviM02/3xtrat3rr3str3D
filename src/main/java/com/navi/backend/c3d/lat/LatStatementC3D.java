@@ -20,6 +20,7 @@ import com.navi.backend.ast.lat.statements.Statement;
 import com.navi.backend.ast.lat.statements.WhileStatement;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import com.navi.backend.c3d.C3DEmitter;
+import com.navi.backend.semantic.model.Type;
 import com.navi.backend.semantic.SemanticContext;
 
 import java.util.ArrayDeque;
@@ -177,18 +178,20 @@ class LatStatementC3D {
     }
 
     String print(PrintStatement node) {
-        for (Expression e : node.getExpressions()) emitter.print(e.accept(visitor));
+        for (Expression e : node.getExpressions()) emitter.print(e.accept(visitor), context.typeOf(e));
         return null;
     }
 
     String read(ReadStatement node) {
-        if (node.getTarget() != null) resolver.assignTo(node.getTarget(), emitter.read());
-        else emitter.readDiscard();
+        Type targetType = node.getTarget() == null ? null : context.typeOf(node.getTarget());
+        if (targetType == null) targetType = Type.INT;
+        if (node.getTarget() != null) resolver.assignTo(node.getTarget(), emitter.read(targetType));
+        else emitter.readDiscard(targetType);
         return null;
     }
 
     String callStatement(FunctionCallStatement node) {
-        expressions.emitCall(node.getCallee(), node.getArguments(), true);
+        expressions.emitCall(node.getCallee(), node.getArguments(), true, null);
         return null;
     }
 

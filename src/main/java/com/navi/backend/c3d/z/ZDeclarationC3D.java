@@ -75,9 +75,13 @@ class ZDeclarationC3D {
         String label = C3DEmitter.methodLabel(resolver.currentClass().getName(), node.getName(), params);
         emitter.entryLabel(label);
         emitter.enterFrame(label);
-        emitter.declareParam("this");
+        emitter.declareParam("this", false, resolver.currentClass() == null ? null
+                : Type.classType(resolver.currentClass().getName()));
         if (node.getParameters() != null) {
-            for (Parameter p : node.getParameters()) resolver.setPos(p, emitter.declareParam(p.getName()));
+            for (Parameter p : node.getParameters()) {
+                Symbol ps = context.symbolOf(p);
+                resolver.setPos(p, emitter.declareParam(p.getName(), false, ps == null ? null : ps.getType()));
+            }
         }
         node.getBody().accept(visitor);
         emitter.returnVoid();
@@ -90,9 +94,13 @@ class ZDeclarationC3D {
         String label = C3DEmitter.ctorLabel(resolver.currentClass().getName(), params);
         emitter.entryLabel(label);
         emitter.enterFrame(label);
-        emitter.declareParam("this");
+        emitter.declareParam("this", false, resolver.currentClass() == null ? null
+                : Type.classType(resolver.currentClass().getName()));
         if (node.getParameters() != null) {
-            for (Parameter p : node.getParameters()) resolver.setPos(p, emitter.declareParam(p.getName()));
+            for (Parameter p : node.getParameters()) {
+                Symbol ps = context.symbolOf(p);
+                resolver.setPos(p, emitter.declareParam(p.getName(), false, ps == null ? null : ps.getType()));
+            }
         }
         SuperCallStatement superCall = leadingSuper(node.getBody());
         if (superCall != null) emitSuperCall(superCall);
@@ -141,7 +149,7 @@ class ZDeclarationC3D {
         String label = C3DEmitter.ctorLabel(cls.getName(), List.of());
         emitter.entryLabel(label);
         emitter.enterFrame(label);
-        emitter.declareParam("this");
+        emitter.declareParam("this", false, cls == null ? null : Type.classType(cls.getName()));
         initializeParent();
         initializeOwnFields();
         initializeNullFields();
@@ -198,7 +206,8 @@ class ZDeclarationC3D {
 
     String variableDeclaration(VariableDeclaration node) {
         for (VariableDeclarator v : node.getVariables()) {
-            resolver.setPos(v, emitter.declareLocal(v.getName()));
+            Symbol vs = context.symbolOf(v);
+            resolver.setPos(v, emitter.declareLocal(v.getName(), vs == null ? null : vs.getType()));
             if (v.getInitializer() instanceof ExpressionInitializer ei) {
                 emitter.storeVar(v.getName(), ei.getExpression().accept(visitor));
             }

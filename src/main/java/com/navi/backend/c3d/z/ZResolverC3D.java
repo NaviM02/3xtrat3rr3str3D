@@ -45,14 +45,17 @@ class ZResolverC3D {
                 return;
             }
             int idx = currentClass == null ? -1 : fieldIndex(currentClass, v.getName());
-            if (idx >= 0) emitter.heapStore(thisPlace(), String.valueOf(idx), value);
+            if (idx >= 0) emitter.heapStore(thisPlace(), String.valueOf(idx),
+                    emitter.coerceTo(fieldType(currentClass, v.getName()), value));
             else emitter.storeVar(v.getName(), value);
         } else if (target instanceof ArrayAccessExpression a) {
-            emitter.heapStoreAt(arrayElementAddr(a), value);
+            emitter.heapStoreAt(arrayElementAddr(a), emitter.coerceTo(context.typeOf(a), value));
         } else if (target instanceof MemberAccessExpression m) {
             String base = m.getObject().accept(visitor);
-            int off = fieldIndex(context.typeOf(m.getObject()), m.getMember());
-            emitter.heapStore(base, String.valueOf(off), value);
+            Type owner = context.typeOf(m.getObject());
+            int off = fieldIndex(owner, m.getMember());
+            Type targetType = context.typeOf(m) != null ? context.typeOf(m) : fieldType(owner, m.getMember());
+            emitter.heapStore(base, String.valueOf(off), emitter.coerceTo(targetType, value));
         }
     }
 
@@ -60,8 +63,19 @@ class ZResolverC3D {
     String place(String name) {
         if (emitter.localOffset(name) != null) return emitter.loadVar(name);
         int idx = currentClass == null ? -1 : fieldIndex(currentClass, name);
-        if (idx >= 0) return emitter.heapLoad(thisPlace(), String.valueOf(idx));
+        if (idx >= 0) return emitter.heapLoad(thisPlace(), String.valueOf(idx), fieldType(currentClass, name));
         return emitter.loadVar(name);
+    }
+
+    Type fieldType(AggregateType agg, String member) {
+        if (agg == null) return null;
+        com.navi.backend.semantic.model.Field field = agg.findField(member);
+        return field == null ? null : field.getType();
+    }
+
+    Type fieldType(Type owner, String member) {
+        if (owner == null) return null;
+        return fieldType(context.getTypeTable().resolve(owner.getName()), member);
     }
 
     // direccion de un elemento de arreglo de Z en el heap

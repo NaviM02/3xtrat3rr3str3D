@@ -1,5 +1,6 @@
 package com.navi.backend.c3d;
 
+import com.navi.backend.semantic.model.Type;
 import lombok.*;
 
 import java.util.List;
@@ -8,22 +9,31 @@ import java.util.List;
 // el significado depende de op; ver toString()
 // ops: aritmeticas (t = a op b), direcciones (t = BP+off / base+off)
 // stack_load/store, heap_load/store, if a op b goto L, goto, label, call, return, halt
+// `type` es una anotacion opcional (p.ej. el tipo de un print o de un + de strings)
 @Getter
 public class Quad {
 
     private final String op;
     private final String result;   // puede ser null (goto, label, print, ...)
     private final List<String> args;
+    private final Type type;
 
     public Quad(String op, String result, String... args) {
-        this.op = op;
-        this.result = result;
-        this.args = List.of(args);
+        this(op, result, null, List.of(args));
     }
 
     public Quad(String op, String result, List<String> args) {
+        this(op, result, null, args);
+    }
+
+    public Quad(String op, String result, Type type, String... args) {
+        this(op, result, type, List.of(args));
+    }
+
+    public Quad(String op, String result, Type type, List<String> args) {
         this.op = op;
         this.result = result;
+        this.type = type;
         this.args = List.copyOf(args);
     }
 
@@ -32,6 +42,8 @@ public class Quad {
         return switch (op) {
             case "=" -> result + " = " + args.get(0);
             case "neg" -> result + " = - " + args.get(0);
+            case "itof" -> result + " = (float) " + args.get(0);
+            case "ftoi" -> result + " = (int) " + args.get(0);
             case "if" -> "if " + args.get(0) + " " + args.get(1) + " " + args.get(2) + " goto " + args.get(3);
             case "goto" -> "goto " + args.get(0);
             case "label" -> args.get(0) + ":";

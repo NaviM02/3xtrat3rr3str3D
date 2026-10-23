@@ -106,15 +106,18 @@ class LatC3DResolver {
         if (target instanceof VariableExpression v) {
             emitter.storeVar(v.getName(), value);
         } else if (target instanceof ArrayAccessExpression a) {
-            emitter.stackStoreAt(arrayElementAddr(a), value);
+            emitter.stackStoreAt(arrayElementAddr(a), emitter.coerceTo(context.typeOf(a), value));
         } else if (target instanceof MemberAccessExpression m) {
             Type owner = context.typeOf(m.getObject());
+            Type fieldType = fieldType(owner, m.getMember());
+            Type targetType = context.typeOf(m) != null ? context.typeOf(m) : fieldType;
+            String coerced = emitter.coerceTo(targetType, value);
             if (owner != null && owner.isStruct()) {
                 int off = fieldOffset(owner, m.getMember());
-                emitter.stackStoreAt(emitter.binary("+", structAddr(m.getObject()), String.valueOf(off)), value);
+                emitter.stackStoreAt(emitter.binary("+", structAddr(m.getObject()), String.valueOf(off)), coerced);
             } else {
                 int off = fieldIndex(owner, m.getMember());
-                emitter.heapStore(m.getObject().accept(visitor), String.valueOf(off), value);
+                emitter.heapStore(m.getObject().accept(visitor), String.valueOf(off), coerced);
             }
         }
     }
@@ -202,6 +205,13 @@ class LatC3DResolver {
     }
 
     // ---------------------------------------------------------------- layout
+
+    Type fieldType(Type owner, String member) {
+        if (owner == null) return null;
+        AggregateType agg = context.getTypeTable().resolve(owner.getName());
+        Field field = agg == null ? null : agg.findField(member);
+        return field == null ? null : field.getType();
+    }
 
     int fieldIndex(Type owner, String member) {
         if (owner == null) return 0;

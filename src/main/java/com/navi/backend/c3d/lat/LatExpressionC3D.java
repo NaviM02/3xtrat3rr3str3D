@@ -23,6 +23,7 @@ import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.enums.SymbolKind;
 import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.rules.TypeCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,12 +53,13 @@ class LatExpressionC3D {
             case EQUAL, NOT_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL -> {
                 String l = node.getLeft().accept(visitor);
                 String r = node.getRight().accept(visitor);
-                return emitter.materializeComparison(l, relop(node.getOperator()), r);
+                Type cmp = TypeCompat.promoteNumeric(context.typeOf(node.getLeft()), context.typeOf(node.getRight()));
+                return emitter.materializeComparison(l, relop(node.getOperator()), r, cmp);
             }
             default -> {
                 String l = node.getLeft().accept(visitor);
                 String r = node.getRight().accept(visitor);
-                return emitter.binary(arith(node.getOperator()), l, r);
+                return emitter.binary(arith(node.getOperator()), l, r, context.typeOf(node));
             }
         }
     }
@@ -65,7 +67,7 @@ class LatExpressionC3D {
     String unary(UnaryExpression node) {
         return switch (node.getOperator()) {
             case NOT -> materializeNot(node.getExpression());
-            case NEGATE -> emitter.unaryNeg(node.getExpression().accept(visitor));
+            case NEGATE -> emitter.unaryNeg(node.getExpression().accept(visitor), context.typeOf(node));
             case POST_INCREMENT -> postIncDec(node.getExpression(), "+");
             case POST_DECREMENT -> postIncDec(node.getExpression(), "-");
         };
@@ -73,7 +75,7 @@ class LatExpressionC3D {
 
     private String postIncDec(Expression target, String op) {
         String old = target.accept(visitor);
-        resolver.assignTo(target, emitter.binary(op, old, "1"));
+        resolver.assignTo(target, emitter.binary(op, old, "1", context.typeOf(target)));
         return old;
     }
 
@@ -82,23 +84,23 @@ class LatExpressionC3D {
     }
 
     String arrayAccess(ArrayAccessExpression node) {
-        return emitter.stackLoadAt(resolver.arrayElementAddr(node));
+        return emitter.stackLoadAt(resolver.arrayElementAddr(node), context.typeOf(node));
     }
 
     String memberAccess(MemberAccessExpression node) {
         Type owner = context.typeOf(node.getObject());
         if (owner != null && owner.isStruct()) {
             int off = resolver.fieldOffset(owner, node.getMember());
-            return emitter.stackLoadAt(emitter.binary("+", resolver.structAddr(node.getObject()), String.valueOf(off)));
+            return emitter.stackLoadAt(emitter.binary("+", resolver.structAddr(node.getObject()), String.valueOf(off)), context.typeOf(node));
         }
         String obj = node.getObject().accept(visitor);
         int off = resolver.fieldIndex(owner, node.getMember());
-        return emitter.heapLoad(obj, String.valueOf(off));
+        return emitter.heapLoad(obj, String.valueOf(off), context.typeOf(node));
     }
 
     String functionCall(FunctionCallExpression node) {
         Type t = context.typeOf(node);
-        return emitCall(node.getCallee(), node.getArguments(), t != null && t.isVoid());
+        return emitCall(node.getCallee(), node.getArguments(), t != null && t.isVoid(), t);
     }
 
     String objectCreation(ObjectCreationExpression node) {
@@ -130,7 +132,7 @@ class LatExpressionC3D {
 
     // ---------------------------------------------------------------- llamadas
 
-    String emitCall(Expression callee, List<Expression> args, boolean isVoid) {
+    String emitCall(Expression callee, List<Expression> args, boolean isVoid, Type resultType) {
         if (callee instanceof VariableExpression ve) {
             Symbol fn = resolveFunction(ve.getName(), argTypes(args));
             boolean byRef = fn != null && fn.isReference();
@@ -140,7 +142,7 @@ class LatExpressionC3D {
                 emitter.callVoid(ve.getName(), argPlaces);
                 return null;
             }
-            return emitter.call(ve.getName(), argPlaces);
+            return emitter.call(ve.getName(), argPlaces, resultType);
         }
         if (callee instanceof MemberAccessExpression ma) {
             String objPlace = ma.getObject().accept(visitor);
@@ -175,7 +177,8 @@ class LatExpressionC3D {
             } else if (byRef && p != null && p.isStruct()) {
                 places.add(resolver.addressOf(a));
             } else {
-                places.add(a.accept(visitor));
+                String place = a.accept(visitor);
+                places.add(p == null ? place : emitter.coerceTo(p, place));
             }
         }
         return places;

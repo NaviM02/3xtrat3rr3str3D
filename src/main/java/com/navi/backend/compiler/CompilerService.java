@@ -4,7 +4,7 @@ import com.navi.backend.ast.lat.global.Program;
 import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;
 import com.navi.backend.c3d.C3DGenerator;
-import com.navi.backend.c3d.CGenerator;
+import com.navi.backend.c3d.RiscVGenerator;
 import com.navi.backend.semantic.loading.FileModuleLoader;
 import com.navi.backend.semantic.loading.ModuleLoader;
 import com.navi.backend.semantic.SemanticAnalyzer;
@@ -34,12 +34,12 @@ public class CompilerService {
         String code = compileSource(extension, source, analyzer, context, c3d);
 
         if (context.getErrors().hasErrors()) {
-            return new CompilationResult(file, context, null, null, null, false, SemanticReporter.report(context));
+            return new CompilationResult(file, context, null, null, false, SemanticReporter.report(context));
         }
 
-        GeneratedC generatedC = generateC(file, c3d);
+        Path riscVFile = generateRiscV(file, c3d, context);
 
-        return new CompilationResult(file, context, code, generatedC.cFile(), generatedC.executable(), true, SemanticReporter.report(context));
+        return new CompilationResult(file, context, code, riscVFile, true, SemanticReporter.report(context));
     }
 
     private String compileSource(String extension, String source, SemanticAnalyzer analyzer, SemanticContext context, C3DGenerator c3d) {
@@ -66,25 +66,17 @@ public class CompilerService {
         };
     }
 
-    private GeneratedC generateC(Path sourceFile, C3DGenerator c3d) throws Exception {
+    private Path generateRiscV(Path sourceFile, C3DGenerator c3d, SemanticContext context) throws Exception {
         String base = getBaseName(sourceFile.getFileName().toString());
-        String cSource = new CGenerator(c3d.quads()).generate();
+        String asm = new RiscVGenerator(c3d.quads(), c3d.globalSize(), context).generate();
         Path outputDirectory = outputDirectoryFor(sourceFile);
         cleanOutput(outputDirectory);
 
         Files.createDirectories(outputDirectory);
-        Path cFile = outputDirectory.resolve(base + ".c");
-        Files.writeString(cFile, cSource, StandardCharsets.UTF_8);
-        Path executable = outputDirectory.resolve(base);
+        Path asmFile = outputDirectory.resolve(base + ".s");
+        Files.writeString(asmFile, asm, StandardCharsets.UTF_8);
 
-        Process gcc = new ProcessBuilder("gcc", "-O0", "-o", executable.toString(), cFile.toString()).redirectErrorStream(true).start();
-        String gccOutput = new String(gcc.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-
-        int status = gcc.waitFor();
-
-        if (status != 0) throw new IllegalStateException("gcc terminó con código " + status + ":\n" + gccOutput);
-
-        return new GeneratedC(cFile.toAbsolutePath(), executable.toAbsolutePath());
+        return asmFile.toAbsolutePath();
     }
 
     // carpeta output/ junto al fuente; si no tiene padre, output/ relativo
@@ -130,6 +122,4 @@ public class CompilerService {
         }
     }
 
-    private record GeneratedC(Path cFile, Path executable) {
-    }
 }

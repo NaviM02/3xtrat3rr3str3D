@@ -55,7 +55,10 @@ public final class MethodDispatchC3D {
 
         emitter.label(fallback);
         String value = invoke(emitter, staticMethod, receiver, arguments, returnsVoid);
-        if (!returnsVoid) emitter.assign(result, value);
+        if (!returnsVoid) {
+            emitter.assign(result, value);
+            emitter.setPlaceType(result, staticMethod.getSignature().getReturnType());
+        }
         emitter.label(end);
         return result;
     }
@@ -71,7 +74,7 @@ public final class MethodDispatchC3D {
             emitter.callVoid(label, callArguments);
             return null;
         }
-        return emitter.call(label, callArguments);
+        return emitter.call(label, callArguments, method.getSignature().getReturnType());
     }
 
     private record DispatchCase(AggregateType runtimeClass, Symbol method, String label) {

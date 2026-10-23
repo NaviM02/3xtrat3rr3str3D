@@ -573,8 +573,7 @@ public class CompilerWindow extends JFrame {
 
             consolePanel.appendSuccessLine("Análisis semántico completado.");
             consolePanel.appendSuccessLine("Código de tres direcciones generado.");
-            consolePanel.appendLine("Archivo C: " + result.getCFile());
-            consolePanel.appendSuccessLine("Compilado con gcc: " + result.getExecutable());
+            consolePanel.appendLine("Archivo RISC-V: " + result.getRiscVFile());
             consolePanel.appendSuccessLine("\nCOMPILACIÓN EXITOSA");
 
             setSuccessStatus("Compilación exitosa");

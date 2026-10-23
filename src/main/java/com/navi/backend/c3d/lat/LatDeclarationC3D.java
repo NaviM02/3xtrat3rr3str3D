@@ -14,6 +14,7 @@ import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import com.navi.backend.c3d.C3DEmitter;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
+import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +51,8 @@ class LatDeclarationC3D {
     }
 
     String variableDeclaration(VariableDeclaration node) {
-        resolver.setPos(node, declare(node.getName()));
         Symbol symbol = context.symbolOf(node);
+        resolver.setPos(node, declare(node.getName(), symbolType(symbol)));
         if (symbol != null && symbol.getType() != null && symbol.getType().isStruct()) {
             int extra = resolver.structSize(symbol.getType().getName()) - 1;
             if (extra > 0) {
@@ -81,9 +82,10 @@ class LatDeclarationC3D {
     String arrayDeclaration(ArrayDeclaration node) {
         int cells = resolver.arrayCells(node.getSizes());
         List<Integer> dims = resolver.constantDims(node.getSizes());
+        Type arrayType = symbolType(context.symbolOf(node));
         int offset = globalSection
-                ? emitter.declareGlobalArray(node.getName(), cells, dims)
-                : emitter.declareLocalArray(node.getName(), cells, dims);
+                ? emitter.declareGlobalArray(node.getName(), cells, dims, arrayType)
+                : emitter.declareLocalArray(node.getName(), cells, dims, arrayType);
         resolver.setPos(node, offset);
         if (node.getInitializer() != null) {
             String base = emitter.varAddr(node.getName());
@@ -98,12 +100,14 @@ class LatDeclarationC3D {
         if (node.getParameters() != null) {
             for (Parameter p : node.getParameters()) {
                 boolean isArray = p.getRank() > 0;
-                resolver.setPos(p, emitter.declareParam(p.getName(), isArray));
+                Symbol ps = context.symbolOf(p);
+                resolver.setPos(p, emitter.declareParam(p.getName(), isArray, ps == null ? null : ps.getType()));
                 // arreglo multi-D: dimensiones dims[1..N-1] como params ocultos
                 if (p.getRank() > 1) {
                     List<Integer> dimOffsets = new ArrayList<>();
                     for (int k = 1; k < p.getRank(); k++) {
-                        dimOffsets.add(emitter.declareParam(p.getName() + "_dim" + k, false));
+                        dimOffsets.add(emitter.declareParam(p.getName() + "_dim" + k, false,
+                                com.navi.backend.semantic.model.Type.INT));
                     }
                     resolver.recordParamDims(p.getName(), dimOffsets);
                 }
@@ -121,7 +125,7 @@ class LatDeclarationC3D {
         return null;
     }
 
-    private int declare(String name) {
-        return globalSection ? emitter.declareGlobal(name) : emitter.declareLocal(name);
+    private int declare(String name, Type type) {
+        return globalSection ? emitter.declareGlobal(name, type) : emitter.declareLocal(name, type);
     }
 }

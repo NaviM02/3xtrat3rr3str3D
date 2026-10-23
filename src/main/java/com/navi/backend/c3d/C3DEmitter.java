@@ -24,6 +24,7 @@ public class C3DEmitter {
     // marco de activacion: nombres de params/locales a su offset
     private static final class Frame {
         final Map<String, Integer> slots = new LinkedHashMap<>();
+        final Map<String, Type> types = new LinkedHashMap<>(); // tipo declarado de cada slot
         final Set<String> references = new HashSet<>(); // parametros por referencia (Y)
         final Map<String, List<Integer>> arrayDims = new LinkedHashMap<>(); // tamanos de arreglos locales/globales
         int next = 0; // siguiente offset libre (0-based)
@@ -39,6 +40,8 @@ public class C3DEmitter {
 
     private final Frame globalFrame = new Frame();
     private final Deque<Frame> frames = new ArrayDeque<>();
+
+    private final Map<String, Type> placeTypes = new LinkedHashMap<>();
 
     public String newTemp() {
         return "t" + tempCount++;
@@ -73,14 +76,18 @@ public class C3DEmitter {
 
     // declara un parametro y devuelve su Pos_memory
     public int declareParam(String name) {
-        return declareParam(name, false);
+        return declareParam(name, false, null);
     }
 
-    // declara un parametro; reference = el slot guarda una direccion (Y)
     public int declareParam(String name, boolean reference) {
+        return declareParam(name, reference, null);
+    }
+
+    public int declareParam(String name, boolean reference, Type type) {
         Frame f = frames.peek();
         int offset = f.next++;
         f.slots.put(name, offset);
+        if (type != null) f.types.put(name, type);
         if (reference) f.references.add(name);
         return offset;
     }
@@ -92,17 +99,27 @@ public class C3DEmitter {
 
     // declara un local y devuelve su Pos_memory
     public int declareLocal(String name) {
+        return declareLocal(name, null);
+    }
+
+    public int declareLocal(String name, Type type) {
         Frame f = frames.peek();
         int offset = f.next++;
         f.slots.put(name, offset);
+        if (type != null) f.types.put(name, type);
         return offset;
     }
 
     // declara un arreglo local reservando celdas contiguas y guarda sus dimensiones
     public int declareLocalArray(String name, int cells, List<Integer> dims) {
+        return declareLocalArray(name, cells, dims, null);
+    }
+
+    public int declareLocalArray(String name, int cells, List<Integer> dims, Type type) {
         Frame f = frames.peek();
         int offset = f.next++;
         f.slots.put(name, offset);
+        if (type != null) f.types.put(name, type);
         if (dims != null) f.arrayDims.put(name, dims);
         if (cells > 1) f.next += cells - 1;
         return offset;
@@ -110,15 +127,25 @@ public class C3DEmitter {
 
     // declara una global y devuelve su Pos_memory
     public int declareGlobal(String name) {
+        return declareGlobal(name, null);
+    }
+
+    public int declareGlobal(String name, Type type) {
         int offset = globalFrame.next++;
         globalFrame.slots.put(name, offset);
+        if (type != null) globalFrame.types.put(name, type);
         return offset;
     }
 
     // declara un arreglo global reservando celdas contiguas
     public int declareGlobalArray(String name, int cells, List<Integer> dims) {
+        return declareGlobalArray(name, cells, dims, null);
+    }
+
+    public int declareGlobalArray(String name, int cells, List<Integer> dims, Type type) {
         int offset = globalFrame.next++;
         globalFrame.slots.put(name, offset);
+        if (type != null) globalFrame.types.put(name, type);
         if (dims != null) globalFrame.arrayDims.put(name, dims);
         if (cells > 1) globalFrame.next += cells - 1;
         return offset;
@@ -178,9 +205,14 @@ public class C3DEmitter {
     }
 
     public String stackLoad(String base, int offset) {
+        return stackLoad(base, offset, null);
+    }
+
+    public String stackLoad(String base, int offset, Type type) {
         String addr = stackAddr(base, offset);
         String t = newTemp();
-        emit(new Quad("stack_load", t, addr));
+        emit(new Quad("stack_load", t, type, addr));
+        if (type != null) placeTypes.put(t, type);
         return t;
     }
 
@@ -190,8 +222,13 @@ public class C3DEmitter {
     }
 
     public String stackLoadAt(String addr) {
+        return stackLoadAt(addr, null);
+    }
+
+    public String stackLoadAt(String addr, Type type) {
         String t = newTemp();
-        emit(new Quad("stack_load", t, addr));
+        emit(new Quad("stack_load", t, type, addr));
+        if (type != null) placeTypes.put(t, type);
         return t;
     }
 
@@ -202,14 +239,23 @@ public class C3DEmitter {
     // lee una variable (local en BP o global en GP)
     public String loadVar(String name) {
         Integer local = localOffset(name);
-        if (local != null) return stackLoad("BP", local);
+        if (local != null) return stackLoad("BP", local, typeOfVar(name));
         Integer global = globalOffset(name);
-        if (global != null) return stackLoad("GP", global);
+        if (global != null) return stackLoad("GP", global, typeOfVar(name));
         return name;
+    }
+
+    private Type typeOfVar(String name) {
+        if (!frames.isEmpty()) {
+            Type t = frames.peek().types.get(name);
+            if (t != null) return t;
+        }
+        return globalFrame.types.get(name);
     }
 
     // escribe una variable (local en BP o global en GP)
     public void storeVar(String name, String value) {
+        value = coerceTo(typeOfVar(name), value);
         Integer local = localOffset(name);
         if (local != null) {
             stackStore("BP", local, value);
@@ -248,9 +294,14 @@ public class C3DEmitter {
     }
 
     public String heapLoad(String base, String offset) {
+        return heapLoad(base, offset, null);
+    }
+
+    public String heapLoad(String base, String offset, Type type) {
         String addr = heapAddr(base, offset);
         String t = newTemp();
-        emit(new Quad("heap_load", t, addr));
+        emit(new Quad("heap_load", t, type, addr));
+        if (type != null) placeTypes.put(t, type);
         return t;
     }
 
@@ -260,8 +311,13 @@ public class C3DEmitter {
     }
 
     public String heapLoadAt(String addr) {
+        return heapLoadAt(addr, null);
+    }
+
+    public String heapLoadAt(String addr, Type type) {
         String t = newTemp();
-        emit(new Quad("heap_load", t, addr));
+        emit(new Quad("heap_load", t, type, addr));
+        if (type != null) placeTypes.put(t, type);
         return t;
     }
 
@@ -273,8 +329,20 @@ public class C3DEmitter {
 
     public String literal(String formatted) {
         String t = newTemp();
-        emit(new Quad("=", t, formatted));
+        Type type = literalType(formatted);
+        emit(new Quad("=", t, type, formatted));
+        if (type != null) placeTypes.put(t, type);
         return t;
+    }
+
+    private static Type literalType(String formatted) {
+        if (formatted == null) return null;
+        if (formatted.startsWith("\"") && formatted.endsWith("\"")) return Type.STRING;
+        if (formatted.startsWith("'") && formatted.endsWith("'")) return Type.CHAR;
+        if ("null".equals(formatted)) return Type.NULL;
+        if (formatted.contains(".")) return Type.DOUBLE;
+        if ("1".equals(formatted) || "0".equals(formatted)) return Type.INT;
+        return Type.INT;
     }
 
     public String binary(String op, String l, String r) {
@@ -283,29 +351,51 @@ public class C3DEmitter {
         return t;
     }
 
-    public String unaryNeg(String operand) {
+    // variante con tipo anotado (para detectar + de strings)
+    public String binary(String op, String l, String r, Type type) {
         String t = newTemp();
-        emit(new Quad("neg", t, operand));
+        emit(new Quad(op, t, type, l, r));
+        if (type != null) placeTypes.put(t, type);
+        return t;
+    }
+
+    public String unaryNeg(String operand) {
+        return unaryNeg(operand, null);
+    }
+
+    public String unaryNeg(String operand, Type type) {
+        String t = newTemp();
+        emit(new Quad("neg", t, type, operand));
+        if (type != null) placeTypes.put(t, type);
         return t;
     }
 
     public String call(String function, List<String> args) {
+        return call(function, args, null);
+    }
+
+    public String call(String function, List<String> args, Type type) {
         String t = newTemp();
         List<String> all = new ArrayList<>();
         all.add(function);
         all.addAll(args);
-        emit(new Quad("call", t, all));
+        emit(new Quad("call", t, type, all));
+        if (type != null) placeTypes.put(t, type);
         return t;
     }
 
     // materializa una comparacion a un temporal 0/1 con saltos
     // if l op r goto Ltrue; goto Lfalse; Ltrue: t=1; goto Lend; Lfalse: t=0; Lend:
     public String materializeComparison(String l, String op, String r) {
+        return materializeComparison(l, op, r, null);
+    }
+
+    public String materializeComparison(String l, String op, String r, Type type) {
         String t = newTemp();
         String lTrue = newLabel();
         String lFalse = newLabel();
         String lEnd = newLabel();
-        ifGoto(l, op, r, lTrue);
+        ifGoto(l, op, r, lTrue, type);
         jump(lFalse);
         label(lTrue);
         assign(t, "1");
@@ -341,7 +431,11 @@ public class C3DEmitter {
 
     // salto condicional: if left op right goto label
     public void ifGoto(String left, String op, String right, String label) {
-        emit(new Quad("if", null, left, op, right, label));
+        ifGoto(left, op, right, label, null);
+    }
+
+    public void ifGoto(String left, String op, String right, String label, Type type) {
+        emit(new Quad("if", null, type, left, op, right, label));
     }
 
     public void jump(String label) {
@@ -352,14 +446,28 @@ public class C3DEmitter {
         emit(new Quad("print", null, value));
     }
 
+    // variante con tipo (int/string/char) para elegir el ecall correcto
+    public void print(String value, Type type) {
+        emit(new Quad("print", null, type, value));
+    }
+
     public String read() {
+        return read(Type.INT);
+    }
+
+    public String read(Type type) {
         String t = newTemp();
-        emit(new Quad("read", t));
+        emit(new Quad("read", t, type));
+        if (type != null) placeTypes.put(t, type);
         return t;
     }
 
     public void readDiscard() {
-        emit(new Quad("read", null));
+        readDiscard(Type.INT);
+    }
+
+    public void readDiscard(Type type) {
+        emit(new Quad("read", null, type));
     }
 
     public void returnVoid() {
@@ -405,6 +513,39 @@ public class C3DEmitter {
 
     private void leaveIfInFrame() {
         if (!frames.isEmpty()) emit(new Quad("leave", null));
+    }
+
+    public Type placeType(String place) {
+        return place == null ? null : placeTypes.get(place);
+    }
+
+    public void setPlaceType(String place, Type type) {
+        if (place != null && type != null) placeTypes.put(place, type);
+    }
+
+    public String coerceTo(Type target, String value) {
+        if (target == null || value == null) return value;
+        Type from = placeTypes.get(value);
+        if (from == null) return value;
+        boolean targetDouble = target.isDouble();
+        boolean fromDouble = from.isDouble();
+        if (targetDouble && !fromDouble && (from.isInt() || from.isChar() || from.isBoolean())) {
+            String t = newTemp();
+            emit(new Quad("itof", t, Type.DOUBLE, value));
+            placeTypes.put(t, Type.DOUBLE);
+            return t;
+        }
+        if (!targetDouble && target.isInt() && fromDouble) {
+            String t = newTemp();
+            emit(new Quad("ftoi", t, Type.INT, value));
+            placeTypes.put(t, Type.INT);
+            return t;
+        }
+        return value;
+    }
+
+    public Map<String, Type> placeTypes() {
+        return placeTypes;
     }
 
     // renderiza el C3D final: colapsa etiquetas vacias y asegura goto explicito

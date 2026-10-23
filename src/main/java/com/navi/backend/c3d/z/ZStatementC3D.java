@@ -30,11 +30,13 @@ import java.util.Deque;
 class ZStatementC3D {
 
     private final C3DEmitter emitter;
+    private final com.navi.backend.semantic.SemanticContext context;
     private final AstZVisitor<String> visitor;
     private final Deque<String> breakLabels = new ArrayDeque<>();
     private final Deque<String> continueLabels = new ArrayDeque<>();
 
-    ZStatementC3D(C3DEmitter emitter, AstZVisitor<String> visitor) {
+    ZStatementC3D(com.navi.backend.semantic.SemanticContext context, C3DEmitter emitter, AstZVisitor<String> visitor) {
+        this.context = context;
         this.emitter = emitter;
         this.visitor = visitor;
     }
@@ -199,12 +201,12 @@ class ZStatementC3D {
     }
 
     String print(PrintStatement node) {
-        for (Expression e : node.getArguments()) emitter.print(e.accept(visitor));
+        for (Expression e : node.getArguments()) emitter.print(e.accept(visitor), context.typeOf(e));
         return null;
     }
 
     String println(PrintlnStatement node) {
-        for (Expression e : node.getArguments()) emitter.print(e.accept(visitor));
+        for (Expression e : node.getArguments()) emitter.print(e.accept(visitor), context.typeOf(e));
         return null;
     }
 

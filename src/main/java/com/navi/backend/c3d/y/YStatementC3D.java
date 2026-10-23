@@ -29,12 +29,14 @@ import java.util.Deque;
 class YStatementC3D {
 
     private final C3DEmitter emitter;
+    private final com.navi.backend.semantic.SemanticContext context;
     private final YResolverC3D resolver;
     private final AstYVisitor<String> visitor;
     private final Deque<String> breakLabels = new ArrayDeque<>();
     private final Deque<String> continueLabels = new ArrayDeque<>();
 
-    YStatementC3D(C3DEmitter emitter, YResolverC3D resolver, AstYVisitor<String> visitor) {
+    YStatementC3D(com.navi.backend.semantic.SemanticContext context, C3DEmitter emitter, YResolverC3D resolver, AstYVisitor<String> visitor) {
+        this.context = context;
         this.emitter = emitter;
         this.resolver = resolver;
         this.visitor = visitor;
@@ -205,7 +207,7 @@ class YStatementC3D {
     }
 
     String print(PrintStatement node) {
-        for (Expression e : node.getExpressions()) emitter.print(e.accept(visitor));
+        for (Expression e : node.getExpressions()) emitter.print(e.accept(visitor), context.typeOf(e));
         return null;
     }
 

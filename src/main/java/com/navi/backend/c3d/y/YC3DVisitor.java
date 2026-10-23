@@ -56,7 +56,7 @@ public class YC3DVisitor implements AstYVisitor<String> {
     public YC3DVisitor(SemanticContext context, C3DEmitter emitter) {
         this.resolver = new YResolverC3D(context, emitter, this);
         this.expressions = new YExpressionC3D(context, emitter, resolver, this);
-        this.statements = new YStatementC3D(emitter, resolver, this);
+        this.statements = new YStatementC3D(context, emitter, resolver, this);
         this.declarations = new YDeclarationC3D(context, emitter, resolver, this);
     }
 

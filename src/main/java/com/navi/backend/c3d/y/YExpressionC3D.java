@@ -17,6 +17,7 @@ import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.enums.SymbolKind;
 import com.navi.backend.semantic.model.Type;
+import com.navi.backend.semantic.rules.TypeCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,26 +45,27 @@ class YExpressionC3D {
             case EQUAL, NOT_EQUAL, LESS, GREATER, LESS_EQUAL, GREATER_EQUAL -> {
                 String l = node.getLeft().accept(visitor);
                 String r = node.getRight().accept(visitor);
-                return emitter.materializeComparison(l, relop(node.getOperator()), r);
+                Type cmp = TypeCompat.promoteNumeric(context.typeOf(node.getLeft()), context.typeOf(node.getRight()));
+                return emitter.materializeComparison(l, relop(node.getOperator()), r, cmp);
             }
             default -> {
                 String l = node.getLeft().accept(visitor);
                 String r = node.getRight().accept(visitor);
-                return emitter.binary(arith(node.getOperator()), l, r);
+                return emitter.binary(arith(node.getOperator()), l, r, context.typeOf(node));
             }
         }
     }
 
     String unary(UnaryExpression node) {
         if (node.getOperator() == UnaryOperator.NOT) return materializeNot(node.getExpression());
-        if (node.getOperator() == UnaryOperator.NEGATE) return emitter.unaryNeg(node.getExpression().accept(visitor));
+        if (node.getOperator() == UnaryOperator.NEGATE) return emitter.unaryNeg(node.getExpression().accept(visitor), context.typeOf(node));
         String op = node.getOperator() == UnaryOperator.POST_INCREMENT ? "+" : "-";
         return postIncDec(node.getExpression(), op);
     }
 
     private String postIncDec(Expression target, String op) {
         String old = target.accept(visitor);
-        resolver.assignTo(target, emitter.binary(op, old, "1"));
+        resolver.assignTo(target, emitter.binary(op, old, "1", context.typeOf(target)));
         return old;
     }
 
@@ -72,12 +74,12 @@ class YExpressionC3D {
     }
 
     String arrayAccess(ArrayAccessExpression node) {
-        return emitter.stackLoadAt(resolver.arrayElementAddr(node));
+        return emitter.stackLoadAt(resolver.arrayElementAddr(node), context.typeOf(node));
     }
 
     String memberAccess(MemberAccessExpression node) {
         int off = resolver.fieldOffset(context.typeOf(node.getObject()), node.getMember());
-        return emitter.stackLoadAt(emitter.binary("+", resolver.structAddr(node.getObject()), String.valueOf(off)));
+        return emitter.stackLoadAt(emitter.binary("+", resolver.structAddr(node.getObject()), String.valueOf(off)), context.typeOf(node));
     }
 
     String functionCall(FunctionCallExpression node) {
@@ -92,13 +94,13 @@ class YExpressionC3D {
                 emitter.callVoid(ve.getName(), args);
                 return null;
             }
-            return emitter.call(ve.getName(), args);
+            return emitter.call(ve.getName(), args, context.typeOf(node));
         }
         return emitter.literal("0");
     }
 
     String read(ReadExpression node) {
-        return emitter.read();
+        return emitter.read(Type.DOUBLE);
     }
 
     String literal(LiteralExpression node) {
@@ -125,7 +127,8 @@ class YExpressionC3D {
                     }
                 }
             } else {
-                places.add(a.accept(visitor));
+                String place = a.accept(visitor);
+                places.add(p == null ? place : emitter.coerceTo(p, place));
             }
         }
         return places;

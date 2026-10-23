@@ -46,10 +46,13 @@ class YResolverC3D {
         if (target instanceof VariableExpression v) {
             emitter.storeVar(v.getName(), value);
         } else if (target instanceof ArrayAccessExpression a) {
-            emitter.stackStoreAt(arrayElementAddr(a), value);
+            emitter.stackStoreAt(arrayElementAddr(a), emitter.coerceTo(context.typeOf(a), value));
         } else if (target instanceof MemberAccessExpression m) {
-            int off = fieldOffset(context.typeOf(m.getObject()), m.getMember());
-            emitter.stackStoreAt(emitter.binary("+", structAddr(m.getObject()), String.valueOf(off)), value);
+            Type owner = context.typeOf(m.getObject());
+            int off = fieldOffset(owner, m.getMember());
+            Type targetType = context.typeOf(m) != null ? context.typeOf(m) : fieldType(owner, m.getMember());
+            emitter.stackStoreAt(emitter.binary("+", structAddr(m.getObject()), String.valueOf(off)),
+                    emitter.coerceTo(targetType, value));
         }
     }
 
@@ -137,6 +140,13 @@ class YResolverC3D {
             return emitter.binary("+", parent, String.valueOf(off));
         }
         return obj.accept(visitor);
+    }
+
+    Type fieldType(Type owner, String member) {
+        if (owner == null) return null;
+        AggregateType agg = context.getTypeTable().resolve(owner.getName());
+        Field field = agg == null ? null : agg.findField(member);
+        return field == null ? null : field.getType();
     }
 
     int fieldOffset(Type owner, String member) {

@@ -64,7 +64,7 @@ public class ZC3DVisitor implements AstZVisitor<String> {
     public ZC3DVisitor(SemanticContext context, C3DEmitter emitter) {
         ZResolverC3D resolver = new ZResolverC3D(context, emitter, this);
         this.expressions = new ZExpressionC3D(context, emitter, resolver, this);
-        this.statements = new ZStatementC3D(emitter, this);
+        this.statements = new ZStatementC3D(context, emitter, this);
         this.declarations = new ZDeclarationC3D(context, emitter, resolver, this);
     }
 
