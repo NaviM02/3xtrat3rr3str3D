@@ -143,7 +143,8 @@ public class AggregateType {
                 if (method.getKind() != com.navi.backend.semantic.enums.SymbolKind.METHOD
                         || method.getSignature() == null
                         || !method.getSignature().getParameters().equals(argTypes)
-                        || method.getAccessModifier() == AccessModifier.PRIVATE) continue;
+                        || method.getAccessModifier() == AccessModifier.PRIVATE
+                        || method.getAccessModifier() == AccessModifier.DEFAULT) continue;
                 return method;
             }
         }

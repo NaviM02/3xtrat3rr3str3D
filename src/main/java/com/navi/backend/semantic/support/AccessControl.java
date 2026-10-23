@@ -6,7 +6,7 @@ import com.navi.backend.semantic.model.AggregateType;
 // Reglas de visibilidad para miembros de clases Z (no hay paquetes):
 //  - public:     accesible desde cualquier clase.
 //  - private:    solo dentro de la misma clase.
-//  - (nada):     sin paquetes, todas comparten el paquete por defecto: accesible desde cualquier clase.
+//  - (nada):     sin paquetes se comporta como private: solo dentro de la misma clase.
 //  - protected:  solo la propia clase y sus subclases.
 public final class AccessControl {
 
@@ -15,12 +15,13 @@ public final class AccessControl {
 
     public static boolean canAccess(AccessModifier modifier, AggregateType declaringClass, AggregateType accessingClass) {
         if (modifier == AccessModifier.PUBLIC) return true;
-        if (declaringClass == null || accessingClass == null) return false;
+        if (declaringClass == null) return false;
+        // Llamada desde fuera de una clase (Lat/Y top-level): solo public.
+        if (accessingClass == null) return false;
 
         return switch (modifier) {
             case PUBLIC -> true;
-            case PRIVATE -> declaringClass == accessingClass;
-            case DEFAULT -> true;
+            case PRIVATE, DEFAULT -> declaringClass == accessingClass;
             case PROTECTED -> accessingClass.isSubtypeOf(declaringClass);
         };
     }
@@ -32,8 +33,7 @@ public final class AccessControl {
 
     private static int rank(AccessModifier modifier) {
         return switch (modifier) {
-            case PRIVATE -> 0;
-            case DEFAULT -> 1;
+            case PRIVATE, DEFAULT -> 0;
             case PROTECTED -> 2;
             case PUBLIC -> 3;
         };
