@@ -208,6 +208,7 @@ class YStatementC3D {
 
     String print(PrintStatement node) {
         for (Expression e : node.getExpressions()) emitter.print(e.accept(visitor), context.typeOf(e));
+        emitter.printNewline();
         return null;
     }
 

@@ -451,6 +451,11 @@ public class C3DEmitter {
         emit(new Quad("print", null, type, value));
     }
 
+    // El salto pertenece a la sentencia completa, no a cada valor impreso.
+    public void printNewline() {
+        print(literal("\"\\n\""), Type.STRING);
+    }
+
     public String read() {
         return read(Type.INT);
     }

@@ -207,6 +207,7 @@ class ZStatementC3D {
 
     String println(PrintlnStatement node) {
         for (Expression e : node.getArguments()) emitter.print(e.accept(visitor), context.typeOf(e));
+        emitter.printNewline();
         return null;
     }
 

@@ -956,9 +956,6 @@ public class RiscVGenerator {
             sb.append("    li a7, 1\n");
         }
         sb.append("    ecall\n");
-        sb.append("    li a7, 11\n");
-        sb.append("    li a0, 10\n");
-        sb.append("    ecall\n"); // salto de linea
     }
 
     private void emitRead(StringBuilder sb, Quad q, RFunc f) {
