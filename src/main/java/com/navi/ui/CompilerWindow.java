@@ -2,6 +2,7 @@ package com.navi.ui;
 
 import com.navi.backend.compiler.CompilationResult;
 import com.navi.backend.compiler.CompilerService;
+import com.navi.backend.compiler.RarsRunner;
 import com.navi.backend.highlight.HighlightService;
 import com.navi.backend.highlight.HighlightSpan;
 import com.navi.backend.semantic.SemanticContext;
@@ -19,6 +20,8 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -58,6 +61,13 @@ public class CompilerWindow extends JFrame {
     private JLabel statusLabel;
 
     private JButton compileButton;
+    private JButton runButton;
+    private JButton stopButton;
+    private JMenuItem compileMenuItem;
+    private JMenuItem runMenuItem;
+    private JMenuItem stopMenuItem;
+    private boolean compiling;
+    private RarsRunner execution;
 
     private Path currentFile;
 
@@ -93,6 +103,9 @@ public class CompilerWindow extends JFrame {
         bottomTabs.addTab("C3D", c3dPanel);
 
         compileButton = new JButton("Compilar");
+        runButton = new JButton("Compilar y ejecutar");
+        stopButton = new JButton("Detener");
+        stopButton.setEnabled(false);
 
         lineLabel = new JLabel("Línea: 1");
         columnLabel = new JLabel("Columna: 1");
@@ -130,6 +143,8 @@ public class CompilerWindow extends JFrame {
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
 
         left.add(compileButton);
+        left.add(runButton);
+        left.add(stopButton);
 
         JButton saveButton = new JButton("Guardar");
         saveButton.addActionListener(e -> saveCurrentFile());
@@ -177,6 +192,15 @@ public class CompilerWindow extends JFrame {
 
     private void initListeners() {
         compileButton.addActionListener(e -> compile());
+        runButton.addActionListener(e -> compile(true));
+        stopButton.addActionListener(e -> stopExecution());
+        consolePanel.setInputListener(this::sendInput);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (execution != null) execution.close();
+            }
+        });
 
         highlightTimer = new Timer(HIGHLIGHT_DELAY_MS, e -> requestHighlight());
 
@@ -538,6 +562,11 @@ public class CompilerWindow extends JFrame {
     // =========================================================
 
     private void compile() {
+        compile(false);
+    }
+
+    private void compile(boolean runAfterCompile) {
+        if (compiling || execution != null) return;
         if (editorPanel == null || currentFile == null) {
             showError("Selecciona un archivo del proyecto antes de compilar.");
             return;
@@ -547,43 +576,145 @@ public class CompilerWindow extends JFrame {
 
         consolePanel.clear();
         consolePanel.appendLine("Compilando: " + currentFile);
-
+        bottomTabs.setSelectedComponent(consolePanel);
+        symbolTablePanel.clear();
+        typeTablePanel.clear();
+        c3dPanel.clear();
+        Path sourceFile = currentFile;
+        compiling = true;
+        updateExecutionControls();
         setStatus("Compilando...");
 
-        try {
-            CompilationResult result = compilerService.compile(currentFile);
-
-            if (!result.isSuccessful()) {
-                consolePanel.appendErrorLine("La compilación contiene errores.");
-
-                String errors = formatErrors(result.getSemanticContext());
-
-                if (!errors.isBlank()) {
-                    consolePanel.append(errors);
-                }
-                setErrorStatus("Errores de compilación");
-
-                return;
+        new SwingWorker<CompilationResult, Void>() {
+            @Override
+            protected CompilationResult doInBackground() throws Exception {
+                return compilerService.compile(sourceFile);
             }
 
-            symbolTablePanel.setSymbolTable(result.getSemanticContext().getSymbolTable());
-            typeTablePanel.setTypeTable(result.getSemanticContext().getTypeTable());
-            c3dPanel.setCode(result.getC3d());
-            bottomTabs.setSelectedComponent(consolePanel);
+            @Override
+            protected void done() {
+                compiling = false;
+                try {
+                    CompilationResult result = get();
+                    if (!result.isSuccessful()) {
+                        consolePanel.appendErrorLine("La compilación contiene errores.");
+                        String errors = formatErrors(result.getSemanticContext());
+                        if (!errors.isBlank()) consolePanel.append(errors);
+                        setErrorStatus("Errores de compilación");
+                        return;
+                    }
 
-            consolePanel.appendSuccessLine("Análisis semántico completado.");
-            consolePanel.appendSuccessLine("Código de tres direcciones generado.");
-            consolePanel.appendLine("Archivo RISC-V: " + result.getRiscVFile());
-            consolePanel.appendSuccessLine("\nCOMPILACIÓN EXITOSA");
+                    symbolTablePanel.setSymbolTable(result.getSemanticContext().getSymbolTable());
+                    typeTablePanel.setTypeTable(result.getSemanticContext().getTypeTable());
+                    c3dPanel.setCode(result.getC3d());
+                    consolePanel.appendSuccessLine("Análisis semántico completado.");
+                    consolePanel.appendSuccessLine("Código de tres direcciones generado.");
+                    consolePanel.appendLine("Archivo RISC-V: " + result.getRiscVFile());
+                    consolePanel.appendSuccessLine("\nCOMPILACIÓN EXITOSA");
+                    setSuccessStatus("Compilación exitosa");
+                    projectExplorerPanel.refresh();
+                    if (runAfterCompile && isDisplayable()) runProgram(result.getRiscVFile());
+                } catch (Exception e) {
+                    consolePanel.appendErrorLine("Error durante la compilación: " + errorMessage(e));
+                    setErrorStatus("Error de compilación");
+                } finally {
+                    updateExecutionControls();
+                }
+            }
+        }.execute();
+    }
 
-            setSuccessStatus("Compilación exitosa");
-            projectExplorerPanel.refresh();
+    private void runProgram(Path assemblyFile) {
+        RarsRunner session = new RarsRunner();
+        execution = session;
+        updateExecutionControls();
+        consolePanel.appendSuccessLine("\n--- Ejecución (RARS) ---");
+        setStatus("Ejecutando...");
 
-        } catch (Exception e) {
-            consolePanel.appendErrorLine("Error durante la compilación: " + e.getMessage());
-            setErrorStatus("Error");
-            e.printStackTrace();
+        new SwingWorker<Integer, String>() {
+            @Override
+            protected Integer doInBackground() throws Exception {
+                session.start(assemblyFile);
+                SwingUtilities.invokeLater(() -> {
+                    if (execution == session && !session.isStopped()) consolePanel.setInputEnabled(true);
+                });
+                return session.readOutput(text -> publish(text));
+            }
+
+            @Override
+            protected void process(List<String> chunks) {
+                for (String text : chunks) consolePanel.append(text);
+            }
+
+            @Override
+            protected void done() {
+                boolean stopped = session.isStopped();
+                try {
+                    int exitCode = get();
+                    if (stopped) {
+                        showStopped();
+                    } else if (exitCode == 0) {
+                        consolePanel.appendSuccessLine("\n--- Ejecución finalizada ---");
+                        setSuccessStatus("Ejecución finalizada");
+                    } else {
+                        consolePanel.appendErrorLine("\nRARS terminó con código " + exitCode + ".");
+                        setErrorStatus("Error de ejecución");
+                    }
+                } catch (Exception e) {
+                    if (stopped) showStopped();
+                    else {
+                        consolePanel.appendErrorLine("\nError durante la ejecución: " + errorMessage(e));
+                        setErrorStatus("Error de ejecución");
+                    }
+                } finally {
+                    session.close();
+                    execution = null;
+                    consolePanel.setInputEnabled(false);
+                    updateExecutionControls();
+                }
+            }
+        }.execute();
+    }
+
+    private void sendInput(String line) {
+        RarsRunner session = execution;
+        if (session == null || session.isStopped()) return;
+        consolePanel.setInputEnabled(false);
+        session.sendLine(line).whenComplete((ignored, error) -> SwingUtilities.invokeLater(() -> {
+            if (execution != session || session.isStopped()) return;
+            if (error != null) consolePanel.appendErrorLine("No se pudo enviar la entrada: " + errorMessage(error));
+            else consolePanel.setInputEnabled(true);
+        }));
+    }
+
+    private void stopExecution() {
+        if (execution != null) {
+            execution.close();
+            consolePanel.setInputEnabled(false);
+            updateExecutionControls();
+            setStatus("Deteniendo...");
         }
+    }
+
+    private void showStopped() {
+        consolePanel.appendLine("\n--- Ejecución detenida ---");
+        setStatus("Ejecución detenida");
+    }
+
+    private void updateExecutionControls() {
+        boolean idle = !compiling && execution == null;
+        boolean running = execution != null && !execution.isStopped();
+        compileButton.setEnabled(idle);
+        runButton.setEnabled(idle);
+        compileMenuItem.setEnabled(idle);
+        runMenuItem.setEnabled(idle);
+        stopButton.setEnabled(running);
+        stopMenuItem.setEnabled(running);
+    }
+
+    private String errorMessage(Throwable error) {
+        while (error.getCause() != null) error = error.getCause();
+        return error.getMessage() == null ? error.toString() : error.getMessage();
     }
 
     // =========================================================
@@ -599,7 +730,7 @@ public class CompilerWindow extends JFrame {
         openProject.addActionListener(e -> openProject());
         save.addActionListener(e -> saveCurrentFile());
         save.setAccelerator(KeyStroke.getKeyStroke("control S"));
-        exit.addActionListener(e -> System.exit(0));
+        exit.addActionListener(e -> dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
 
         fileMenu.add(openProject);
         fileMenu.addSeparator();
@@ -608,9 +739,17 @@ public class CompilerWindow extends JFrame {
         fileMenu.add(exit);
 
         JMenu compileMenu = new JMenu("Compilar");
-        JMenuItem compile = new JMenuItem("Compilar archivo actual");
-        compile.addActionListener(e -> compile());
-        compileMenu.add(compile);
+        compileMenuItem = new JMenuItem("Compilar archivo actual");
+        compileMenuItem.addActionListener(e -> compile());
+        runMenuItem = new JMenuItem("Compilar y ejecutar");
+        runMenuItem.addActionListener(e -> compile(true));
+        runMenuItem.setAccelerator(KeyStroke.getKeyStroke("F5"));
+        stopMenuItem = new JMenuItem("Detener ejecución");
+        stopMenuItem.addActionListener(e -> stopExecution());
+        stopMenuItem.setEnabled(false);
+        compileMenu.add(compileMenuItem);
+        compileMenu.add(runMenuItem);
+        compileMenu.add(stopMenuItem);
         menuBar.add(fileMenu);
         menuBar.add(compileMenu);
 
@@ -669,6 +808,8 @@ public class CompilerWindow extends JFrame {
         getContentPane().setBackground(BACKGROUND);
 
         styleButton(compileButton);
+        styleButton(runButton);
+        styleButton(stopButton);
 
         styleLabel(lineLabel);
         styleLabel(columnLabel);

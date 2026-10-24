@@ -3,6 +3,7 @@ package com.navi.ui.console;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
+import java.util.function.Consumer;
 
 public class ConsolePanel extends JPanel {
 
@@ -15,6 +16,9 @@ public class ConsolePanel extends JPanel {
 
     private final JTextPane textPane;
     private final StyledDocument document;
+    private final JTextField inputField;
+    private final JButton sendButton;
+    private Consumer<String> inputListener;
 
     private final Style normalStyle;
     private final Style successStyle;
@@ -54,7 +58,53 @@ public class ConsolePanel extends JPanel {
         StyleConstants.setFontFamily(errorHeaderStyle, Font.MONOSPACED);
         StyleConstants.setFontSize(errorHeaderStyle, 13);
 
-        add(new JScrollPane(textPane), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(textPane);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        add(scrollPane, BorderLayout.CENTER);
+
+        JPanel inputPanel = new JPanel(new BorderLayout(8, 0));
+        inputPanel.setBackground(CONSOLE_BACKGROUND);
+        inputPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(39, 111, 107)),
+                BorderFactory.createEmptyBorder(5, 8, 5, 8)));
+        JLabel prompt = new JLabel(">");
+        prompt.setForeground(MIKU);
+        inputPanel.add(prompt, BorderLayout.WEST);
+
+        inputField = new JTextField();
+        inputField.setBackground(CONSOLE_BACKGROUND);
+        inputField.setForeground(MIKU_LIGHT);
+        inputField.setCaretColor(MIKU);
+        inputField.setFont(textPane.getFont());
+        inputField.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
+        inputField.setToolTipText("Escribe un valor y presiona Enter para enviarlo al programa");
+        inputField.addActionListener(e -> submitInput());
+        inputPanel.add(inputField, BorderLayout.CENTER);
+
+        sendButton = new JButton("Enviar");
+        sendButton.addActionListener(e -> submitInput());
+        inputPanel.add(sendButton, BorderLayout.EAST);
+        add(inputPanel, BorderLayout.SOUTH);
+        setInputEnabled(false);
+    }
+
+    public void setInputListener(Consumer<String> listener) {
+        inputListener = listener;
+    }
+
+    public void setInputEnabled(boolean enabled) {
+        inputField.setEnabled(enabled);
+        sendButton.setEnabled(enabled);
+        if (enabled) inputField.requestFocusInWindow();
+        else inputField.setText("");
+    }
+
+    private void submitInput() {
+        if (!inputField.isEnabled() || inputListener == null) return;
+        String line = inputField.getText();
+        inputField.setText("");
+        appendLine(line);
+        inputListener.accept(line);
     }
 
     public void append(String text) {
