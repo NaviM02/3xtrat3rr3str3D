@@ -4,7 +4,7 @@ import com.navi.backend.ast.lat.global.Program;
 import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;
 import com.navi.backend.c3d.C3DGenerator;
-import com.navi.backend.c3d.RiscVGenerator;
+import com.navi.backend.c3d.riscv.RiscVGenerator;
 import com.navi.backend.semantic.loading.FileModuleLoader;
 import com.navi.backend.semantic.loading.ModuleLoader;
 import com.navi.backend.semantic.SemanticAnalyzer;

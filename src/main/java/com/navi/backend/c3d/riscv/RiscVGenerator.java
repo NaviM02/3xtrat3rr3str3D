@@ -1,14 +1,11 @@
-package com.navi.backend.c3d;
+package com.navi.backend.c3d.riscv;
+
+import com.navi.backend.c3d.C3DEmitter;
+import com.navi.backend.c3d.Quad;
 
 import com.navi.backend.semantic.SemanticContext;
-import com.navi.backend.semantic.enums.SymbolKind;
-import com.navi.backend.semantic.model.AggregateType;
-import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.model.Type;
 
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,25 +33,20 @@ import java.util.Set;
 // (sd/ld de 8 bytes, syscalls 64/63/93 y .option norelax); ver AGENTS.md.
 public class RiscVGenerator {
 
-    private static final int WORD = 4;
-    private static final int HEADER = 8;      // ra + s0 previo (para el tamano del marco)
-    private static final int DATA_START = 12; // bytes bajo fp del primer dato
+    private static final int WORD = RiscVFrameLayout.WORD_BYTES;
     private static final int HEAP_WORDS = 262144;
 
-    private final List<Quad> quads;
-    private final int explicitGlobalSize;
-    private final SemanticContext context;
-
-    private final Set<String> functionNames = new LinkedHashSet<>();
-    private final Map<String, String> stringLabels = new LinkedHashMap<>();
-    private final Set<String> stringTemps = new LinkedHashSet<>();
-    private final Set<String> charTemps = new LinkedHashSet<>();
-    private final Map<String, Boolean> addressTemps = new LinkedHashMap<>();
-    private final Map<String, Type> callReturnTypes = new LinkedHashMap<>();
-    private final Map<String, List<Type>> callParamTypes = new LinkedHashMap<>();
-    private final Set<String> receiverCalls = new LinkedHashSet<>();
-    private final Map<String, Quad> defOf = new LinkedHashMap<>();
-    private final Map<Quad, String> readBuffers = new IdentityHashMap<>();
+    private final RiscVProgramAnalysis analysis;
+    private final Set<String> functionNames;
+    private final Map<String, String> stringLabels;
+    private final Set<String> stringTemps;
+    private final Set<String> charTemps;
+    private final Map<String, Type> callReturnTypes;
+    private final Map<String, List<Type>> callParamTypes;
+    private final Set<String> receiverCalls;
+    private final Map<Quad, String> readBuffers;
+    private final boolean needsConcat;
+    private final boolean needsReadString;
 
     public RiscVGenerator(List<Quad> quads) {
         this(quads, -1, null);
@@ -66,303 +58,28 @@ public class RiscVGenerator {
 
     // context permite tipar el valor de un print (p.ej. un metodo que retorna String)
     public RiscVGenerator(List<Quad> quads, int globalSize, SemanticContext context) {
-        this.quads = quads;
-        this.explicitGlobalSize = globalSize;
-        this.context = context;
-    }
-
-    // una funcion del C3D: su marco, parametros y cuerpo
-    private static final class RFunc {
-        final String name;
-        final int frameCells;
-        final List<Quad> body;
-        final Map<String, Integer> tempSlots = new LinkedHashMap<>();
-        int paramCount;
-        int tempCount;
-        int frameBytes;
-
-        RFunc(String name, int frameCells, List<Quad> body) {
-            this.name = name;
-            this.frameCells = frameCells;
-            this.body = body;
-        }
+        this.analysis = new RiscVProgramAnalysis(quads, globalSize, context);
+        this.functionNames = analysis.functionNames;
+        this.stringLabels = analysis.stringLabels;
+        this.stringTemps = analysis.stringTemps;
+        this.charTemps = analysis.charTemps;
+        this.callReturnTypes = analysis.callReturnTypes;
+        this.callParamTypes = analysis.callParamTypes;
+        this.receiverCalls = analysis.receiverCalls;
+        this.readBuffers = analysis.readBuffers;
+        this.needsConcat = analysis.needsConcat;
+        this.needsReadString = analysis.needsReadString;
     }
 
     public String generate() {
-        classifyAddresses();
-        collectStrings();
-        collectReadBuffers();
-        buildDefs();
-        buildCallReturnTypes();
-        List<RFunc> funcs = splitFunctions();
-        for (RFunc f : funcs) functionNames.add(f.name);
-        assignParamCounts(funcs);
-        assignTemps(funcs);
-
-        for (Quad q : quads) {
-            if ("+".equals(q.getOp()) && q.getType() != null && q.getType().isString()) {
-                needsConcat = true;
-                break;
-            }
-        }
-
         StringBuilder sb = new StringBuilder();
         emitData(sb);
-        emitText(sb, funcs);
+        emitText(sb, analysis.functions);
         return sb.toString();
-    }
-
-    private boolean needsConcat = false;
-    private boolean needsReadString = false;
-
-    // ---------------------------------------------------------------- analisis
-
-    // marca que temporales guardan direcciones (celdas) vs valores; se usa para
-    // escalar por 4 el offset de una suma de direcciones. La base de una suma de
-    // direcciones siempre es el primer operando (así lo emite el C3D).
-    private void classifyAddresses() {
-        addressTemps.put("BP", true);
-        addressTemps.put("GP", true);
-        addressTemps.put("HP", true);
-
-        // seed: toda direccion usada directamente en un load/store
-        for (Quad q : quads) {
-            if (isLoadStore(q.getOp())) {
-                String addr = q.getArgs().get(0);
-                if (isTemp(addr)) addressTemps.put(addr, true);
-            }
-        }
-
-        // fixpoint: propagar direccion a traves de = y + (la base de un + address)
-        boolean changed = true;
-        while (changed) {
-            changed = false;
-            for (Quad q : quads) {
-                String res = q.getResult();
-                if (!isTemp(res)) continue;
-                boolean addr;
-                switch (q.getOp()) {
-                    case "=" -> addr = isAddress(q.getArgs().get(0));
-                    case "+" -> addr = isAddress(q.getArgs().get(0)) || isAddress(q.getArgs().get(1));
-                    case "stack_load", "heap_load" -> addr = isBaseOfAddressAdd(res);
-                    default -> addr = false;
-                }
-                if (addr && !Boolean.TRUE.equals(addressTemps.get(res))) {
-                    addressTemps.put(res, true);
-                    changed = true;
-                }
-            }
-        }
-    }
-
-    private boolean isBaseOfAddressAdd(String res) {
-        return isBaseOfAddressAdd(res, new LinkedHashSet<>());
-    }
-
-    private boolean isBaseOfAddressAdd(String res, Set<String> seen) {
-        if (res == null || !seen.add(res)) return false;
-        for (Quad q : quads) {
-            if (!"+".equals(q.getOp()) || !res.equals(q.getArgs().get(0))) continue;
-            String result = q.getResult();
-            if (isAddress(result) || isDirectAddress(result)
-                    || isBaseOfAddressAdd(result, seen)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isDirectAddress(String temp) {
-        for (Quad q : quads) {
-            if (isLoadStore(q.getOp()) && !q.getArgs().isEmpty() && temp.equals(q.getArgs().get(0))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean isLoadStore(String op) {
-        return "stack_load".equals(op) || "heap_load".equals(op)
-                || "stack_store".equals(op) || "heap_store".equals(op);
-    }
-
-    // cuarteta que define cada temporal (para seguir el tipo de un print)
-    private void buildDefs() {
-        for (Quad q : quads) {
-            if (isTemp(q.getResult())) defOf.put(q.getResult(), q);
-        }
-    }
-
-    // tipo de retorno de cada funcion/metodo/constructor a partir de su etiqueta C3D
-    private void buildCallReturnTypes() {
-        if (context == null) return;
-        for (AggregateType agg : context.getTypeTable().getTypes().values()) {
-            if (!agg.isClass()) continue;
-            for (List<Symbol> overloads : agg.getMemberScope().getSymbols().values()) {
-                for (Symbol s : overloads) {
-                    if (s.getSignature() == null) continue;
-                    String label;
-                    if (s.getKind() == SymbolKind.METHOD) {
-                        label = C3DEmitter.methodLabel(agg.getName(), s.getName(),
-                                s.getSignature().getParameters());
-                    } else if (s.getKind() == SymbolKind.CONSTRUCTOR) {
-                        label = C3DEmitter.ctorLabel(agg.getName(), s.getSignature().getParameters());
-                    } else {
-                        continue;
-                    }
-                    callReturnTypes.put(label, s.getSignature().getReturnType());
-                    callParamTypes.put(label, s.getSignature().getParameters());
-                    receiverCalls.add(label);
-                }
-            }
-        }
-        for (List<Symbol> overloads : context.getSymbolTable().getGlobalScope().getSymbols().values()) {
-            for (Symbol s : overloads) {
-                if (s.getKind() == SymbolKind.FUNCTION && s.getSignature() != null) {
-                    callReturnTypes.put(s.getName(), s.getSignature().getReturnType());
-                    callParamTypes.put(s.getName(), s.getSignature().getParameters());
-                }
-            }
-        }
-    }
-
-    // tipo del valor de un temporal siguiendo copias y llamadas
-    private Type typeOfTemp(String temp) {
-        Quad def = defOf.get(temp);
-        if (def == null) return null;
-        if (def.getType() != null) return def.getType();
-        if ("call".equals(def.getOp())) return callReturnTypes.get(def.getArgs().get(0));
-        if ("=".equals(def.getOp())) {
-            String arg = def.getArgs().get(0);
-            if (isString(arg)) return Type.STRING;
-            if (isChar(arg)) return Type.CHAR;
-            if (isDoubleLiteral(arg)) return Type.DOUBLE;
-            if (isTemp(arg)) return typeOfTemp(arg);
-        }
-        return null;
-    }
-
-    private Type typeOfPlace(String place) {
-        if (place == null) return null;
-        if (isTemp(place)) {
-            Type t = typeOfTemp(place);
-            if (t != null) return t;
-        }
-        if (isString(place)) return Type.STRING;
-        if (isChar(place)) return Type.CHAR;
-        if (isDoubleLiteral(place)) return Type.DOUBLE;
-        if ("null".equals(place)) return Type.NULL;
-        return null;
-    }
-
-    private static boolean isDoubleLiteral(String s) {
-        if (s == null || isString(s) || isChar(s)) return false;
-        if (!s.contains(".")) return false;
-        try {
-            Double.parseDouble(s.trim());
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
 
     private static int floatBits(String literal) {
         return Float.floatToRawIntBits((float) Double.parseDouble(literal.trim()));
-    }
-
-    private void collectStrings() {
-        int i = 0;
-        for (Quad q : quads) {
-            if (!"=".equals(q.getOp()) || !isTemp(q.getResult())) continue;
-            String arg = q.getArgs().get(0);
-            if (isString(arg)) {
-                if (!stringLabels.containsKey(arg)) stringLabels.put(arg, ".Lstr" + i++);
-                stringTemps.add(q.getResult());
-            } else if (isChar(arg)) {
-                charTemps.add(q.getResult());
-            }
-        }
-    }
-
-    private void collectReadBuffers() {
-        int i = 0;
-        for (Quad q : quads) {
-            if ("read".equals(q.getOp()) && q.getType() != null && q.getType().isString()) {
-                readBuffers.put(q, ".Lbuf" + i++);
-                needsReadString = true;
-            }
-        }
-    }
-
-    private List<RFunc> splitFunctions() {
-        List<RFunc> funcs = new ArrayList<>();
-        int i = 0;
-        while (i < quads.size()) {
-            Quad q = quads.get(i);
-            if ("enter".equals(q.getOp())) {
-                String name = q.getArgs().get(0);
-                int size = q.getArgs().size() > 1 ? parseInt(q.getArgs().get(1), -1) : -1;
-                List<Quad> body = new ArrayList<>();
-                i++;
-                while (i < quads.size() && !"enter".equals(quads.get(i).getOp())) {
-                    body.add(quads.get(i));
-                    i++;
-                }
-                if (size < 0) size = frameSizeOf(body);
-                funcs.add(new RFunc(name, size, body));
-            } else {
-                i++;
-            }
-        }
-        return funcs;
-    }
-
-    private void assignParamCounts(List<RFunc> funcs) {
-        Map<String, Integer> byName = new LinkedHashMap<>();
-        for (RFunc f : funcs) byName.put(f.name, 0);
-        for (Quad q : quads) {
-            if ("call".equals(q.getOp()) && !q.getArgs().isEmpty()) {
-                String fn = q.getArgs().get(0);
-                int argc = q.getArgs().size() - 1;
-                Integer cur = byName.get(fn);
-                if (cur != null && argc > cur) byName.put(fn, argc);
-            }
-        }
-        for (RFunc f : funcs) f.paramCount = byName.getOrDefault(f.name, 0);
-    }
-
-    private void assignTemps(List<RFunc> funcs) {
-        for (RFunc f : funcs) {
-            Set<String> temps = new LinkedHashSet<>();
-            for (Quad q : f.body) collectTemps(q, temps);
-            int idx = f.frameCells;
-            for (String t : temps) f.tempSlots.put(t, dataOff(idx++));
-            f.tempCount = temps.size();
-            f.frameBytes = align16(HEADER + (f.frameCells + f.tempCount) * WORD);
-        }
-    }
-
-    private int frameSizeOf(List<Quad> body) {
-        int max = -1;
-        for (Quad q : body) {
-            if ("+".equals(q.getOp()) && !q.getArgs().isEmpty() && "BP".equals(q.getArgs().get(0))) {
-                int off = parseInt(q.getArgs().get(1), -1);
-                if (off > max) max = off;
-            }
-        }
-        return max + 1;
-    }
-
-    private int globalSize() {
-        if (explicitGlobalSize >= 0) return explicitGlobalSize;
-        int max = -1;
-        for (Quad q : quads) {
-            if ("+".equals(q.getOp()) && !q.getArgs().isEmpty() && "GP".equals(q.getArgs().get(0))) {
-                int off = parseInt(q.getArgs().get(1), -1);
-                if (off > max) max = off;
-            }
-        }
-        return max + 1;
     }
 
     // ---------------------------------------------------------------- emision
@@ -371,7 +88,7 @@ public class RiscVGenerator {
         sb.append(".data\n");
         sb.append(".align 2\n");
         // Venus no soporta .zero; .space reserva los mismos bytes
-        sb.append("_globals: .space ").append(Math.max(globalSize() * WORD, WORD)).append("\n");
+        sb.append("_globals: .space ").append(Math.max(analysis.globalSize() * WORD, WORD)).append("\n");
         sb.append("_heap:    .space ").append(HEAP_WORDS * WORD).append("\n");
         sb.append("_HP:      .word 0\n");
         for (Map.Entry<String, String> e : stringLabels.entrySet()) {
@@ -384,7 +101,7 @@ public class RiscVGenerator {
         sb.append("\n");
     }
 
-    private void emitText(StringBuilder sb, List<RFunc> funcs) {
+    private void emitText(StringBuilder sb, List<RiscVFunction> funcs) {
         sb.append(".text\n");
         sb.append(".globl _start\n");
         sb.append("_start:\n");
@@ -399,7 +116,7 @@ public class RiscVGenerator {
         if (needsConcat) emitNumberToStringHelpers(sb);
         if (needsConcat) emitConcatHelper(sb);
         if (needsReadString) emitReadStringHelper(sb);
-        for (RFunc f : funcs) emitFunction(sb, f);
+        for (RiscVFunction f : funcs) emitFunction(sb, f);
     }
 
     private void emitNumberToStringHelpers(StringBuilder sb) {
@@ -612,14 +329,14 @@ public class RiscVGenerator {
         sb.append("    ret\n\n");
     }
 
-    private void emitFunction(StringBuilder sb, RFunc f) {
+    private void emitFunction(StringBuilder sb, RiscVFunction f) {
         sb.append(f.name).append(":\n");
         sb.append("    addi sp, sp, -").append(f.frameBytes).append("\n");
         sb.append("    sw ra, ").append(f.frameBytes - 4).append("(sp)\n");
         sb.append("    sw s0, ").append(f.frameBytes - 8).append("(sp)\n");
         sb.append("    addi s0, sp, ").append(f.frameBytes).append("\n");
         for (int k = 0; k < f.paramCount; k++) {
-            sb.append("    sw a").append(k).append(", ").append(localOff(f, k)).append("(s0)\n");
+            sb.append("    sw a").append(k).append(", ").append(RiscVFrameLayout.localOffset(f.frameCells, k)).append("(s0)\n");
         }
 
         for (Quad q : f.body) emitQuad(sb, q, f);
@@ -631,7 +348,7 @@ public class RiscVGenerator {
         sb.append("    ret\n\n");
     }
 
-    private void emitQuad(StringBuilder sb, Quad q, RFunc f) {
+    private void emitQuad(StringBuilder sb, Quad q, RiscVFunction f) {
         switch (q.getOp()) {
             case "label" -> {
                 String name = q.getArgs().get(0);
@@ -701,7 +418,7 @@ public class RiscVGenerator {
         }
     }
 
-    private void emitAssign(StringBuilder sb, Quad q, RFunc f) {
+    private void emitAssign(StringBuilder sb, Quad q, RiscVFunction f) {
         String arg = q.getArgs().get(0);
         if ("HP".equals(arg)) {
             sb.append("    la t0, _HP\n");
@@ -718,7 +435,7 @@ public class RiscVGenerator {
         store(sb, q.getResult(), "t0", f);
     }
 
-    private void emitArith(StringBuilder sb, Quad q, RFunc f) {
+    private void emitArith(StringBuilder sb, Quad q, RiscVFunction f) {
         String op = q.getOp();
         String res = q.getResult();
         String a = q.getArgs().get(0);
@@ -781,7 +498,7 @@ public class RiscVGenerator {
         return (ta != null && ta.isDouble()) || (tb != null && tb.isDouble());
     }
 
-    private void emitFloatArith(StringBuilder sb, Quad q, RFunc f) {
+    private void emitFloatArith(StringBuilder sb, Quad q, RiscVFunction f) {
         String op = q.getOp();
         String a = q.getArgs().get(0);
         String b = q.getArgs().get(1);
@@ -806,7 +523,7 @@ public class RiscVGenerator {
         store(sb, q.getResult(), "t0", f);
     }
 
-    private void loadFloat(StringBuilder sb, String freg, String operand, RFunc f) {
+    private void loadFloat(StringBuilder sb, String freg, String operand, RiscVFunction f) {
         load(sb, "t0", operand, f);
         Type t = typeOfPlace(operand);
         if (t != null && t.isDouble()) {
@@ -816,7 +533,7 @@ public class RiscVGenerator {
         }
     }
 
-    private void loadAsString(StringBuilder sb, String reg, String operand, RFunc f) {
+    private void loadAsString(StringBuilder sb, String reg, String operand, RiscVFunction f) {
         Type t = typeOfPlace(operand);
         if (t != null && t.isString()) {
             load(sb, reg, operand, f);
@@ -837,9 +554,10 @@ public class RiscVGenerator {
         if (!"a0".equals(reg)) sb.append("    mv ").append(reg).append(", a0\n");
     }
 
-    private void emitAddressAdd(StringBuilder sb, String res, String a, String b, RFunc f) {
+    private void emitAddressAdd(StringBuilder sb, String res, String a, String b, RiscVFunction f) {
         if ("BP".equals(a)) {
-            sb.append("    addi t0, s0, ").append(localOff(f, parseInt(b))).append("\n");
+            sb.append("    addi t0, s0, ")
+                    .append(RiscVFrameLayout.localOffset(f.frameCells, parseInt(b))).append("\n");
         } else if ("GP".equals(a)) {
             sb.append("    la t0, _globals\n");
             sb.append("    addi t0, t0, ").append(WORD * parseInt(b)).append("\n");
@@ -862,7 +580,7 @@ public class RiscVGenerator {
 
     private int branchLabel = 0;
 
-    private void emitIf(StringBuilder sb, Quad q, RFunc f) {
+    private void emitIf(StringBuilder sb, Quad q, RiscVFunction f) {
         String a = q.getArgs().get(0);
         String op = q.getArgs().get(1);
         String b = q.getArgs().get(2);
@@ -916,7 +634,7 @@ public class RiscVGenerator {
         sb.append(skip).append(":\n");
     }
 
-    private void emitCall(StringBuilder sb, Quad q, RFunc f) {
+    private void emitCall(StringBuilder sb, Quad q, RiscVFunction f) {
         List<String> args = q.getArgs();
         String func = args.get(0);
         List<Type> params = callParamTypes.get(func);
@@ -940,7 +658,7 @@ public class RiscVGenerator {
         if (q.getResult() != null) store(sb, q.getResult(), "a0", f);
     }
 
-    private void emitPrint(StringBuilder sb, Quad q, RFunc f) {
+    private void emitPrint(StringBuilder sb, Quad q, RiscVFunction f) {
         String val = q.getArgs().get(0);
         // MARS/RARS: numero de syscall en a7, argumento en a0
         load(sb, "a0", val, f);
@@ -960,7 +678,7 @@ public class RiscVGenerator {
         sb.append("    ecall\n");
     }
 
-    private void emitRead(StringBuilder sb, Quad q, RFunc f) {
+    private void emitRead(StringBuilder sb, Quad q, RiscVFunction f) {
         Type t = q.getType() == null ? Type.INT : q.getType();
         if (t.isString()) {
             String buffer = readBuffers.get(q);
@@ -991,14 +709,15 @@ public class RiscVGenerator {
 
     // ---------------------------------------------------------------- helpers
 
-    private void load(StringBuilder sb, String rd, String operand, RFunc f) {
+    private void load(StringBuilder sb, String rd, String operand, RiscVFunction f) {
         Integer off = f.tempSlots.get(operand);
         if (off != null) {
             sb.append("    lw ").append(rd).append(", ").append(off).append("(s0)\n");
             return;
         }
         if ("BP".equals(operand)) {
-            sb.append("    addi ").append(rd).append(", s0, ").append(localOff(f, 0)).append("\n");
+            sb.append("    addi ").append(rd).append(", s0, ")
+                    .append(RiscVFrameLayout.localOffset(f.frameCells, 0)).append("\n");
         } else if ("GP".equals(operand)) {
             sb.append("    la ").append(rd).append(", _globals\n");
         } else if ("HP".equals(operand)) {
@@ -1017,7 +736,7 @@ public class RiscVGenerator {
         }
     }
 
-    private void store(StringBuilder sb, String operand, String rs, RFunc f) {
+    private void store(StringBuilder sb, String operand, String rs, RiscVFunction f) {
         Integer off = f.tempSlots.get(operand);
         if (off != null) {
             sb.append("    sw ").append(rs).append(", ").append(off).append("(s0)\n");
@@ -1029,23 +748,20 @@ public class RiscVGenerator {
         }
     }
 
-    private static int dataOff(int cell) {
-        return -(DATA_START + cell * WORD);
-    }
-
-    private static int localOff(RFunc f, int cell) {
-        // BP+off y base+indice deben avanzar en la misma direccion. Si BP+0
-        // estuviera en fp-12, un arreglo sobrescribiria s0/ra al sumar indices.
-        return dataOff(f.frameCells - 1 - cell);
-    }
-
-    private static int align16(int bytes) {
-        return (bytes + 15) & ~15;
-    }
-
     private boolean isAddress(String s) {
-        return s != null && ("BP".equals(s) || "GP".equals(s) || "HP".equals(s)
-                || Boolean.TRUE.equals(addressTemps.get(s)));
+        return analysis.isAddress(s);
+    }
+
+    private Type typeOfTemp(String temp) {
+        return analysis.typeOfTemp(temp);
+    }
+
+    private Type typeOfPlace(String place) {
+        return analysis.typeOfPlace(place);
+    }
+
+    private boolean isDoubleLiteral(String value) {
+        return RiscVProgramAnalysis.isDoubleLiteral(value);
     }
 
     private static boolean isTemp(String s) {
