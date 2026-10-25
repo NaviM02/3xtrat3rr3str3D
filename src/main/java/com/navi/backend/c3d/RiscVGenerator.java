@@ -21,7 +21,9 @@ import java.util.Set;
 // Convencion de marco:
 //   -4(fp)  -> ra
 //   -8(fp)  -> s0 previo
-//   -12(fp) -> primer dato (parametro 0, celda BP+0)
+//   locales/params: BP+0 en fp-(8+4*N), BP+(N-1) en fp-12 (N = frameCells)
+//   temporales: debajo del bloque de locales/params, sin solaparse con el encabezado
+// Las celdas locales crecen hacia direcciones mayores, igual que los arreglos/structs C3D.
 // Prologo: addi sp,sp,-FRAME; sw ra,FRAME-4(sp); sw s0,FRAME-8(sp); addi s0,sp,FRAME
 // Epilogo: lw ra,FRAME-4(sp); lw s0,FRAME-8(sp); addi sp,sp,FRAME; ret
 //
@@ -617,7 +619,7 @@ public class RiscVGenerator {
         sb.append("    sw s0, ").append(f.frameBytes - 8).append("(sp)\n");
         sb.append("    addi s0, sp, ").append(f.frameBytes).append("\n");
         for (int k = 0; k < f.paramCount; k++) {
-            sb.append("    sw a").append(k).append(", ").append(dataOff(k)).append("(s0)\n");
+            sb.append("    sw a").append(k).append(", ").append(localOff(f, k)).append("(s0)\n");
         }
 
         for (Quad q : f.body) emitQuad(sb, q, f);
@@ -837,7 +839,7 @@ public class RiscVGenerator {
 
     private void emitAddressAdd(StringBuilder sb, String res, String a, String b, RFunc f) {
         if ("BP".equals(a)) {
-            sb.append("    addi t0, s0, ").append(dataOff(parseInt(b))).append("\n");
+            sb.append("    addi t0, s0, ").append(localOff(f, parseInt(b))).append("\n");
         } else if ("GP".equals(a)) {
             sb.append("    la t0, _globals\n");
             sb.append("    addi t0, t0, ").append(WORD * parseInt(b)).append("\n");
@@ -996,7 +998,7 @@ public class RiscVGenerator {
             return;
         }
         if ("BP".equals(operand)) {
-            sb.append("    addi ").append(rd).append(", s0, 0\n");
+            sb.append("    addi ").append(rd).append(", s0, ").append(localOff(f, 0)).append("\n");
         } else if ("GP".equals(operand)) {
             sb.append("    la ").append(rd).append(", _globals\n");
         } else if ("HP".equals(operand)) {
@@ -1029,6 +1031,12 @@ public class RiscVGenerator {
 
     private static int dataOff(int cell) {
         return -(DATA_START + cell * WORD);
+    }
+
+    private static int localOff(RFunc f, int cell) {
+        // BP+off y base+indice deben avanzar en la misma direccion. Si BP+0
+        // estuviera en fp-12, un arreglo sobrescribiria s0/ra al sumar indices.
+        return dataOff(f.frameCells - 1 - cell);
     }
 
     private static int align16(int bytes) {
