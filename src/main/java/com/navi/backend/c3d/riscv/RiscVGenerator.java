@@ -11,26 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Traduce las cuartetas finales a ensamblador RISC-V RV32, usando
-// el Frame Pointer (s0/fp) con offsets negativos.
-//
-// 1 celda C3D = 1 palabra = 4 bytes.
-// Convencion de marco:
-//   -4(fp)  -> ra
-//   -8(fp)  -> s0 previo
-//   locales/params: BP+0 en fp-(8+4*N), BP+(N-1) en fp-12 (N = frameCells)
-//   temporales: debajo del bloque de locales/params, sin solaparse con el encabezado
 // Las celdas locales crecen hacia direcciones mayores, igual que los arreglos/structs C3D.
 // Prologo: addi sp,sp,-FRAME; sw ra,FRAME-4(sp); sw s0,FRAME-8(sp); addi s0,sp,FRAME
 // Epilogo: lw ra,FRAME-4(sp); lw s0,FRAME-8(sp); addi sp,sp,FRAME; ret
-//
-// globales en .data (_globals); heap en .data (_heap) con puntero _HP;
-// argumentos en a0..a7, retorno en a0; ecall estilo MARS/RARS: numero en a7 y
-// argumento en a0 (1 int, 4 string, 11 char, 5 read int, 10 exit). RARS soporta
-// lectura por stdin, que Venus no. .string admite UTF-8 (acentos) en RARS.
-//
-// Nota: si se quiere ejecutar como ELF de Linux RV64 haria falta otra variante
-// (sd/ld de 8 bytes, syscalls 64/63/93 y .option norelax); ver AGENTS.md.
 public class RiscVGenerator {
 
     private static final int WORD = RiscVFrameLayout.WORD_BYTES;
@@ -87,7 +70,6 @@ public class RiscVGenerator {
     private void emitData(StringBuilder sb) {
         sb.append(".data\n");
         sb.append(".align 2\n");
-        // Venus no soporta .zero; .space reserva los mismos bytes
         sb.append("_globals: .space ").append(Math.max(analysis.globalSize() * WORD, WORD)).append("\n");
         sb.append("_heap:    .space ").append(HEAP_WORDS * WORD).append("\n");
         sb.append("_HP:      .word 0\n");
