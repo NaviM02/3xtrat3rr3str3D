@@ -1,6 +1,7 @@
 package com.navi.backend.compiler;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -81,6 +82,9 @@ public class RarsRunner implements AutoCloseable {
     }
 
     private static Path locateJar() throws IOException {
+        Path embeddedJar = extractEmbeddedJar();
+        if (embeddedJar != null) return embeddedJar;
+
         Path workingDirectory = Path.of("").toAbsolutePath();
         Path jar = workingDirectory.resolve("lib/rars1_6.jar");
         if (Files.isRegularFile(jar)) return jar;
@@ -95,5 +99,21 @@ public class RarsRunner implements AutoCloseable {
             throw new IOException("No se pudo localizar lib/rars1_6.jar.", e);
         }
         throw new IOException("No se encontró lib/rars1_6.jar junto a la aplicación o en " + workingDirectory);
+    }
+
+    private static Path extractEmbeddedJar() throws IOException {
+        try (InputStream resource = RarsRunner.class.getResourceAsStream("/embedded/rars1_6.jar")) {
+            if (resource == null) return null;
+
+            Path extracted = Files.createTempFile("3xtrat3rr3str3D-rars-", ".jar");
+            try {
+                Files.copy(resource, extracted, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                extracted.toFile().deleteOnExit();
+                return extracted;
+            } catch (IOException e) {
+                Files.deleteIfExists(extracted);
+                throw e;
+            }
+        }
     }
 }

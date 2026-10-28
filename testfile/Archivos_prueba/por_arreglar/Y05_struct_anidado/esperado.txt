@@ -1,5 +1,0 @@
-Segmento 7: (1,2)-(4,6)
-manhattan=7
-Segmento 7: (11,2)-(14,6)
-manhattan=7
-Segmento 7: (111,2)-(14,6)

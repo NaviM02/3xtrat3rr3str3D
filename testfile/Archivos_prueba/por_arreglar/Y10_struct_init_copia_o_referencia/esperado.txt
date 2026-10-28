@@ -1,3 +1,0 @@
-b1.datos[0]=99
-base[0]=1
-b2.datos[0]=1

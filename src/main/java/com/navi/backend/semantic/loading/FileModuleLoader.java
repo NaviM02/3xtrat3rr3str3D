@@ -35,12 +35,14 @@ public class FileModuleLoader implements ModuleLoader {
 
     @Override
     public ProgramY loadY(String importPath) {
-        return parseY(read(resolve(importPath, "y")));
+        Path file = resolve(importPath, "y");
+        return parseY(read(file), file.getFileName().toString());
     }
 
     @Override
     public ProgramZ loadZ(String importPath) {
-        return parseZ(read(resolve(importPath, "z")));
+        Path file = resolve(importPath, "z");
+        return parseZ(read(file), file.getFileName().toString());
     }
 
     private Path resolve(String importPath, String ext) {
@@ -57,10 +59,14 @@ public class FileModuleLoader implements ModuleLoader {
     }
 
     public static Program parseLat(String source) {
+        return parseLat(source, "");
+    }
+
+    public static Program parseLat(String source, String sourceName) {
         PigLatinLexer lexer = new PigLatinLexer(CharStreams.fromString(source));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PigLatinParser parser = new PigLatinParser(tokens);
-        CollectingErrorListener errors = new CollectingErrorListener();
+        CollectingErrorListener errors = new CollectingErrorListener(sourceName);
         lexer.removeErrorListeners();
         lexer.addErrorListener(errors);
         parser.removeErrorListeners();
@@ -71,11 +77,15 @@ public class FileModuleLoader implements ModuleLoader {
     }
 
     public static ProgramY parseY(String source) {
+        return parseY(source, "");
+    }
+
+    public static ProgramY parseY(String source, String sourceName) {
         YLexer lexer = new YLexer(CharStreams.fromString(source));
         IndentationTokenSource indentation = new IndentationTokenSource(lexer);
         CommonTokenStream tokens = new CommonTokenStream(indentation);
         YParser parser = new YParser(tokens);
-        CollectingErrorListener errors = new CollectingErrorListener();
+        CollectingErrorListener errors = new CollectingErrorListener(sourceName);
         lexer.removeErrorListeners();
         lexer.addErrorListener(errors);
         parser.removeErrorListeners();
@@ -86,10 +96,14 @@ public class FileModuleLoader implements ModuleLoader {
     }
 
     public static ProgramZ parseZ(String source) {
+        return parseZ(source, "");
+    }
+
+    public static ProgramZ parseZ(String source, String sourceName) {
         ZLexer lexer = new ZLexer(CharStreams.fromString(source));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         ZParser parser = new ZParser(tokens);
-        CollectingErrorListener errors = new CollectingErrorListener();
+        CollectingErrorListener errors = new CollectingErrorListener(sourceName);
         lexer.removeErrorListeners();
         lexer.addErrorListener(errors);
         parser.removeErrorListeners();

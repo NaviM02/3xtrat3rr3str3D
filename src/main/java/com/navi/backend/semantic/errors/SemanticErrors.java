@@ -7,9 +7,19 @@ import java.util.List;
 // va dentro del SemanticContext, no es estatico
 public class SemanticErrors {
     private final List<String> errors = new ArrayList<>();
+    private String sourceName = "";
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName == null ? "" : sourceName;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
 
     public void report(int line, int column, String message) {
-        errors.add("[" + line + ":" + column + "] " + message);
+        String source = sourceName.isBlank() ? "" : sourceName + ":";
+        errors.add(source + "[" + line + ":" + column + "] " + message);
     }
 
     public void report(String message) {

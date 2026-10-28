@@ -26,12 +26,13 @@ public class CompilerService {
         String fileName = file.getFileName().toString();
         String extension = getExtension(fileName);
         SemanticContext context = new SemanticContext();
+        context.getErrors().setSourceName(fileName);
         ModuleLoader loader = new FileModuleLoader(file.getParent());
         SemanticAnalyzer analyzer = new SemanticAnalyzer(context, loader);
 
         C3DGenerator c3d = new C3DGenerator(context);
 
-        String code = compileSource(extension, source, analyzer, context, c3d);
+        String code = compileSource(extension, source, fileName, analyzer, context, c3d);
 
         if (context.getErrors().hasErrors()) {
             return new CompilationResult(file, context, null, null, false, SemanticReporter.report(context));
@@ -42,22 +43,22 @@ public class CompilerService {
         return new CompilationResult(file, context, code, riscVFile, true, SemanticReporter.report(context));
     }
 
-    private String compileSource(String extension, String source, SemanticAnalyzer analyzer, SemanticContext context, C3DGenerator c3d) {
+    private String compileSource(String extension, String source, String sourceName, SemanticAnalyzer analyzer, SemanticContext context, C3DGenerator c3d) {
         return switch (extension) {
             case "pig" -> {
-                Program program = FileModuleLoader.parseLat(source);
+                Program program = FileModuleLoader.parseLat(source, sourceName);
                 analyzer.analyze(program);
                 if (context.getErrors().hasErrors()) yield null;
                 yield c3d.generate(program);
             }
             case "y" -> {
-                ProgramY program = FileModuleLoader.parseY(source);
+                ProgramY program = FileModuleLoader.parseY(source, sourceName);
                 analyzer.analyze(program);
                 if (context.getErrors().hasErrors()) yield null;
                 yield c3d.generate(program);
             }
             case "z" -> {
-                ProgramZ program = FileModuleLoader.parseZ(source);
+                ProgramZ program = FileModuleLoader.parseZ(source, sourceName);
                 analyzer.analyze(program);
                 if (context.getErrors().hasErrors()) yield null;
                 yield c3d.generate(program);

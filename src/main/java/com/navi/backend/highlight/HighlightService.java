@@ -130,7 +130,8 @@ public class HighlightService {
 
     private static HighlightKind classifyZ(int type) {
         return switch (type) {
-            case ZLexer.PUBLIC, ZLexer.CLASS, ZLexer.VOID, ZLexer.RETURN, ZLexer.IF, ZLexer.ELSE,
+            case ZLexer.PUBLIC, ZLexer.PRIVATE, ZLexer.PROTECTED, ZLexer.EXTENDS, ZLexer.OVERRIDE,
+                 ZLexer.THIS, ZLexer.SUPER, ZLexer.CLASS, ZLexer.VOID, ZLexer.RETURN, ZLexer.IF, ZLexer.ELSE,
                  ZLexer.SWITCH, ZLexer.CASE, ZLexer.DEFAULT, ZLexer.FOR, ZLexer.WHILE, ZLexer.DO,
                  ZLexer.BREAK, ZLexer.CONTINUE, ZLexer.PRINT, ZLexer.PRINTLN, ZLexer.READLN,
                  ZLexer.NEW, ZLexer.NULL -> HighlightKind.KEYWORD;

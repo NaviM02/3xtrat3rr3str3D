@@ -63,18 +63,23 @@ public class SemanticAnalyzer {
             return;
         }
         context.markLoaded(imp.getPath());
-
-        if (path.isY()) {
-            ProgramY y = loader.loadY(imp.getPath());
-            context.recordAst(imp.getPath(), y);
-            new YDeclarationVisitor(context).build(y);
-            new YSemanticVisitor(context).build(y);
-        } else {
-            ProgramZ z = loader.loadZ(imp.getPath());
-            context.recordAst(imp.getPath(), z);
-            new ZDeclarationVisitor(context).build(z);
-            context.getTypeTable().resolveInheritance(context.getErrors());
-            new ZSemanticVisitor(context).build(z);
+        String parentSource = context.getErrors().getSourceName();
+        context.getErrors().setSourceName(path.getModulePath().replace('.', '/') + "." + (path.isY() ? "y" : "z"));
+        try {
+            if (path.isY()) {
+                ProgramY y = loader.loadY(imp.getPath());
+                context.recordAst(imp.getPath(), y);
+                new YDeclarationVisitor(context).build(y);
+                new YSemanticVisitor(context).build(y);
+            } else {
+                ProgramZ z = loader.loadZ(imp.getPath());
+                context.recordAst(imp.getPath(), z);
+                new ZDeclarationVisitor(context).build(z);
+                context.getTypeTable().resolveInheritance(context.getErrors());
+                new ZSemanticVisitor(context).build(z);
+            }
+        } finally {
+            context.getErrors().setSourceName(parentSource);
         }
     }
 }

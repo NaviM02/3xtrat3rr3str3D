@@ -14,13 +14,23 @@ public class CollectingErrorListener extends BaseErrorListener {
     private static final int MAX_ERRORS = 50;
 
     private final List<String> errors = new ArrayList<>();
+    private final String sourceName;
+
+    public CollectingErrorListener() {
+        this("");
+    }
+
+    public CollectingErrorListener(String sourceName) {
+        this.sourceName = sourceName == null ? "" : sourceName;
+    }
 
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
                             int line, int charPositionInLine, String msg, RecognitionException e) {
         if (errors.size() >= MAX_ERRORS) return;
 
-        String entry = "[" + line + ":" + charPositionInLine + "] " + msg;
+        String source = sourceName.isBlank() ? "" : sourceName + ":";
+        String entry = source + "[" + line + ":" + charPositionInLine + "] " + msg;
 
         // a veces se re-reporta el mismo token, no lo repetimos
         if (!errors.isEmpty() && errors.get(errors.size() - 1).equals(entry)) return;
