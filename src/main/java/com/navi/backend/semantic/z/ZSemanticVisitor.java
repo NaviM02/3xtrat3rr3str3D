@@ -49,6 +49,7 @@ import com.navi.backend.ast.z.statements.VariableDeclarationStatement;
 import com.navi.backend.ast.z.statements.WhileStatement;
 import com.navi.backend.ast.z.statements.BlockStatement;
 import com.navi.backend.ast.z.visitors.AstZVisitor;
+import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.support.Definitions;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Type;
@@ -147,7 +148,7 @@ public class ZSemanticVisitor implements AstZVisitor<Type> {
     @Override public Type visit(ExpressionList node) { return expressions.expressionList(node); }
     @Override public Type visit(LiteralExpression node) { return expressions.literal(node); }
 
-    private void validateOverride(com.navi.backend.semantic.model.AggregateType currentClass,
+    private void validateOverride(AggregateType currentClass,
                                   MethodDeclaration node) {
         if (currentClass == null) return;
         List<Type> parameters = new ArrayList<>();
