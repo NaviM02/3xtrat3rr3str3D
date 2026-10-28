@@ -152,10 +152,10 @@ public class ProjectExplorerPanel extends JPanel {
 
         String lower = name.toLowerCase();
 
-        return lower.endsWith(".pig") || lower.endsWith(".y") || lower.endsWith(".z");
+        return lower.endsWith(".pig") || lower.endsWith(".y") || lower.endsWith(".z") || lower.endsWith(".s");
     }
 
-    /** Contenido de la carpeta {@code output/} (el .c generado y el ejecutable). */
+    /** Contenido de la carpeta {@code output/} (archivos .c, .s, .o y ejecutable generados). */
     private boolean isInsideOutput(Path path) {
         Path parent = path.getParent();
 
@@ -165,7 +165,7 @@ public class ProjectExplorerPanel extends JPanel {
     private boolean isOpenable(Path path) {
         String lower = path.getFileName().toString().toLowerCase();
 
-        return lower.endsWith(".pig") || lower.endsWith(".y") || lower.endsWith(".z") || lower.endsWith(".c");
+        return lower.endsWith(".pig") || lower.endsWith(".y") || lower.endsWith(".z") || lower.endsWith(".c") || lower.endsWith(".s");
     }
 
     private void installListeners() {

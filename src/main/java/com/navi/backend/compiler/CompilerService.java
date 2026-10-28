@@ -4,6 +4,7 @@ import com.navi.backend.ast.lat.global.Program;
 import com.navi.backend.ast.y.global.ProgramY;
 import com.navi.backend.ast.z.global.ProgramZ;
 import com.navi.backend.c3d.C3DGenerator;
+import com.navi.backend.c3d.CGenerator;
 import com.navi.backend.c3d.riscv.RiscVGenerator;
 import com.navi.backend.semantic.loading.FileModuleLoader;
 import com.navi.backend.semantic.loading.ModuleLoader;
@@ -39,8 +40,17 @@ public class CompilerService {
         }
 
         Path riscVFile = generateRiscV(file, c3d, context);
+        Path cFile = riscVFile.resolveSibling(getBaseName(fileName) + ".c");
+        String cCode = new CGenerator(c3d.quads(), c3d.globalSize(), context).generate();
+        Files.writeString(cFile, cCode, StandardCharsets.UTF_8);
+        String base = getBaseName(fileName);
+        Path objectFile = cFile.resolveSibling(base + ".o");
+        String executableName = System.getProperty("os.name").startsWith("Windows") ? base + ".exe" : base;
+        Path executableFile = cFile.resolveSibling(executableName);
+        new CCompiler().compile(cFile, objectFile, executableFile);
 
-        return new CompilationResult(file, context, code, riscVFile, true, SemanticReporter.report(context));
+        return new CompilationResult(file, context, code, riscVFile, cFile, objectFile, executableFile,
+                true, SemanticReporter.report(context));
     }
 
     private String compileSource(String extension, String source, String sourceName, SemanticAnalyzer analyzer, SemanticContext context, C3DGenerator c3d) {

@@ -599,7 +599,7 @@ public class C3DEmitter {
             } else if ("if".equals(op)) {
                 String target = resolveAlias(alias, q.getArgs().get(3));
                 out.add(target.equals(q.getArgs().get(3)) ? q
-                        : new Quad("if", null, q.getArgs().get(0), q.getArgs().get(1),
+                        : new Quad("if", null, q.getType(), q.getArgs().get(0), q.getArgs().get(1),
                                 q.getArgs().get(2), target));
             } else {
                 out.add(q);
