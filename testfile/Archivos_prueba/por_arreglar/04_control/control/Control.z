@@ -1,0 +1,63 @@
+public class Control {
+
+    public Control(){
+    }
+
+    public int operar(int op, int a, int b) {
+        switch (op) {
+            case 1:
+                return a + b;
+            case 2:
+                return a - b;
+            case 3:
+                return a * b;
+            default:
+                return -1;
+        }
+    }
+
+    public int contarPares(int limite) {
+        int i = 0;
+        int pares = 0;
+        do {
+            i++;
+            if (i % 2 != 0) {
+                continue;
+            }
+            pares++;
+        } while (i < limite);
+        return pares;
+    }
+
+    public String clasificar(int n) {
+        String r = n > 0 ? "positivo" : (n < 0 ? "negativo" : "cero");
+        return r;
+    }
+
+    public int buscarPrimero(int objetivo) {
+        int resultado = -1;
+        for (int i = 1; i <= 20; i++) {
+            if (i % 3 != 0) {
+                continue;
+            }
+            if (i * i >= objetivo) {
+                resultado = i;
+                break;
+            }
+        }
+        return resultado;
+    }
+
+    public boolean esValido(int x) {
+        return x > 0 && x < 100 || x == 0;
+    }
+
+    public int prefijoPostfijo() {
+        int k = 5;
+        k++;
+        int a = k;
+        k++;
+        int b = k;
+        return a * 10 + b + k;
+    }
+}

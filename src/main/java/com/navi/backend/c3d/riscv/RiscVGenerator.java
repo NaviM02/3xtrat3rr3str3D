@@ -184,6 +184,9 @@ public class RiscVGenerator {
         sb.append("    sw s0, 8(sp)\n");
         sb.append("    sw s1, 4(sp)\n");
         sb.append("    mv s0, a0\n");
+        // Conserva el inicio del texto antes de escribir el signo negativo.
+        sb.append("    la t0, _HP\n");
+        sb.append("    lw s1, 0(t0)\n");
         sb.append("    bge s0, zero, _ftoa_abs\n");
         sb.append("    li t0, 45\n");
         sb.append("    la t1, _HP\n");
@@ -195,17 +198,17 @@ public class RiscVGenerator {
         sb.append("    and s0, s0, t0\n");
         sb.append("_ftoa_abs:\n");
         sb.append("    fmv.w.x f0, s0\n");
-        sb.append("    fcvt.w.s a0, f0\n");
+        // Truncar la parte entera evita convertir 1.5 a 2 y perder su fraccion.
+        sb.append("    fcvt.w.s a0, f0, rtz\n");
         sb.append("    jal ra, _itoa\n");
-        sb.append("    mv s1, a0\n");
         sb.append("    fmv.w.x f0, s0\n");
-        sb.append("    fcvt.w.s t0, f0\n");
+        sb.append("    fcvt.w.s t0, f0, rtz\n");
         sb.append("    fcvt.s.w f1, t0\n");
         sb.append("    fsub.s f2, f0, f1\n");
         sb.append("    li t0, 10000\n");
         sb.append("    fcvt.s.w f3, t0\n");
         sb.append("    fmul.s f2, f2, f3\n");
-        sb.append("    fcvt.w.s t3, f2\n");
+        sb.append("    fcvt.w.s t3, f2, rtz\n");
         sb.append("    ble t3, zero, _ftoa_nofrac\n");
         sb.append("    li t0, 10000\n");
         sb.append("    blt t3, t0, _ftoa_frac\n");
@@ -336,7 +339,13 @@ public class RiscVGenerator {
         sb.append("    sw s0, ").append(f.frameBytes - 8).append("(sp)\n");
         sb.append("    addi s0, sp, ").append(f.frameBytes).append("\n");
         for (int k = 0; k < f.paramCount; k++) {
-            sb.append("    sw a").append(k).append(", ").append(RiscVFrameLayout.localOffset(f.frameCells, k)).append("(s0)\n");
+            if (k < 8) {
+                sb.append("    sw a").append(k).append(", ").append(RiscVFrameLayout.localOffset(f.frameCells, k)).append("(s0)\n");
+            } else {
+                // Argumentos excedentes en el stack del llamador (fp apunta al sp de entrada).
+                sb.append("    lw t0, ").append((k - 8) * WORD).append("(s0)\n");
+                sb.append("    sw t0, ").append(RiscVFrameLayout.localOffset(f.frameCells, k)).append("(s0)\n");
+            }
         }
 
         for (Quad q : f.body) emitQuad(sb, q, f);
@@ -639,6 +648,8 @@ public class RiscVGenerator {
         String func = args.get(0);
         List<Type> params = callParamTypes.get(func);
         boolean hasReceiver = receiverCalls.contains(func);
+        int extraBytes = ((Math.max(0, args.size() - 1 - 8) * WORD + 15) / 16) * 16;
+        if (extraBytes > 0) sb.append("    addi sp, sp, -").append(extraBytes).append("\n");
         for (int k = 1; k < args.size(); k++) {
             String arg = args.get(k);
             load(sb, "t0", arg, f);
@@ -652,9 +663,12 @@ public class RiscVGenerator {
                 sb.append("    fmv.w.x f0, t0\n");
                 sb.append("    fcvt.w.s t0, f0\n");
             }
-            sb.append("    mv a").append(k - 1).append(", t0\n");
+            // a0..a7 son los unicos registros de argumentos; el resto va al stack alineado.
+            if (k <= 8) sb.append("    mv a").append(k - 1).append(", t0\n");
+            else sb.append("    sw t0, ").append((k - 9) * WORD).append("(sp)\n");
         }
         sb.append("    jal ra, ").append(func).append("\n");
+        if (extraBytes > 0) sb.append("    addi sp, sp, ").append(extraBytes).append("\n");
         if (q.getResult() != null) store(sb, q.getResult(), "a0", f);
     }
 

@@ -1,0 +1,18 @@
+public class JugadorIA extends Jugador {
+
+    public JugadorIA(String nombre, int ficha) {
+        super(nombre, ficha);
+    }
+
+    @Override
+    public boolean jugar(Tablero t) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (t.obtener(i, j) == 0) {
+                    return t.colocar(i, j, ficha);
+                }
+            }
+        }
+        return false;
+    }
+}

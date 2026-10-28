@@ -1,0 +1,74 @@
+public class Tablero {
+    private int[][] celdas;
+
+    public Tablero() {
+        this.celdas = new int[3][3];
+    }
+
+    public boolean colocar(int fila, int columna, int ficha) {
+        if (fila < 0 || fila > 2 || columna < 0 || columna > 2) {
+            return false;
+        }
+        if (celdas[fila][columna] != 0) {
+            return false;
+        }
+        celdas[fila][columna] = ficha;
+        return true;
+    }
+
+    public int obtener(int fila, int columna) {
+        return celdas[fila][columna];
+    }
+
+    public boolean lleno() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (celdas[i][j] == 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public int ganador() {
+        for (int i = 0; i < 3; i++) {
+            if (celdas[i][0] != 0 && celdas[i][0] == celdas[i][1] && celdas[i][1] == celdas[i][2]) {
+                return celdas[i][0];
+            }
+            if (celdas[0][i] != 0 && celdas[0][i] == celdas[1][i] && celdas[1][i] == celdas[2][i]) {
+                return celdas[0][i];
+            }
+        }
+        if (celdas[0][0] != 0 && celdas[0][0] == celdas[1][1] && celdas[1][1] == celdas[2][2]) {
+            return celdas[0][0];
+        }
+        if (celdas[0][2] != 0 && celdas[0][2] == celdas[1][1] && celdas[1][1] == celdas[2][0]) {
+            return celdas[0][2];
+        }
+        return 0;
+    }
+
+    public void dibujar() {
+        for (int i = 0; i < 3; i++) {
+            String linea = "";
+            for (int j = 0; j < 3; j++) {
+                linea = linea + simbolo(celdas[i][j]);
+                if (j < 2) {
+                    linea = linea + "|";
+                }
+            }
+            println(linea);
+        }
+    }
+
+    private String simbolo(int ficha) {
+        if (ficha == 1) {
+            return "X";
+        }
+        if (ficha == 2) {
+            return "O";
+        }
+        return ".";
+    }
+}

@@ -40,11 +40,11 @@ final class RiscVProgramAnalysis {
         this.explicitGlobalSize = explicitGlobalSize;
         this.context = context;
 
+        buildCallReturnTypes();
         classifyAddresses();
         collectStrings();
         collectReadBuffers();
         buildDefs();
-        buildCallReturnTypes();
         functions = splitFunctions();
         for (RiscVFunction function : functions) functionNames.add(function.name);
         assignParamCounts();
@@ -102,6 +102,17 @@ final class RiscVProgramAnalysis {
         addressTemps.put("GP", true);
         addressTemps.put("HP", true);
         for (Quad q : quads) {
+            // Una direccion pasada por referencia puede no tener load/store en el llamador.
+            if ("call".equals(q.getOp())) {
+                String name = q.getArgs().get(0);
+                List<Type> params = callParamTypes.get(name);
+                int arg = receiverCalls.contains(name) ? 2 : 1;
+                if (params != null) for (Type param : params) {
+                    if (arg >= q.getArgs().size()) break;
+                    if (param.isArray() || param.isStruct()) addressTemps.put(q.getArgs().get(arg), true);
+                    arg++;
+                }
+            }
             if (isLoadStore(q.getOp())) {
                 String addr = q.getArgs().get(0);
                 if (isTemp(addr)) addressTemps.put(addr, true);
@@ -177,7 +188,13 @@ final class RiscVProgramAnalysis {
             for (Symbol symbol : overloads) {
                 if (symbol.getKind() == SymbolKind.FUNCTION && symbol.getSignature() != null) {
                     callReturnTypes.put(symbol.getName(), symbol.getSignature().getReturnType());
-                    callParamTypes.put(symbol.getName(), symbol.getSignature().getParameters());
+                    List<Type> params = new ArrayList<>();
+                    for (Type param : symbol.getSignature().getParameters()) {
+                        params.add(param);
+                        // Y/Lat intercalan dimensiones ocultas tras cada parametro arreglo multi-D.
+                        if (param.isArray()) for (int k = 1; k < param.getDimensions(); k++) params.add(Type.INT);
+                    }
+                    callParamTypes.put(symbol.getName(), params);
                 }
             }
         }

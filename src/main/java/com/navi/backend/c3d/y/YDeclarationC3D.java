@@ -11,6 +11,7 @@ import com.navi.backend.ast.y.declarations.VariableDeclaration;
 import com.navi.backend.ast.y.statements.Statement;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
 import com.navi.backend.c3d.C3DEmitter;
+import com.navi.backend.c3d.StructLayoutC3D;
 import com.navi.backend.semantic.SemanticContext;
 import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.model.Type;
@@ -70,8 +71,20 @@ class YDeclarationC3D {
             int cells = resolver.arrayCells(node.getArrayDeclaration().getDimensions());
             List<Integer> dims = resolver.constantDims(node.getArrayDeclaration().getDimensions());
             Symbol arraySymbol = context.symbolOf(node);
+            Type elementType = arraySymbol != null && arraySymbol.getType().isArray()
+                    ? arraySymbol.getType().getElementType() : null;
+            // Reserva e inicializa todas las celdas de cada struct del arreglo local.
+            if (elementType != null && elementType.isStruct()) {
+                cells *= StructLayoutC3D.size(context.getTypeTable(), elementType);
+            }
             resolver.setPos(node, emitter.declareLocalArray(node.getName(), cells, dims,
                     arraySymbol == null ? null : arraySymbol.getType()));
+            if (elementType != null && elementType.isStruct()) {
+                String base = emitter.varAddr(node.getName());
+                for (int i = 0; i < cells; i++) {
+                    emitter.stackStoreAt(emitter.binary("+", base, String.valueOf(i)), "0");
+                }
+            }
         } else {
             Symbol symbol = context.symbolOf(node);
             resolver.setPos(node, emitter.declareLocal(node.getName(),

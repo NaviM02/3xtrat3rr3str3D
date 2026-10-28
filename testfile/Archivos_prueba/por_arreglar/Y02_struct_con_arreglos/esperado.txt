@@ -1,0 +1,16 @@
+Lote con 3 items
+  [0] item=10 precio=1.5
+  [1] item=20 precio=2.25
+  [2] item=30 precio=0.25
+Total: 4.0
+60,40,20
+Lote lleno
+cantidad: 5
+Total: 6.0
+1 5
+7 vs 60
+items[4]=99
+sumaItemsDirecto=259
+sumaItems(arreglo-campo)=259
+seq[4]=104
+suma seq=510

@@ -193,14 +193,19 @@ public class C3DEmitter {
     // direccion de un elemento de arreglo con indices aplanados (row-major)
     // si no se conocen dimensiones (param arreglo de Y) se usa solo el primer indice
     public String addressOffset(String base, List<Integer> dims, List<String> indices) {
+        return addressOffset(base, dims, indices, 1);
+    }
+
+    public String addressOffset(String base, List<Integer> dims, List<String> indices, int elementCells) {
         if (indices == null || indices.isEmpty()) return base;
-        if (dims == null || dims.size() != indices.size()) {
-            return binary("+", base, indices.get(0));
-        }
         String acc = indices.get(0);
-        for (int k = 1; k < indices.size(); k++) {
-            acc = binary("+", binary("*", acc, String.valueOf(dims.get(k))), indices.get(k));
+        if (dims != null && dims.size() == indices.size()) {
+            for (int k = 1; k < indices.size(); k++) {
+                acc = binary("+", binary("*", acc, String.valueOf(dims.get(k))), indices.get(k));
+            }
         }
+        // El desplazamiento de un arreglo de structs cuenta bloques completos.
+        if (elementCells > 1) acc = binary("*", acc, String.valueOf(elementCells));
         return binary("+", base, acc);
     }
 

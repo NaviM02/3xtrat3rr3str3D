@@ -13,6 +13,7 @@ import com.navi.backend.ast.lat.expressions.VariableExpression;
 import com.navi.backend.ast.lat.expressions.literals.NumberLiteral;
 import com.navi.backend.ast.lat.visitors.AstLatVisitor;
 import com.navi.backend.c3d.C3DEmitter;
+import com.navi.backend.c3d.StructLayoutC3D;
 import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.model.Field;
 import com.navi.backend.semantic.SemanticContext;
@@ -20,11 +21,9 @@ import com.navi.backend.semantic.model.Symbol;
 import com.navi.backend.semantic.model.Type;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 // direcciones, layout y asignacion de Lat para C3D (lo compartido entre
 // declaraciones, sentencias y expresiones)
@@ -54,14 +53,19 @@ class LatC3DResolver {
         return null; // struct initializer no produce un valor unico (se emite campo a campo)
     }
 
-    // emite un literal de struct escribiendo cada campo en structAddr
-    // los campos arreglo no soportados se omiten; los no listados quedan en 0/null
+    // emite un literal de struct escribiendo cada campo en su bloque inline
     void emitStructInitializer(StructInitializer init, Expression target, Type structType) {
         if (target == null || structType == null || !structType.isStruct()) return;
+        emitStructInitializerAt(init, structAddr(target), structType);
+    }
 
+    private void emitStructInitializerAt(StructInitializer init, String base, Type structType) {
         AggregateType agg = context.getTypeTable().resolve(structType.getName());
         if (agg == null) return;
 
+        for (int i = 0; i < structSize(structType.getName()); i++) {
+            emitter.stackStoreAt(emitter.binary("+", base, String.valueOf(i)), "0");
+        }
         int index = 0;
         for (StructFieldInitializer field : init.getFields()) {
             Field declared = field.getName() != null
@@ -69,36 +73,20 @@ class LatC3DResolver {
                     : (index < agg.getFields().size() ? agg.getFields().get(index) : null);
             index++;
             if (declared == null) continue;
-            if (!(field.getValue() instanceof ExpressionInitializer ei)) continue;
-            if (declared.getType() != null && (declared.getType().isArray() || declared.getType().isAggregate())) continue;
-
             int off = fieldOffset(structType, declared.getName());
-            String addr = emitter.binary("+", structAddr(target), String.valueOf(off));
-            emitter.stackStoreAt(addr, ei.getExpression().accept(visitor));
-        }
-
-        initializeStructDefaults(agg, target, init);
-    }
-
-    // deja en 0/null los campos escalares que el literal no menciona
-    private void initializeStructDefaults(AggregateType agg, Expression target, StructInitializer init) {
-        Set<String> provided = new HashSet<>();
-        int index = 0;
-        for (StructFieldInitializer field : init.getFields()) {
-            if (field.getName() != null) provided.add(field.getName());
-            else if (index < agg.getFields().size()) provided.add(agg.getFields().get(index).getName());
-            index++;
-        }
-
-        for (Field field : agg.getFields()) {
-            if (provided.contains(field.getName())) continue;
-
-            Type type = field.getType();
-            if (type == null || type.isArray() || type.isAggregate()) continue;
-
-            int off = fieldOffset(Type.struct(agg.getName()), field.getName());
-            String addr = emitter.binary("+", structAddr(target), String.valueOf(off));
-            emitter.stackStoreAt(addr, type.isString() ? "null" : "0");
+            String addr = emitter.binary("+", base, String.valueOf(off));
+            Type type = declared.getType();
+            // Los campos arreglo/struct se inicializan por copia, incluidos literales anidados.
+            if (field.getValue() instanceof StructInitializer nested && type.isStruct()) {
+                emitStructInitializerAt(nested, addr, type);
+            } else if (field.getValue() instanceof ExpressionInitializer ei) {
+                if (type.isArray() || type.isStruct()) {
+                    StructLayoutC3D.copy(emitter, addr, addressOf(ei.getExpression()),
+                            StructLayoutC3D.fieldSize(context.getTypeTable(), declared));
+                } else {
+                    emitter.stackStoreAt(addr, emitter.coerceTo(type, ei.getExpression().accept(visitor)));
+                }
+            }
         }
     }
 
@@ -133,15 +121,18 @@ class LatC3DResolver {
             current = access.getArray();
         }
         String base = arrayBaseAddr(current);
+        Type arrayType = context.typeOf(current);
+        int stride = arrayType != null && arrayType.isArray()
+                ? StructLayoutC3D.size(context.getTypeTable(), arrayType.getElementType()) : 1;
         // arreglo multi-D por referencia: dimensiones vienen en slots ocultos
         if (current instanceof VariableExpression v && emitter.isReference(v.getName()) && indices.size() > 1) {
-            return paramArrayAddr(base, v.getName(), indices);
+            return paramArrayAddr(base, v.getName(), indices, stride);
         }
-        return emitter.addressOffset(base, arrayDimsOf(current), indices);
+        return emitter.addressOffset(base, arrayDimsOf(current), indices, stride);
     }
 
     // fila-mayor usando dimensiones en tiempo de ejecucion (slots ocultos del param)
-    private String paramArrayAddr(String base, String name, List<String> indices) {
+    private String paramArrayAddr(String base, String name, List<String> indices, int stride) {
         String flat = indices.get(0);
         List<Integer> dimOffsets = paramDims.get(name);
         for (int k = 1; k < indices.size(); k++) {
@@ -149,6 +140,7 @@ class LatC3DResolver {
                     ? emitter.stackLoad("BP", dimOffsets.get(k - 1)) : "1";
             flat = emitter.binary("+", emitter.binary("*", flat, dim), indices.get(k));
         }
+        if (stride > 1) flat = emitter.binary("*", flat, String.valueOf(stride));
         return emitter.binary("+", base, flat);
     }
 
@@ -191,6 +183,7 @@ class LatC3DResolver {
             int off = fieldOffset(context.typeOf(m.getObject()), m.getMember());
             return emitter.binary("+", structAddr(m.getObject()), String.valueOf(off));
         }
+        if (obj instanceof ArrayAccessExpression a) return arrayElementAddr(a);
         return obj.accept(visitor);
     }
 
@@ -223,16 +216,12 @@ class LatC3DResolver {
 
     // offset en celdas de un campo (los arreglo ocupan varias celdas)
     int fieldOffset(Type owner, String member) {
-        if (owner == null) return 0;
-        AggregateType agg = context.getTypeTable().resolve(owner.getName());
-        if (agg == null) return 0;
-        return agg.fieldOffset(member);
+        return StructLayoutC3D.fieldOffset(context.getTypeTable(), owner, member);
     }
 
     // tamano en celdas de un struct (1 si no se conoce)
     int structSize(String name) {
-        AggregateType agg = context.getTypeTable().resolve(name);
-        return agg == null ? 1 : agg.size();
+        return StructLayoutC3D.size(context.getTypeTable(), Type.struct(name));
     }
 
     int objectSize(String className) {

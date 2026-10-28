@@ -9,6 +9,7 @@ import com.navi.backend.ast.y.expressions.VariableExpression;
 import com.navi.backend.ast.y.expressions.literals.LiteralExpression;
 import com.navi.backend.ast.y.visitors.AstYVisitor;
 import com.navi.backend.c3d.C3DEmitter;
+import com.navi.backend.c3d.StructLayoutC3D;
 import com.navi.backend.semantic.model.AggregateType;
 import com.navi.backend.semantic.model.Field;
 import com.navi.backend.semantic.SemanticContext;
@@ -65,15 +66,18 @@ class YResolverC3D {
             current = access.getArray();
         }
         String base = arrayBase(current);
+        Type arrayType = context.typeOf(current);
+        int stride = arrayType != null && arrayType.isArray()
+                ? StructLayoutC3D.size(context.getTypeTable(), arrayType.getElementType()) : 1;
         // arreglo multi-D por referencia: las dimensiones vienen en slots ocultos
         if (current instanceof VariableExpression v && emitter.isReference(v.getName()) && indices.size() > 1) {
-            return paramArrayAddr(base, v.getName(), indices);
+            return paramArrayAddr(base, v.getName(), indices, stride);
         }
-        return emitter.addressOffset(base, arrayDimsOf(current), indices);
+        return emitter.addressOffset(base, arrayDimsOf(current), indices, stride);
     }
 
     // fila-mayor usando dimensiones en tiempo de ejecucion (slots ocultos del param)
-    private String paramArrayAddr(String base, String name, List<String> indices) {
+    private String paramArrayAddr(String base, String name, List<String> indices, int stride) {
         String flat = indices.get(0);
         List<Integer> dimOffsets = paramDims.get(name);
         for (int k = 1; k < indices.size(); k++) {
@@ -81,6 +85,7 @@ class YResolverC3D {
                     ? emitter.stackLoad("BP", dimOffsets.get(k - 1)) : "1";
             flat = emitter.binary("+", emitter.binary("*", flat, dim), indices.get(k));
         }
+        if (stride > 1) flat = emitter.binary("*", flat, String.valueOf(stride));
         return emitter.binary("+", base, flat);
     }
 
@@ -139,6 +144,8 @@ class YResolverC3D {
             int off = fieldOffset(context.typeOf(m.getObject()), m.getMember());
             return emitter.binary("+", parent, String.valueOf(off));
         }
+        // Un elemento struct ya es un bloque inline: no cargar su primer campo como puntero.
+        if (obj instanceof ArrayAccessExpression a) return arrayElementAddr(a);
         return obj.accept(visitor);
     }
 
@@ -150,15 +157,11 @@ class YResolverC3D {
     }
 
     int fieldOffset(Type owner, String member) {
-        if (owner == null) return 0;
-        AggregateType agg = context.getTypeTable().resolve(owner.getName());
-        if (agg == null) return 0;
-        return agg.fieldOffset(member);
+        return StructLayoutC3D.fieldOffset(context.getTypeTable(), owner, member);
     }
 
     int structSize(String name) {
-        AggregateType agg = context.getTypeTable().resolve(name);
-        return agg == null ? 1 : agg.size();
+        return StructLayoutC3D.size(context.getTypeTable(), Type.struct(name));
     }
 
     void setPos(Object node, int offset) {

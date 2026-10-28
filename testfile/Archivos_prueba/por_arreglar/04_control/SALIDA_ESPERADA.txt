@@ -1,0 +1,12 @@
+Suma: 10
+Resta: 4
+Mult: 21
+Op invalida: -1
+Pares hasta 6: 3
+Pares hasta 10: 5
+Clasificacion 5: positivo
+Clasificacion -2: negativo
+Clasificacion 0: cero
+Primero con cuadrado >= 50: 9
+150 no valido
+Prefijo/postfijo: 74
